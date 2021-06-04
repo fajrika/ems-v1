@@ -1,0 +1,345 @@
+{
+  "rootTopicKey": "f98285d3-4821-4648-8953-7e02adedd568",
+  "editorRootTopicKey": "f98285d3-4821-4648-8953-7e02adedd568",
+  "focusKey": "f98285d3-4821-4648-8953-7e02adedd568",
+  "extData": {
+    "TOPIC_REFERENCE": {
+      "reference": {}
+    }
+  },
+  "topics": [
+    {
+      "key": "e53c5e3d-28f2-4ba7-a8f5-ce764ce94dcb",
+      "parentKey": "f98285d3-4821-4648-8953-7e02adedd568",
+      "subKeys": [],
+      "collapse": false,
+      "style": null,
+      "blocks": [
+        {
+          "type": "CONTENT",
+          "data": "Surat Peringatan"
+        }
+      ]
+    },
+    {
+      "key": "f98285d3-4821-4648-8953-7e02adedd568",
+      "parentKey": null,
+      "subKeys": [
+        "e7e64cbb-2218-4705-87b6-a57aad28d612",
+        "46fe5dee-51c0-4831-a0b7-5882e68eef7f",
+        "e53c5e3d-28f2-4ba7-a8f5-ce764ce94dcb",
+        "ce219714-6cf0-425d-b33b-0a9efccce77e",
+        "28601f61-6f72-4c5b-8027-70d2fdcd9399",
+        "35eff13b-c56e-45f4-8773-6a5a30ac3ea3",
+        "5345b0b8-172a-4e37-a968-52cb9936c348"
+      ],
+      "collapse": false,
+      "style": null,
+      "blocks": [
+        {
+          "type": "CONTENT",
+          "data": "EMS"
+        }
+      ]
+    },
+    {
+      "key": "226510dc-3330-40ad-ac68-0acfba9866a8",
+      "parentKey": "e7e64cbb-2218-4705-87b6-a57aad28d612",
+      "subKeys": [],
+      "collapse": false,
+      "style": null,
+      "blocks": [
+        {
+          "type": "CONTENT",
+          "data": "Cetak Kwitansi"
+        }
+      ]
+    },
+    {
+      "key": "45a5e4fb-3a2d-4102-b7de-0e0709ccdeb7",
+      "parentKey": "e7e64cbb-2218-4705-87b6-a57aad28d612",
+      "subKeys": [],
+      "collapse": false,
+      "style": null,
+      "blocks": [
+        {
+          "type": "CONTENT",
+          "data": "Pemutihan"
+        },
+        {
+          "type": "DESC",
+          "data": ""
+        }
+      ]
+    },
+    {
+      "key": "28601f61-6f72-4c5b-8027-70d2fdcd9399",
+      "parentKey": "f98285d3-4821-4648-8953-7e02adedd568",
+      "subKeys": [],
+      "collapse": false,
+      "style": null,
+      "blocks": [
+        {
+          "type": "CONTENT",
+          "data": "Master"
+        }
+      ]
+    },
+    {
+      "key": "057ee72d-b63f-439e-963e-d47cdc987897",
+      "parentKey": "e7e64cbb-2218-4705-87b6-a57aad28d612",
+      "subKeys": [],
+      "collapse": false,
+      "style": null,
+      "blocks": [
+        {
+          "type": "CONTENT",
+          "data": "Void"
+        }
+      ]
+    },
+    {
+      "key": "86d69774-57c0-4a3a-83ec-0bc9363a2ceb",
+      "parentKey": "46fe5dee-51c0-4831-a0b7-5882e68eef7f",
+      "subKeys": [],
+      "collapse": false,
+      "style": null,
+      "blocks": [
+        {
+          "type": "CONTENT",
+          "data": "LOI"
+        }
+      ]
+    },
+    {
+      "key": "1a6fb470-d2ba-459a-ab86-f3fa47b6c8e0",
+      "parentKey": "e7e64cbb-2218-4705-87b6-a57aad28d612",
+      "subKeys": [],
+      "collapse": false,
+      "style": null,
+      "blocks": [
+        {
+          "type": "CONTENT",
+          "data": "My Ciputra Apps"
+        }
+      ]
+    },
+    {
+      "key": "b0f2b8dd-76a1-4e92-b97c-94c114feccd8",
+      "parentKey": "46fe5dee-51c0-4831-a0b7-5882e68eef7f",
+      "subKeys": [],
+      "collapse": false,
+      "style": null,
+      "blocks": [
+        {
+          "type": "CONTENT",
+          "data": "Sewa Properti"
+        }
+      ]
+    },
+    {
+      "key": "e1bb6832-8727-4a9b-89e3-9741f06ce61f",
+      "parentKey": "46fe5dee-51c0-4831-a0b7-5882e68eef7f",
+      "subKeys": [],
+      "collapse": false,
+      "style": null,
+      "blocks": [
+        {
+          "type": "CONTENT",
+          "data": "Lain-lain"
+        }
+      ]
+    },
+    {
+      "key": "35eff13b-c56e-45f4-8773-6a5a30ac3ea3",
+      "parentKey": "f98285d3-4821-4648-8953-7e02adedd568",
+      "subKeys": [],
+      "collapse": false,
+      "style": null,
+      "blocks": [
+        {
+          "type": "CONTENT",
+          "data": "Konfirmasi Tagihan"
+        }
+      ]
+    },
+    {
+      "key": "08ee85b4-2c24-46cb-a6bc-806a804fdc3b",
+      "parentKey": "46fe5dee-51c0-4831-a0b7-5882e68eef7f",
+      "subKeys": [],
+      "collapse": false,
+      "style": null,
+      "blocks": [
+        {
+          "type": "CONTENT",
+          "data": "Air"
+        }
+      ]
+    },
+    {
+      "key": "46fe5dee-51c0-4831-a0b7-5882e68eef7f",
+      "parentKey": "f98285d3-4821-4648-8953-7e02adedd568",
+      "subKeys": [
+        "b53bbbac-4861-4b44-853b-5e1cf916fcab",
+        "08ee85b4-2c24-46cb-a6bc-806a804fdc3b",
+        "e1bb6832-8727-4a9b-89e3-9741f06ce61f",
+        "b3384bf7-8f20-4b85-bf67-09c96e37d5e1",
+        "86d69774-57c0-4a3a-83ec-0bc9363a2ceb",
+        "b0f2b8dd-76a1-4e92-b97c-94c114feccd8"
+      ],
+      "collapse": false,
+      "style": null,
+      "blocks": [
+        {
+          "type": "CONTENT",
+          "data": "Transaksi Service"
+        }
+      ]
+    },
+    {
+      "key": "ce219714-6cf0-425d-b33b-0a9efccce77e",
+      "parentKey": "f98285d3-4821-4648-8953-7e02adedd568",
+      "subKeys": [],
+      "collapse": false,
+      "style": null,
+      "blocks": [
+        {
+          "type": "CONTENT",
+          "data": "Other"
+        }
+      ]
+    },
+    {
+      "key": "7d485201-bd9c-4b7d-8566-2aeae54eaeac",
+      "parentKey": "e7e64cbb-2218-4705-87b6-a57aad28d612",
+      "subKeys": [],
+      "collapse": false,
+      "style": null,
+      "blocks": [
+        {
+          "type": "CONTENT",
+          "data": "Create Voucher + \nPosting to Cashier"
+        }
+      ]
+    },
+    {
+      "key": "e7e64cbb-2218-4705-87b6-a57aad28d612",
+      "parentKey": "f98285d3-4821-4648-8953-7e02adedd568",
+      "subKeys": [
+        "226510dc-3330-40ad-ac68-0acfba9866a8",
+        "057ee72d-b63f-439e-963e-d47cdc987897",
+        "45a5e4fb-3a2d-4102-b7de-0e0709ccdeb7",
+        "33010cd9-d620-449c-8dbe-3a9120717d55",
+        "7d485201-bd9c-4b7d-8566-2aeae54eaeac",
+        "1a6fb470-d2ba-459a-ab86-f3fa47b6c8e0"
+      ],
+      "collapse": false,
+      "style": null,
+      "blocks": [
+        {
+          "type": "CONTENT",
+          "data": "Transaksi Pembayaran"
+        }
+      ]
+    },
+    {
+      "key": "5345b0b8-172a-4e37-a968-52cb9936c348",
+      "parentKey": "f98285d3-4821-4648-8953-7e02adedd568",
+      "subKeys": [],
+      "collapse": false,
+      "style": null,
+      "blocks": [
+        {
+          "type": "CONTENT",
+          "data": "Setup"
+        }
+      ]
+    },
+    {
+      "key": "b3384bf7-8f20-4b85-bf67-09c96e37d5e1",
+      "parentKey": "46fe5dee-51c0-4831-a0b7-5882e68eef7f",
+      "subKeys": [],
+      "collapse": false,
+      "style": null,
+      "blocks": [
+        {
+          "type": "CONTENT",
+          "data": "TVI"
+        }
+      ]
+    },
+    {
+      "key": "33010cd9-d620-449c-8dbe-3a9120717d55",
+      "parentKey": "e7e64cbb-2218-4705-87b6-a57aad28d612",
+      "subKeys": [],
+      "collapse": false,
+      "style": null,
+      "blocks": [
+        {
+          "type": "CONTENT",
+          "data": "History Pembayaran"
+        }
+      ]
+    },
+    {
+      "key": "b53bbbac-4861-4b44-853b-5e1cf916fcab",
+      "parentKey": "46fe5dee-51c0-4831-a0b7-5882e68eef7f",
+      "subKeys": [],
+      "collapse": false,
+      "style": null,
+      "blocks": [
+        {
+          "type": "CONTENT",
+          "data": "Lingkungan"
+        }
+      ]
+    }
+  ],
+  "config": {
+    "readOnly": false,
+    "allowUndo": true,
+    "layoutDir": 2,
+    "theme": {
+      "name": "default",
+      "randomColor": true,
+      "background": "rgb(57,60,65)",
+      "highlightColor": "#50C9CE",
+      "marginH": 60,
+      "marginV": 20,
+      "contentStyle": {
+        "lineHeight": "1.5",
+        "fontSize": "16px"
+      },
+      "linkStyle": {
+        "lineRadius": 5,
+        "lineType": "curve",
+        "lineWidth": "3px"
+      },
+      "rootTopic": {
+        "contentStyle": {
+          "fontSize": "36px"
+        },
+        "subLinkStyle": {
+          "lineType": "curve",
+          "lineWidth": "3px"
+        }
+      },
+      "primaryTopic": {
+        "contentStyle": {
+          "fontSize": "24px"
+        },
+        "subLinkStyle": {
+          "lineType": "curve",
+          "lineWidth": "3px"
+        }
+      },
+      "normalTopic": {
+        "subLinkStyle": {
+          "lineType": "curve",
+          "lineWidth": "3px"
+        }
+      }
+    }
+  },
+  "formatVersion": "0.0"
+}
