@@ -76,13 +76,11 @@ $query_builder = true;
 
 $db['default'] = array(
     'dsn' => '',
-    'port' => '1443', 
-    'password' => 'ciputraestate123',
-    'username' => 'ciputraestate',
-    
-    'hostname' => '10.45.45.4',
-                   
-    'database' => 'ems',
+    'hostname' => '192.168.10.100',
+    'port' => '1433',
+    'username' => 'sa',
+    'password' => 'SH2Keren',
+    'database' => 'ems_v1',
     // 'hostname' => '80.211.11.164',
     // 'database' => 'ciputraEmsFajrika',
     

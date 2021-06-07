@@ -3,3 +3,6 @@ application/config/config.php
 application/helpers/permission_helper.php
 log/*.txt
 db/*
+vendor/*
+vendors/*
+application/config/*
