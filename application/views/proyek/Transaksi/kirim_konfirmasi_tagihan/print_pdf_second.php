@@ -32,11 +32,6 @@
         <tr>
             <th align="left" class="font-normal f-14">Bpk/ibu <?= $unit->customer_name ?></th>
         </tr>
-        <?php
-            if ($unit->alamat_pemilik) {
-                echo '<tr><th align="left" class="font-normal f-14">'.$unit->alamat_pemilik.'</th></tr>';
-            }
-        ?>
         <tr>
             <th align="left" class="font-normal f-14"><?= $unit->alamat ?></th>
         </tr>
@@ -207,7 +202,7 @@
                                 <?php if ($ttd) : ?>
                                     <img src="files/ttd/konfirmasi_tagihan/<?= $ttd ?>" width="120px" height="120px" style="margin-top:10px" />
                                 <?php else : ?>
-                                    <br><br><br><br>
+                                    <div style="height:150px;margin-top:10px"></div>
                                 <?php endif; ?>
                             </td>
                         </tr>

@@ -32,6 +32,11 @@
         <tr>
             <th align="left" class="font-normal f-14">Bpk/ibu <?= $unit->customer_name ?></th>
         </tr>
+        <?php
+            if ($unit->alamat_pemilik) {
+                echo '<tr><th align="left" class="font-normal f-14">'.$unit->alamat_pemilik.'</th></tr>';
+            }
+        ?>
         <tr>
             <th align="left" class="font-normal f-14"><?= $unit->alamat ?></th>
         </tr>

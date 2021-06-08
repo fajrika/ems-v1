@@ -34,20 +34,21 @@ defined('BASEPATH') or exit('No direct script access allowed');
 <div class="x_content" style="padding: 10px;">
 	<form>
 		<table id="tableDTServerSite" class="table table-striped jambo_table bulk_action">
-            <tfoot id="tfoot" style="display: table-header-group;">
-                <tr>
-                    <th class="hide-search">Check</th>
-                    <th>Kawasan</th>
-                    <th>Blok</th>
-                    <th>No. Unit</th>
-                    <th>Tujuan</th>
-                    <th>Pemilik</th>
-                    <th>Email</th>
-                    <th>SMS</th>
-                    <th>Surat</th>
-                    <th class="hidden">Dokumen Downloaded</th>
-                </tr>
-            </tfoot>
+			<!-- <tfoot id="tfoot" style="display: table-header-group">
+				<tr>
+					<th>Check</th>
+					<th>Kawasan</th>
+					<th>Blok</th>
+					<th>No. Unit</th>
+					<th>Tujuan</th>
+					<th>Pemilik</th>
+					<th>Email</th>
+					<th>SMS</th>
+					<th>Surat</th>
+					<th>Dokumen Live</th>
+					<th>Dokumen Downloaded</th>
+				</tr>
+			</tfoot> -->
 			<thead>
 				<tr>
 					<th class="col-md-1 col-sm-1 col-lg-1 col-xs-1 no-sort" id="di_bayar_dengan_table" width="50">
@@ -65,7 +66,7 @@ defined('BASEPATH') or exit('No direct script access allowed');
 					<th class="no-sort">Dokumen Downloaded</th>
 				</tr>
 			</thead>
-			<tbody id="load_data"></tbody>
+			<tbody></tbody>
 		</table>
 	</form>
 
@@ -97,51 +98,84 @@ defined('BASEPATH') or exit('No direct script access allowed');
 	$(document).ready(function(){
 		$('#tableDTServerSite tfoot th').each( function () {
 			var title = $(this).text();
-			$(this).html( '<input type="text" placeholder="..." />' );
+			$(this).html( '<input type="text" placeholder="Filter '+title+'" />' );
 		});
-        $('#load_data').html('<tr><td colspan="10" align="center">Mohon Tunggu...</td></tr>');
-        var dataTable = $('#tableDTServerSite').DataTable({
+
+        var dataTable = $('#tableDTServerSite').DataTable({ 
             "serverSide": true,
             "stateSave" : false,
             "bAutoWidth": true,
-            "responsive": true,
             "oLanguage": {
-                "sSearch": " ",
-                "sLengthMenu": "_MENU_",
+                "sSearch": "<i class='fa fa-fw fa-search'></i> ",
+                "sSearchPlaceholder": "Search here ..",
+                "sLengthMenu": "_MENU_ per page &nbsp;&nbsp; ",
                 "sInfo": "Showing _START_ to _END_ of _TOTAL_ entries",
-                "sInfoFiltered": "(filtered from _MAX_ total entries)",
-                "sZeroRecords": "<center>Data tidak ditemukan</center>",
-                "sEmptyTable": "No data available in table",
-                "sLoadingRecords": "Please wait - loading...",
+                "sInfoFiltered": "(filtered from _MAX_ total entries)", 
+                "sZeroRecords": "No matching records found", 
+                "sEmptyTable": "No data available in table", 
+                "sLoadingRecords": "Please wait - loading...", 
                 "oPaginate": {
                     "sPrevious": "Prev",
                     "sNext": "Next"
                 }
             },
-            "aaSorting": [[ 1, "desc" ]],
-            "columnDefs": [
-                // {"aTargets":[0], "sClass" : "column-hide"},
-                {"targets": 'no-sort', "orderable": false}
+            "aaSorting": [[ 1, "asc" ]],
+            "columnDefs": [ 
+                {
+                    "targets": 'no-sort',
+                    "orderable": false,
+                }
             ],
-            "sPaginationType": "simple_numbers",
+            "sPaginationType": "simple_numbers", 
             "iDisplayLength": 10,
-            "ajax": {
-                url : "<?=site_url('Transaksi/P_kirim_konfirmasi_tagihan/request_tagihan_json');?>",
-                type: "get",
-                cache: false,
+            "aLengthMenu": [[10, 20, 50, 100, 150], [10, 20, 50, 100, 150]],
+            "ajax":{
+                url : "<?= site_url('Transaksi/P_kirim_konfirmasi_tagihan/request_tagihan_json'); ?>",
+                type: "post",
+                error: function(){ 
+                    $(".my-grid-error").html("");
+                    $("#tableDTServerSite").append('<tbody class="my-grid-error"><tr><th colspan="11"><center>No data found in the server</center></th></tr></tbody>');
+                    $("#my-grid_processing").css("display","none");
+                }
             }
         });
 
-		
-        // Apply the search
-        dataTable.columns().every(function() {
-            var pencarian = this;
-            $('input', this.footer()).on('keyup change', function() {
-                if (pencarian.search() !== this.value) {
-                    pencarian.search(this.value).draw();
-                }
-            });
-        });
+		/*var table = $('#tableDTServerSite').DataTable( {
+			"processing": true,
+			"serverSide": true,
+			"ajax": "<?=site_url("Transaksi/P_kirim_konfirmasi_tagihan/ajax_get_view")?>",
+			"order": [[ 1, "asc" ]]
+		});
+		table.columns().every( function () {
+			var that = this;
+			$( 'input', this.footer() ).on( 'keyup change', function () {
+				if ( that.search() !== this.value ) {
+					that.search( this.value ).draw();
+				}
+			});
+		});*/
+
+		/*$("table").on("ifChanged", "#check-all", function() {
+			if ($("#check-all").is(":checked")) {
+				$(".table-check").iCheck("check");
+			}else{
+				$(".table-check").iCheck("uncheck");
+			}
+		});
+		// Setup - add a text input to each footer cell
+		$('#tableDT2 tfoot th').each(function() {
+			var title = $(this).text();
+			$(this).html('<input type="text" placeholder="Search ' + title + '" />');
+		});
+		// Apply the search
+		table.columns().every(function(){
+			var that = this;
+			$('input', this.footer()).on('keyup change', function() {
+				if (that.search() !== this.value) {
+					that.search(this.value).draw();
+				}
+			});
+		});*/
 	});
 
 	$("#btn-kirim-email").click(function() {

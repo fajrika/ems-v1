@@ -503,130 +503,198 @@ class P_kirim_konfirmasi_tagihan  extends CI_Controller
      */
     public function request_tagihan_json()
     {
-        $project = $this->m_core->project();       
-        $this->load->library("Ssp_custom");
-        $table = "
-        (
-            SELECT 
-                DISTINCT sub.*
-            FROM 
-                (
-                    SELECT
-                        unit.project_id,
-                        customer.name as pemilik,
-                        unit.id AS unit_id,
-                        kawasan.name AS kawasan,
-                        blok.name AS blok,
-                        unit.no_unit AS no_unit,
-                        CASE unit.kirim_tagihan 
-                            WHEN 1 THEN 'Pemilik' 
-                            WHEN 2 THEN 'Penghuni' 
-                            WHEN 3 THEN 'Keduanya' 
-                            ELSE '' 
-                        END AS tujuan,
-                        'Belum di kirim' AS send_email,
-                        CASE COUNT ( send_sms.id ) 
-                            WHEN 0 THEN 'Belum di Kirim' ELSE 'Sudah di kirim' 
-                        END AS send_sms,
-                        'Belum di kirim' AS send_surat 
-                    FROM 
-                        unit
-                        JOIN customer ON customer.id = unit.pemilik_customer_id
-                        JOIN blok ON blok.id = unit.blok_id
-                        JOIN kawasan ON kawasan.id = blok.kawasan_id
-                        INNER JOIN t_tagihan_lingkungan ON t_tagihan_lingkungan.unit_id = unit.id AND t_tagihan_lingkungan.status_tagihan != 1
-                        INNER JOIN unit_lingkungan ON t_tagihan_lingkungan.unit_id = unit_lingkungan.unit_id AND unit_lingkungan.tgl_mandiri IS NULL
-                        LEFT JOIN send_sms ON send_sms.unit_id = unit.id AND FORMAT( send_sms.create_date, 'yyyy-MM' ) = FORMAT( GETDATE(), 'yyyy-MM' )
-                    WHERE 
-                        unit.project_id = '".$project->id."' AND 
-                        t_tagihan_lingkungan.status_tagihan IS NOT NULL
-                    GROUP BY
-                        unit.project_id,
-                        customer.name,
-                        unit.id,
-                        kawasan.name,
-                        blok.name,
-                        unit.no_unit,
-                        CASE unit.kirim_tagihan 
-                            WHEN 1 THEN 'Pemilik' 
-                            WHEN 2 THEN 'Penghuni' 
-                            WHEN 3 THEN 'Keduanya' 
-                            ELSE '' 
-                        END 
+        $project        = $this->m_core->project();
+        $requestData    = $this->input->post();
+        $like_value     = $requestData['search']['value'];
+        $column_order   = $requestData['order'][0]['column'];
+        $column_dir     = $requestData['order'][0]['dir'];
+        $limit_start    = $requestData['start'];
+        $limit_length   = $requestData['length'];
 
-                    UNION
+        $sql = " 
+            Select DISTINCT sub.*
+            From (
+                SELECT
+                    unit.project_id,
+                    customer.name as pemilik,
+                    unit.id AS unit_id,
+                    kawasan.name AS kawasan,
+                    blok.name AS blok,
+                    unit.no_unit AS no_unit,
+                    CASE unit.kirim_tagihan 
+                        WHEN 1 THEN 'Pemilik' 
+                        WHEN 2 THEN 'Penghuni' 
+                        WHEN 3 THEN 'Keduanya' 
+                        ELSE '' 
+                    END AS tujuan,
+                    'Belum di kirim' AS send_email,
+                    CASE COUNT ( send_sms.id ) 
+                        WHEN 0 THEN 'Belum di Kirim' ELSE 'Sudah di kirim' 
+                    END AS send_sms,
+                    'Belum di kirim' AS send_surat 
+                FROM 
+                    unit
+                    JOIN customer ON customer.id = unit.pemilik_customer_id
+                    JOIN blok ON blok.id = unit.blok_id
+                    JOIN kawasan ON kawasan.id = blok.kawasan_id
+                    INNER JOIN t_tagihan_lingkungan ON t_tagihan_lingkungan.unit_id = unit.id AND t_tagihan_lingkungan.status_tagihan != 1
+                    INNER JOIN unit_lingkungan ON t_tagihan_lingkungan.unit_id = unit_lingkungan.unit_id AND unit_lingkungan.tgl_mandiri IS NULL
+                    LEFT JOIN send_sms ON send_sms.unit_id = unit.id AND FORMAT( send_sms.create_date, 'yyyy-MM' ) = FORMAT( GETDATE(), 'yyyy-MM' )
+                WHERE 
+                    unit.project_id = '".$project->id."' AND 
+                    t_tagihan_lingkungan.status_tagihan IS NOT NULL
+                GROUP BY
+                    unit.project_id,
+                    customer.name,
+                    unit.id,
+                    kawasan.name,
+                    blok.name,
+                    unit.no_unit,
+                    CASE unit.kirim_tagihan 
+                        WHEN 1 THEN 'Pemilik' 
+                        WHEN 2 THEN 'Penghuni' 
+                        WHEN 3 THEN 'Keduanya' 
+                        ELSE '' 
+                    END 
 
-                    SELECT
-                        unit.project_id,
-                        customer.name as pemilik,
-                        unit.id AS unit_id,
-                        kawasan.name AS kawasan,
-                        blok.name AS blok,
-                        unit.no_unit AS no_unit,
-                        CASE unit.kirim_tagihan 
-                            WHEN 1 THEN 'Pemilik' 
-                            WHEN 2 THEN 'Penghuni' 
-                            WHEN 3 THEN 'Keduanya' 
-                            ELSE '' 
-                        END AS tujuan,
-                        'Belum di kirim' AS send_email,
-                        CASE COUNT ( send_sms.id ) 
-                            WHEN 0 THEN 'Belum di Kirim' ELSE 'Sudah di kirim' 
-                        END AS send_sms,
-                        'Belum di kirim' AS send_surat 
-                    FROM 
-                        unit
-                        JOIN customer ON customer.id = unit.pemilik_customer_id
-                        JOIN blok ON blok.id = unit.blok_id
-                        JOIN kawasan ON kawasan.id = blok.kawasan_id
-                        INNER JOIN t_tagihan_air ON t_tagihan_air.unit_id = unit.id AND t_tagihan_air.status_tagihan != 1
-                        LEFT JOIN send_sms ON send_sms.unit_id = unit.id AND FORMAT( send_sms.create_date, 'yyyy-MM' ) = FORMAT( GETDATE(), 'yyyy-MM' )
-                    WHERE 
-                        unit.project_id = '".$project->id."' AND 
-                        t_tagihan_air.status_tagihan IS NOT NULL 
-                    GROUP BY
-                        unit.project_id,
-                        customer.name,
-                        unit.id,
-                        kawasan.name,
-                        blok.name,
-                        unit.no_unit,
-                        CASE unit.kirim_tagihan 
-                            WHEN 1 THEN 'Pemilik' 
-                            WHEN 2 THEN 'Penghuni' 
-                            WHEN 3 THEN 'Keduanya' 
-                            ELSE '' 
-                        END 
-                ) AS sub
-        ) temp
-        ";
+                UNION
 
-        $primaryKey = 'unit_id';
-        $columns = array(
-            array('db' => 'unit_id',    'dt' => 0),
-            array('db' => 'kawasan',    'dt' => 1),
-            array('db' => 'blok',       'dt' => 2),
-            array('db' => 'no_unit',    'dt' => 3),
-            array('db' => 'tujuan',     'dt' => 4),
-            array('db' => 'pemilik',    'dt' => 5),
-            array('db' => 'send_email', 'dt' => 6),
-            array('db' => 'send_sms',   'dt' => 7),
-            array('db' => 'send_surat', 'dt' => 8),
-        );
-        $sql_details = array(
-            'user' => $this->db->username,
-            'pass' => $this->db->password,
-            'db'   => $this->db->database,
-            'host' => $this->db->hostname
-        );
-        $table = SSP_Custom::simple( $_GET, $sql_details, $table, $primaryKey, $columns );
-        foreach ($table['data'] as $key => $value) 
+                SELECT
+                    unit.project_id,
+                    customer.name as pemilik,
+                    unit.id AS unit_id,
+                    kawasan.name AS kawasan,
+                    blok.name AS blok,
+                    unit.no_unit AS no_unit,
+                    CASE unit.kirim_tagihan 
+                        WHEN 1 THEN 'Pemilik' 
+                        WHEN 2 THEN 'Penghuni' 
+                        WHEN 3 THEN 'Keduanya' 
+                        ELSE '' 
+                    END AS tujuan,
+                    'Belum di kirim' AS send_email,
+                    CASE COUNT ( send_sms.id ) 
+                        WHEN 0 THEN 'Belum di Kirim' ELSE 'Sudah di kirim' 
+                    END AS send_sms,
+                    'Belum di kirim' AS send_surat 
+                FROM 
+                    unit
+                    JOIN customer ON customer.id = unit.pemilik_customer_id
+                    JOIN blok ON blok.id = unit.blok_id
+                    JOIN kawasan ON kawasan.id = blok.kawasan_id
+                    INNER JOIN t_tagihan_air ON t_tagihan_air.unit_id = unit.id AND t_tagihan_air.status_tagihan != 1
+                    LEFT JOIN send_sms ON send_sms.unit_id = unit.id AND FORMAT( send_sms.create_date, 'yyyy-MM' ) = FORMAT( GETDATE(), 'yyyy-MM' )
+                WHERE 
+                    unit.project_id = '".$project->id."' AND 
+                    t_tagihan_air.status_tagihan IS NOT NULL 
+                GROUP BY
+                    unit.project_id,
+                    customer.name,
+                    unit.id,
+                    kawasan.name,
+                    blok.name,
+                    unit.no_unit,
+                    CASE unit.kirim_tagihan 
+                        WHEN 1 THEN 'Pemilik' 
+                        WHEN 2 THEN 'Penghuni' 
+                        WHEN 3 THEN 'Keduanya' 
+                        ELSE '' 
+                    END 
+            ) AS sub
+            ";
+        if ($like_value!="")
         {
-            $table["data"][$key][0]  = "<center><input name='unit_id[]' type='checkbox' class='flat table-check' value='$value[0]' style='cursor: pointer;'></center>";
-            $table['data'][$key][9]  = '';
+          $sql.="
+              WHERE
+                    (
+                        sub.project_id like '%".$like_value."%' OR 
+                        sub.pemilik like '%".$like_value."%' OR 
+                        sub.unit_id like '%".$like_value."%' OR 
+                        sub.kawasan like '%".$like_value."%' OR 
+                        sub.blok like '%".$like_value."%' OR 
+                        sub.no_unit like '%".$like_value."%' OR 
+                        sub.tujuan like '%".$like_value."%' OR 
+                        sub.send_email like '%".$like_value."%' OR 
+                        sub.send_sms like '%".$like_value."%' OR 
+                        sub.send_surat like '%".$like_value."%'
+                    )
+            ";
+        }
+        $data_sql['totalFiltered']  = $this->db->query($sql)->num_rows();
+        $data_sql['totalData']      = $this->db->query($sql)->num_rows();
+        $columns_order_by = array(
+            0 => 'unit_id',
+            1 => 'kawasan',
+            2 => 'blok',
+            3 => 'no_unit',
+            4 => 'tujuan',
+            5 => 'pemilik',
+            6 => 'send_email',
+            7 => 'send_sms',
+            8 => 'send_surat',
+        );
+        $sql  .= " ORDER BY " . $columns_order_by[$column_order] . " " . $column_dir . " ";
+        $sql  .= " OFFSET " . $limit_start . " ROWS FETCH NEXT " . $limit_length . " ROWS ONLY ";
+        // $sql  .= " TOP ".$limit_start." ,".$limit_length." ";
+
+        $data_sql['query'] = $this->db->query($sql);
+        $totalData       = $data_sql['totalData'];
+        $totalFiltered   = $data_sql['totalFiltered'];
+        $query           = $data_sql['query'];
+
+        $data   = array();
+        $urut1  = 1;
+        $urut2  = 0;
+        foreach ($query->result_array() as $row) {
+            $nestedData  = array();
+            $total_data  = $totalData;
+            $start_dari  = $requestData['start'];
+            $perhalaman  = $requestData['length'];
+            $asc_desc    = $requestData['order'][0]['dir'];
+            if ($asc_desc == 'asc') {
+                $nomor = $urut1 + $start_dari;
+            }
+            if ($asc_desc == 'desc') {
+                $nomor = ($total_data - $start_dari) - $urut2;
+            }
+
+            $nestedData[] = "<center><input name='unit_id[]' type='checkbox' class='flat table-check' value='" . $row['unit_id'] . "' style='cursor: pointer;'></center>";
+            $nestedData[] = $row['kawasan'];
+            $nestedData[] = $row['blok'];
+            $nestedData[] = $row['no_unit'];
+            $nestedData[] = $row['tujuan'];
+            $nestedData[] = strtoupper($row['pemilik']);
+            $nestedData[] = $row['send_email'];
+            $nestedData[] = $row['send_sms'];
+            $nestedData[] = $row['send_surat'];
+            // $nestedData[] = "
+            //     <a href='".site_url('transaksi/p_kirim_konfirmasi_tagihan/print_pdf/'.$row['unit_id'])."' 
+            //         class='btn btn-sm btn-danger'
+            //         data-toggle='tooltip' data-offset='0,10' data-original-title='Print'
+            //         target='_blank'
+            //         >
+            //         <i class='fa fa-print'></i>
+            //     </a>
+            // ";
+            $nestedData[] = "
+                <script>
+                $(function() {
+                    $('[data-toggle=\"tooltip\"]').tooltip();
+                })
+                </script>
+            ";
+            $data[] = $nestedData;
+            $urut1++;
+            $urut2++;
         }
 
-        echo(json_encode($table));
+        $json_data = array(
+            "draw"            => intval($requestData['draw']),
+            "recordsTotal"    => intval($totalData),
+            "recordsFiltered" => intval($totalFiltered),
+            "data"            => $data
+        );
+        echo json_encode($json_data);
     }
 
     /**
