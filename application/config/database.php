@@ -80,7 +80,7 @@ $db['default'] = array(
     'port' => '1433',
     'username' => 'sa',
     'password' => 'SH2Keren',
-    'database' => 'ems_v1',
+    'database' => 'ems_production',
     // 'hostname' => '80.211.11.164',
     // 'database' => 'ciputraEmsFajrika',
     
