@@ -73,31 +73,46 @@ class m_paket_service extends CI_Model
         $project = $this->m_core->project();
 
         $query = $this->db->query("
-        SELECT
+            SELECT
             paket_service.project_id,
             paket_service.code,
             paket_service.name,
-            paket_service.service_id as [service id],
-            service.name as [service name],
+            paket_service.service_id AS [service id],
+            service.name AS [service name],
             paket_service.satuan,
-            REPLACE(CONVERT(varchar, CAST(paket_service.biaya_satuan_langganan AS money), 1),'.00','') as [biaya_satuan_langganan],
-            REPLACE(CONVERT(varchar, CAST(paket_service.biaya_satuan_tanpa_langganan AS money), 1),'.00','') as [biaya_satuan_tanpa_langganan],
-            case
-                when paket_service.active = 1 then 'Aktif'
-                else 'Non Aktif'
-            end as active,
-            case tipe_periode
-                WHEN 1 THEN 'Hari'
-                WHEN 2 THEN 'Bulan'
-                WHEN 3 THEN 'Tahun'
-            END as [Tipe Periode],
+            REPLACE( CONVERT ( VARCHAR, CAST ( paket_service.biaya_satuan_langganan AS money ), 1 ), '.00', '' ) AS [biaya_satuan_langganan],
+            REPLACE( CONVERT ( VARCHAR, CAST ( paket_service.biaya_satuan_tanpa_langganan AS money ), 1 ), '.00', '' ) AS [biaya_satuan_tanpa_langganan],
+            CASE
+                WHEN paket_service.biaya_registrasi_aktif = 1 THEN
+                'Aktif' ELSE 'Non Aktif' 
+            END AS biaya_registrasi_aktif,
+            CASE
+                WHEN paket_service.biaya_pemasangan_aktif = 1 THEN
+                'Aktif' ELSE 'Non Aktif' 
+            END AS biaya_pemasangan_aktif,
+            CASE
+                WHEN paket_service.active = 1 THEN
+                'Aktif' ELSE 'Non Aktif' 
+            END AS active,
+            CASE
+                tipe_periode 
+                WHEN 1 THEN
+                'Hari' 
+                WHEN 2 THEN
+                'Bulan' 
+                WHEN 3 THEN
+                'Tahun' 
+            END AS [Tipe Periode],
             paket_service.[delete],
-            paket_service.biaya_registrasi as [Biaya Registrasi],
-            paket_service.biaya_pemasangan as [Biaya Pemasangan]
-        FROM paket_service
-        JOIN service ON service.id = paket_service.service_id
-        WHERE paket_service.project_id = $project->id
-        AND paket_service.id = $id
+            paket_service.minimal_langganan AS [Minimal Langganan],
+            paket_service.biaya_registrasi AS [Biaya Registrasi],
+            paket_service.biaya_pemasangan AS [Biaya Pemasangan] 
+        FROM
+            paket_service
+            JOIN service ON service.id = paket_service.service_id 
+        WHERE
+            paket_service.project_id = $project->id 
+            AND paket_service.id = $id
         ");
         $row = $query->row();
 
@@ -199,7 +214,6 @@ class m_paket_service extends CI_Model
         }
     }
 
-
     public function delete($dataTmp)
     {
         $this->load->model('m_core');
@@ -212,27 +226,21 @@ class m_paket_service extends CI_Model
 
         // validasi apakah user dengan project $project boleh edit data ini
         if ($this->db->count_all_results() != 0) {
-          
-                        $before = $this->get_log($dataTmp['id']);
-                        $this->db->where('id', $dataTmp['id']);
-                        $this->db->update('paket_service', ['delete' => 1]);
-                        $after = $this->get_log($dataTmp['id']);
+            $before = $this->get_log($dataTmp['id']);
+            $this->db->where('id', $dataTmp['id']);
+            $this->db->update('paket_service', ['delete' => 1]);
+            $after = $this->get_log($dataTmp['id']);
 
-                        $diff = (object) (array_diff_assoc((array) $after, (array) $before));
-                        $tmpDiff = (array) $diff;
+            $diff = (object) (array_diff_assoc((array) $after, (array) $before));
+            $tmpDiff = (array) $diff;
 
-                        if ($tmpDiff) {
-                            $this->m_log->log_save('paket_service', $dataTmp['id'], 'Edit', $diff);
+            if ($tmpDiff) {
+                $this->m_log->log_save('paket_service', $dataTmp['id'], 'Edit', $diff);
 
-                            return 'success';
-                        } else {
-                            return 'Tidak Ada Perubahan';
-                        }
-                   
+                return 'success';
+            } else {
+                return 'Tidak Ada Perubahan';
+            }
         }
     }
-
-
-
-
 }
