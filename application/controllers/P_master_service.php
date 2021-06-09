@@ -23,7 +23,6 @@ class P_master_service extends CI_Controller
         ini_set('memory_limit','256M'); // This also needs to be increased in some cases. Can be changed to a higher value as per need)
         ini_set('sqlsrv.ClientBufferMaxKBSize','524288'); // Setting to 512M
         ini_set('pdo_sqlsrv.client_buffer_max_kb_size','524288');
-
     }
 
     public function index()
@@ -63,38 +62,38 @@ class P_master_service extends CI_Controller
     {	
         if (!empty($this->input->post()))
         {
-        $data = [
-            // 'jenis_service' => $this->input->post('jenis_service'),
-            'jenis_retribusi'               => $this->input->post('jenis_retribusi'),
-            'code'                          => $this->input->post('code'),
-            'nama_service'                  => $this->input->post('nama_service'),
-            'coa_mapping_id_service'        => $this->input->post('coa_mapping_id_service'),
-            'parameter_tanggal_jatuh_tempo' => $this->input->post('parameter_tanggal_jatuh_tempo'),
-            'ppn_flag'                      => $this->input->post('ppn_flag'),
-            'jarak_periode_penggunaan'      => $this->input->post('jarak_periode_penggunaan'),
-            'coa_mapping_id_ppn'            => $this->input->post('coa_mapping_id_ppn'),
-            'coa_mapping_id_service_denda'  => $this->input->post('coa_mapping_id_service_denda'),
+            $data = [
+                // 'jenis_service' => $this->input->post('jenis_service'),
+                'jenis_retribusi'               => $this->input->post('jenis_retribusi'),
+                'code'                          => $this->input->post('code'),
+                'nama_service'                  => $this->input->post('nama_service'),
+                'coa_mapping_id_service'        => $this->input->post('coa_mapping_id_service'),
+                'parameter_tanggal_jatuh_tempo' => $this->input->post('parameter_tanggal_jatuh_tempo'),
+                'ppn_flag'                      => $this->input->post('ppn_flag'),
+                'jarak_periode_penggunaan'      => $this->input->post('jarak_periode_penggunaan'),
+                'coa_mapping_id_ppn'            => $this->input->post('coa_mapping_id_ppn'),
+                'coa_mapping_id_service_denda'  => $this->input->post('coa_mapping_id_service_denda'),
 
-            'denda_flag'                    => $this->input->post('denda_flag'),
-            'denda_selisih_bulan'           => $this->input->post('selisih_bulan_denda'),
-            'denda_tanggal_jt'              => $this->input->post('tanggal_denda'),
-            'denda_nilai'                   => $this->input->post('denda_nilai'),
-            'denda_minimum'                 => $this->input->post('denda_minimum'),
-            'denda_tgl_putus'               => $this->input->post('denda_tgl_putus'),
-            'denda_jenis'                   => $this->input->post('denda_jenis'),
-            
-            'penalti_flag'                  => $this->input->post('penalti_flag'),
-            'penalti_selisih_bulan'         => $this->input->post('selisih_bulan_penalti'),
-            'penalti_tanggal_jt'            => $this->input->post('tanggal_penalti'),
-            'penalti_nilai'                 => $this->input->post('penalti_nilai'),
-            'penalti_minimum'               => $this->input->post('penalti_minimum'),
-            'penalti_tgl_putus'             => $this->input->post('penalti_tgl_putus'),
-            'penalti_jenis'                 => $this->input->post('penalti_jenis'),
+                'denda_flag'                    => $this->input->post('denda_flag'),
+                'denda_selisih_bulan'           => $this->input->post('selisih_bulan_denda'),
+                'denda_tanggal_jt'              => $this->input->post('tanggal_denda'),
+                'denda_nilai'                   => $this->input->post('denda_nilai'),
+                'denda_minimum'                 => $this->input->post('denda_minimum'),
+                'denda_tgl_putus'               => $this->input->post('denda_tgl_putus'),
+                'denda_jenis'                   => $this->input->post('denda_jenis'),
+                
+                'penalti_flag'                  => $this->input->post('penalti_flag'),
+                'penalti_selisih_bulan'         => $this->input->post('selisih_bulan_penalti'),
+                'penalti_tanggal_jt'            => $this->input->post('tanggal_penalti'),
+                'penalti_nilai'                 => $this->input->post('penalti_nilai'),
+                'penalti_minimum'               => $this->input->post('penalti_minimum'),
+                'penalti_tgl_putus'             => $this->input->post('penalti_tgl_putus'),
+                'penalti_jenis'                 => $this->input->post('penalti_jenis'),
 
-            'description'                   => $this->input->post('description'),
-        ];
-        $status = $this->m_service->save($data);
-	}
+                'description'                   => $this->input->post('description'),
+            ];
+            $status = $this->m_service->save($data);
+    	}
 
         $this->load->model('alert');
         $data = $this->m_service->get_view();
@@ -110,16 +109,16 @@ class P_master_service extends CI_Controller
 		
         if (!empty($this->input->post()))
         {
-        if ($status == 'success') {
-            $this->load->view('core/alert', ['title' => 'Berhasil', 'text' => 'Data Berhasil di Tambah', 'type' => 'success']);
-        } elseif ($status == 'double') {
-            $this->load->view('core/alert', ['title' => 'Gagal', 'text' => 'Data Inputan suda Ada', 'type' => 'danger']);
-        } elseif ($status == 'pt') {
-            $this->load->view('core/alert', ['title' => 'Gagal', 'text' => 'Data PT Tidak Ada', 'type' => 'danger']);
-        } elseif ($status == 'coa') {
-            $this->load->view('core/alert', ['title' => 'Gagal', 'text' => 'Data COA Tidak Ada', 'type' => 'danger']);
-        }
-	}
+            if ($status == 'success') {
+                $this->load->view('core/alert', ['title' => 'Berhasil', 'text' => 'Data Berhasil di Tambah', 'type' => 'success']);
+            } elseif ($status == 'double') {
+                $this->load->view('core/alert', ['title' => 'Gagal', 'text' => 'Data Inputan suda Ada', 'type' => 'danger']);
+            } elseif ($status == 'pt') {
+                $this->load->view('core/alert', ['title' => 'Gagal', 'text' => 'Data PT Tidak Ada', 'type' => 'danger']);
+            } elseif ($status == 'coa') {
+                $this->load->view('core/alert', ['title' => 'Gagal', 'text' => 'Data COA Tidak Ada', 'type' => 'danger']);
+            }
+    	}
     }
 
     public function edit()
@@ -217,5 +216,4 @@ class P_master_service extends CI_Controller
             $this->load->view('core/alert', ['title' => 'Berhasil', 'text' => 'Data Berhasil di Delete', 'type' => 'success']);
         } 
     }
-
 }

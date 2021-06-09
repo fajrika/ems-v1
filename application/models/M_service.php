@@ -76,7 +76,6 @@ class m_service extends CI_Model {
         return $query;
     }
 	
-	
 	public function mapping_getAll()
     {
         $this->load->model('m_core');
@@ -137,7 +136,6 @@ class m_service extends CI_Model {
                         WHEN service.denda_tgl_putus_flag = 1 THEN 'Aktif'
                         ELSE 'Tidak Aktif'
                     END as [Denda Tanggal Putus],
-                    
                     CASE
                         WHEN service.penalti_flag = 1 THEN 'Aktif'
                         ELSE 'Tidak Aktif'
@@ -247,10 +245,9 @@ class m_service extends CI_Model {
             // echo("</pre>");
             // $this->m_log->log_save('service',$idTMP,'Tambah',$dataLog);
             return 'success';
-        }else 
+        }else {
             return 'double';
-        
-        
+        }
     }
 	public function get_coa_by_pt($pt){
         $this->load->model('m_core');
@@ -323,7 +320,6 @@ class m_service extends CI_Model {
         return 'success';
     }
 
-
     public function delete($dataTmp)
     {
         $this->load->model('m_core');
@@ -351,8 +347,6 @@ class m_service extends CI_Model {
             } else {
                 return 'Tidak Ada Perubahan';
             }
-                   
         }
     }
-
 }
