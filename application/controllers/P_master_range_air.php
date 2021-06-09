@@ -28,7 +28,6 @@ class P_master_range_air extends CI_Controller {
 		$this->load->view('core/footer');
 	}
 	
-	
 	public function add()
 	{
 		$this->load->model('m_range_air');
@@ -42,29 +41,24 @@ class P_master_range_air extends CI_Controller {
 		$this->load->view('core/footer');
 	}
 	
-	
 	public function save()
 	{		
-        	if (!empty($this->input->post()))
-        	{
-		$status = $this->m_range_air->save([
-			
-            'kode'                                   => $this->input->post('kode_range'),
-			'nama'                                   => $this->input->post('nama'),
-			'keterangan'                             => $this->input->post('keterangan'),
-			'formula'                                => $this->input->post('formula'),
-			
-					
-			'range_awal'                             => $this->input->post('range_awal[]'),
-            'range_akhir'                            => $this->input->post('range_akhir[]'),
-            'harga_hpp'                              => $this->input->post('harga_hpp[]'),
-			'harga_range'                            => $this->input->post('harga_range[]'),
-            'delete_range_detail'                     => 0
-			
-			
-			
+    	if (!empty($this->input->post()))
+    	{
+			$status = $this->m_range_air->save([
 				
-		]);
+	            'kode'                                   => $this->input->post('kode_range'),
+				'nama'                                   => $this->input->post('nama'),
+				'keterangan'                             => $this->input->post('keterangan'),
+				'formula'                                => $this->input->post('formula'),
+				
+						
+				'range_awal'                             => $this->input->post('range_awal[]'),
+	            'range_akhir'                            => $this->input->post('range_akhir[]'),
+	            'harga_hpp'                              => $this->input->post('harga_hpp[]'),
+				'harga_range'                            => $this->input->post('harga_range[]'),
+	            'delete_range_detail'                     => 0
+			]);
 		}
 
 		$this->load->model('alert');
@@ -79,17 +73,16 @@ class P_master_range_air extends CI_Controller {
 		$this->load->view('core/body_footer');
 		$this->load->view('core/footer');
 	
-        	if (!empty($this->input->post()))
-        	{
-		if($status == 'success')
-			$this->load->view('core/alert',['title' => 'Berhasil','text'=>'Data Berhasil di Tambah','type'=>'success']);
-		elseif($status == 'double')
-			$this->load->view('core/alert',['title' => 'Gagal','text'=>'Data Inputan suda Ada','type'=>'danger']);
+    	if (!empty($this->input->post()))
+    	{
+			if($status == 'success')
+				$this->load->view('core/alert',['title' => 'Berhasil','text'=>'Data Berhasil di Tambah','type'=>'success']);
+			elseif($status == 'double')
+				$this->load->view('core/alert',['title' => 'Gagal','text'=>'Data Inputan suda Ada','type'=>'danger']);
 		}			
 	}
 	
-	
-	  public function edit()
+	public function edit()
     {
         $status = 0;
         if ($this->input->post('kode_range')) {
@@ -139,7 +132,6 @@ class P_master_range_air extends CI_Controller {
         }
     }
 	
-	
 	public function delete()
     {
         $this->load->model('alert');
@@ -168,5 +160,4 @@ class P_master_range_air extends CI_Controller {
             $this->load->view('core/alert', ['title' => 'Gagal', 'text' => 'Data COA digunakan di Service', 'type' => 'danger']);
         }
     }
-
 }

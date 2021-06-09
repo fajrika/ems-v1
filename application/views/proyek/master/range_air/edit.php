@@ -85,7 +85,6 @@ defined('BASEPATH') or exit('No direct script access allowed');
                         <option value="2" <?=$data_select->formula==2?'selected':''?> >2</option>
                         <option value="3" <?=$data_select->formula==3?'selected':''?> >3</option>
                         <option value="4" <?=$data_select->formula==4?'selected':''?> >4</option>
-
                     </select>
                 </div>
             </div>
