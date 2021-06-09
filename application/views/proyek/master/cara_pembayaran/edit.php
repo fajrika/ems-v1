@@ -270,7 +270,7 @@ defined('BASEPATH') or exit('No direct script access allowed');
 		input = input ? parseInt(input, 10) : 0;
 		console.log("test");
 		console.log((input === 0) ? "" : input.toLocaleString("en-US"));
-		return (input === 0) ? "" : input.toLocaleString("en-US");
+		return (input === 0) ? "0" : input.toLocaleString("en-US");
 	}
 	$(function () {
 		function notif(title, text, type) {

@@ -22,7 +22,6 @@ class P_master_cara_pembayaran extends CI_Controller
         global $menu;
         $menu = $this->m_core->menu();
 
-
         ini_set('memory_limit', '256M'); // This also needs to be increased in some cases. Can be changed to a higher value as per need)
         ini_set('sqlsrv.ClientBufferMaxKBSize', '524288'); // Setting to 512M
         ini_set('pdo_sqlsrv.client_buffer_max_kb_size', '524288');
@@ -114,7 +113,6 @@ class P_master_cara_pembayaran extends CI_Controller
                     'dataJenisCaraPembayaran'   => $dataJenisCaraPembayaran,
 
                     'pt'                        => $pt
-
                 ]
             );
             $this->load->view('core/body_footer');

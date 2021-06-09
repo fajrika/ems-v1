@@ -96,8 +96,6 @@ class m_cara_pembayaran extends CI_Model
                 'max_digit'                 => $dataTmp['max_digit'],
 
                 'pt_id'                     => $dataTmp['pt'],
-
-
             ];
 
         $this->db->where('code', $data['code'])
@@ -163,25 +161,42 @@ class m_cara_pembayaran extends CI_Model
         $project = $this->m_core->project();
 
         $query = $this->db->query("
-            SELECT 
-                cara_pembayaran.code as Kode,
-                cara_pembayaran.name as Nama,
-                cara_pembayaran.biaya_admin as [Biaya Admin],
-                cara_pembayaran.description as Deskripsi,
-                case when cara_pembayaran.jenis_cara_pembayaran_id < 0 then 'Disable' else 'Enable' end as Disable_Enable, 
-                case when cara_pembayaran.active    = 0 then 'Tidak Aktif' else 'Aktif' end as Aktif, 
-                case when cara_pembayaran.[delete]  = 0 then 'Tidak Aktif' else 'Aktif' end as [Delete], 
-                pt.name as [Nama PT], 
-                view_coa.coa as [Kode COA], 
-                view_coa.name as [Nama COA], 
-                view_coa.coa_id as [Id Mapping COA] 
-            FROM cara_pembayaran
-            LEFT JOIN gl_2018.dbo.view_coa
-                ON view_coa.coa_id = cara_pembayaran.coa_mapping_id
-            LEFT JOIN pt 
-                on pt.source_id = view_coa.pt_id
-            WHERE cara_pembayaran.id        = $id
-            AND cara_pembayaran.project_id  = $project->id
+            SELECT
+                cara_pembayaran.code AS Kode,
+                cara_pembayaran.name AS Nama,
+                cara_pembayaran.biaya_admin AS [Biaya Admin],
+                cara_pembayaran.description AS Deskripsi,
+                CASE
+                    WHEN cara_pembayaran.jenis_cara_pembayaran_id < 0 THEN
+                    'Disable' ELSE 'Enable' 
+                END AS Disable_Enable,
+                CASE
+                    WHEN cara_pembayaran.active    = 0 THEN
+                    'Tidak Aktif' ELSE 'Aktif' 
+                END AS Aktif,
+                CASE
+                    WHEN cara_pembayaran.[delete] = 0 THEN
+                    'Tidak Aktif' ELSE 'Aktif' 
+                END AS [Delete],
+                CASE
+                    WHEN cara_pembayaran.nilai_flag    = 0 THEN
+                    'Tidak Aktif' ELSE 'Aktif' 
+                END AS nilai_flag,
+                cara_pembayaran.va_bank AS [va_bank],
+                cara_pembayaran.va_merchant AS [va_merchant],
+                cara_pembayaran.max_digit AS [max_digit],
+                cara_pembayaran.sub_account AS [sub_account],
+                pt.name AS [Nama PT],
+                view_coa.coa AS [Kode COA],
+                view_coa.name AS [Nama COA],
+                view_coa.coa_id AS [Id Mapping COA] 
+            FROM
+                cara_pembayaran
+                LEFT JOIN gl_2018.dbo.view_coa ON view_coa.coa_id = cara_pembayaran.coa_mapping_id
+                LEFT JOIN pt ON pt.source_id = view_coa.pt_id 
+            WHERE
+                cara_pembayaran.id = $id 
+                AND cara_pembayaran.project_id = $project->id
         ");
         $row = $query->row();
 
@@ -247,8 +262,6 @@ class m_cara_pembayaran extends CI_Model
         $this->load->model('m_log');
         $project = $this->m_core->project();
         $user_id = $this->m_core->user_id();
-
-
 
         $data =
             [
