@@ -6,3 +6,4 @@ db/*
 vendor/*
 vendors/*
 application/config/*
+application/config/database.php

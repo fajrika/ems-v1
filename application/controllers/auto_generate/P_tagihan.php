@@ -20,7 +20,6 @@ class P_tagihan extends CI_Controller
         $project = $this->m_core->project();
         global $menu;
         $menu = $this->m_core->menu();
-
     }
     public function index(){
         $this->load->helper('file');
@@ -51,11 +50,9 @@ class P_tagihan extends CI_Controller
             }
         }
         write_file("./log/".date("y-m-d").'_log_auto_generate.txt',"\n".date("y-m-d h:i:s")." - Selesai", 'a+');
-
     }
     public function secret(){
         $this->pl2($this->input->get('project_id'),$this->input->get('periode'));
-
     }
     public function pl(){
         $project = $GLOBALS['project']->id;
@@ -63,7 +60,6 @@ class P_tagihan extends CI_Controller
 
         $periode = $this->input->get('periode')?$this->input->get('periode'):0;
         $this->m_tagihan->pl($project,$periode);
-        
     }
     public function pl2($project_id,$periode){
         // $project = $GLOBALS['project']->id;
@@ -104,5 +100,46 @@ class P_tagihan extends CI_Controller
             }
         }
         echo(json_encode($j));
+    }
+
+    public function generate_tagihan_air(){
+        $this->load->helper('file');
+        echo date("y-m-d h:i:s")." - Mulai";
+        write_file("./log/".date("y-m-d").'_log_auto_generate.txt',"\n".date("y-m-d h:i:s")." - Mulai", 'a+');
+
+
+        $periode = $this->input->get("periode")?$this->input->get("periode"):date("m/Y");
+        $periode = implode('-', array_reverse(explode('-', str_replace('/', '-', $periode)))).'-01';
+        $project_id = $this->input->get("project_id")??0;
+        // var_dump($periode);
+        // die;
+        $id = 'asfvev3g13f12foibfe3v3iufoh31roibvdjfu1hir';
+        $count_success = 0;
+        if($id == $this->input->get("id")){
+            $this->load->model('transaksi/m_meter_air', 'm_meter_air');
+            $this->db->select("pp.project_id, pp.value")
+                        ->from("parameter_project pp")
+                        ->where("pp.code","generate_air");
+            if($project_id != 0){
+                $this->db->where("pp.project_id",$project_id);
+                $tmp = $this->db->get()->result();
+                foreach ($tmp as $k => $v) {
+                    if(($v->value * 1) == date('d')){
+                        $count_success += $this->m_meter_air->generate_tagihan_air($v->project_id,$periode);
+                    }
+                }
+            }else{
+                        
+                $tmp = $this->db->get()->result();
+
+                foreach ($tmp as $k => $v) {
+                    if(($v->value * 1) == date('d')){
+                        $count_success += $this->m_meter_air->generate_tagihan_air($v->project_id,$periode);
+                    }
+                }
+            }
+        }
+        echo "<br/>".date("y-m-d h:i:s")." - ".$count_success." data - Selesai";
+        write_file("./log/".date("y-m-d").'_log_auto_generate.txt',"\n".date("y-m-d h:i:s")." - ".$count_success." data - Selesai", 'a+');
     }
 }

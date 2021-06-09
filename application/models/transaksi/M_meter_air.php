@@ -666,7 +666,6 @@ class m_meter_air extends CI_Model
     }
     public function ajax_save_meter_api_1($meter, $periode, $unit_id, $url)
     {
-
         $this->load->model('m_sub_golongan');
 
         $project = $this->db->select("project_id as id")->from("unit")->where("id", $unit_id)->get()->row();
@@ -732,225 +731,164 @@ class m_meter_air extends CI_Model
         }
         $this->db->trans_complete();
 
-
         // BEGIN hide by Iman 27/05/2021 | EMS363 - EMS365 | NGGA JADI
-            $this->db->trans_start();
-            $resultTagihan = $this->db->select("
-                    sub_golongan.administrasi,
-                    service.ppn_flag,
-                    range_air.formula,
-                    range_air.id as range_id,
-                    range_air.code as range_code,
-                    sub_golongan.id as sub_golongan_id,
-                    sub_golongan.code as sub_golongan_code,
-                    isnull(pemeliharaan_air.nilai,0) as nilai_pemeliharaan")
-                ->from('unit_air')
-                ->join(
-                    'sub_golongan',
-                    'sub_golongan.id = unit_air.sub_gol_id'
-                )
-                ->join(
-                    'range_air',
-                    'range_air.id = sub_golongan.range_id'
-                )
-                ->join('pemeliharaan_air', 'pemeliharaan_air.id = sub_golongan.pemeliharaan_air_id', 'left')
-                ->join('service', 'service.id = sub_golongan.service_id')
-                ->where('unit_air.unit_id', $unit_id)
-                ->get()->row();
-        // END hide by Iman 27/05/2021 | EMS363 - EMS365
+            // $this->db->trans_begin();
+            // $resultTagihan = $this->db->select("
+            //         sub_golongan.administrasi,
+            //         service.ppn_flag,
+            //         range_air.formula,
+            //         range_air.id as range_id,
+            //         range_air.code as range_code,
+            //         sub_golongan.id as sub_golongan_id,
+            //         sub_golongan.code as sub_golongan_code,
+            //         isnull(pemeliharaan_air.nilai,0) as nilai_pemeliharaan")
+            //     ->from('unit_air')
+            //     ->join(
+            //         'sub_golongan',
+            //         'sub_golongan.id = unit_air.sub_gol_id'
+            //     )
+            //     ->join(
+            //         'range_air',
+            //         'range_air.id = sub_golongan.range_id'
+            //     )
+            //     ->join('pemeliharaan_air', 'pemeliharaan_air.id = sub_golongan.pemeliharaan_air_id', 'left')
+            //     ->join('service', 'service.id = sub_golongan.service_id')
+            //     ->where('unit_air.unit_id', $unit_id)
+            //     ->get()->row();
 
-        // $resultTagihan = $this->db->query("
-        //                     SELECT 
-        //                         sub_golongan.administrasi,
-        //                         service.ppn_flag,
-        //                         range_air.formula,
-        //                         range_air.id as range_id,
-        //                         range_air.code as range_code,
-        //                         sub_golongan.id as sub_golongan_id,
-        //                         sub_golongan.code as sub_golongan_code
-        //                     FROM unit_air
-        //                     JOIN sub_golongan
-        //                         ON sub_golongan.id = unit_air.sub_gol_id
-        //                     JOIN range_air
-        //                         ON range_air.id = sub_golongan.range_id
-        //                     JOIN service
-        //                         ON service.id = sub_golongan.service_id
-        //                     where unit_air.unit_id = $unit_id
-        //                 ")->row();
-        // $resultPemakaian =  $this->db->query("
-        //                                 SELECT 
-        //                                     meter
-        //                                 FROM t_meter_air
-        //                                 WHERE unit_id = $dataMeterAir[unit_id]
-        //                                 AND periode = '$dataMeterAir[periode]'
-        //                                 OR unit_id = $dataMeterAir[unit_id]
-        //                                 AND periode = DATEADD(month,-1,'$dataMeterAir[periode]')
-        //                                 ORDER BY periode
-        //                             ")->result();
+            // $pemakaian = $meter - $meter_awal;
 
-        // $pemakaian = $meter_awal!=0?$meter-$meter_awal:0;
+            // $minimum_pemakaian_rp = $this->db
+            //     ->select('minimum_pemakaian,minimum_rp')
+            //     ->from('unit')
+            //     ->join('unit_air', 'unit_air.unit_id = unit.id')
+            //     ->join('sub_golongan', 'sub_golongan.id = unit_air.sub_gol_id')
+            //     ->where('unit.id', $unit_id)->get()->row();
+            // if ($minimum_pemakaian_rp->minimum_pemakaian > $pemakaian)
+            //     $pemakaian = $minimum_pemakaian_rp->minimum_pemakaian;
 
-        // BEGIN hide by Iman 27/05/2021 | EMS363 - EMS365 | NGGA JADI
-            $pemakaian = $meter - $meter_awal;
-        // END hide by Iman 27/05/2021 | EMS363 - EMS365
+            // $biaya = $this->harga_air(1, $resultTagihan->range_id, $pemakaian, $unit_id);
+            // if ($minimum_pemakaian_rp->minimum_rp > $biaya)
+            //     $biaya = $minimum_pemakaian_rp->minimum_rp;
 
-        // $pemakaian = $this->getSelect($resultMeterAir->id)?$this->getSelect($resultMeterAir->id)[0]->pemakaian:0;
+            // $tagihan_air         = (object)[];
+            // $tagihan_air_detail  = (object)[];
+            // $tagihan_air_info    = (object)[];
+            // $meter_air           = (object)[];
+            // $data_tagihan        = (object)[];
 
-        // BEGIN hide by Iman 27/05/2021 | EMS363 - EMS365 | NGGA JADI
-            $minimum_pemakaian_rp = $this->db
-                ->select('minimum_pemakaian,minimum_rp')
-                ->from('unit')
-                ->join('unit_air', 'unit_air.unit_id = unit.id')
-                ->join('sub_golongan', 'sub_golongan.id = unit_air.sub_gol_id')
-                ->where('unit.id', $unit_id)->get()->row();
-            if ($minimum_pemakaian_rp->minimum_pemakaian > $pemakaian)
-                $pemakaian = $minimum_pemakaian_rp->minimum_pemakaian;
-        // END hide by Iman 27/05/2021 | EMS363 - EMS365
+            // $tagihan_air->proyek_id             = $project->id;
 
-        // $pemakaian = $resultPemakaian[1]->meter - $resultPemakaian[0]->meter;
-        // 1 ialah flag untuk air di m_sub_golongan
+            // $tagihan_air_detail->source_table   = "";
+            // $tagihan_air_detail->active         = 1;
 
-        // BEGIN hide by Iman 27/05/2021 | EMS363 - EMS365 | NGGA JADI
-            $biaya = $this->harga_air(1, $resultTagihan->range_id, $pemakaian, $unit_id);
-            if ($minimum_pemakaian_rp->minimum_rp > $biaya)
-                $biaya = $minimum_pemakaian_rp->minimum_rp;
+            // $ppn_flag = $this->db->select("ppn_flag")
+            //     ->from("service")
+            //     ->where("service.project_id", $project->id)
+            //     ->where("service_jenis_id", 2)
+            //     ->get()->row()->ppn_flag;
+            // if ($ppn_flag == 1)
+            //     $tagihan_air_detail->nilai_ppn      = $this->db->select("isnull(value,'0') as value")
+            //         ->from("parameter_project")
+            //         ->where("project_id", $project->id)
+            //         ->where("code", "PPN")->get()->row()->value;
+            // else
+            //     $tagihan_air_detail->nilai_ppn = 0;
+            // $tagihan_air_detail->nilai_flag     = 0;
+            // $tagihan_air_detail->nilai_denda_flag = 0;
 
-            $tagihan_air         = (object)[];
-            $tagihan_air_detail  = (object)[];
-            $tagihan_air_info    = (object)[];
-            $meter_air           = (object)[];
-            $data_tagihan        = (object)[];
+            // $data_tagihan->proyek_id    = $project->id;
 
-            $tagihan_air->proyek_id             = $project->id;
+            // $this->db->where('proyek_id', $project->id);
+            // $this->db->where('unit_id', $dataMeterAir['unit_id']);
+            // $this->db->where('periode', $dataMeterAir['periode']);
 
-            $tagihan_air_detail->source_table   = "";
-            $tagihan_air_detail->active         = 1;
-        // END hide by Iman 27/05/2021 | EMS363 - EMS365
+            // $tagihan_sudah_ada = $this->db->get('t_tagihan');
 
-        // $tagihan_air_detail->user_id        = $user_id;
+            // if (!$tagihan_sudah_ada->num_rows()) {
+            //     $data_tagihan->unit_id      = $dataMeterAir['unit_id'];
+            //     $data_tagihan->periode      = $dataMeterAir['periode'];
 
-        // BEGIN hide by Iman 27/05/2021 | EMS363 - EMS365 | NGGA JADI
-            $ppn_flag = $this->db->select("ppn_flag")
-                ->from("service")
-                ->where("service.project_id", $project->id)
-                ->where("service_jenis_id", 2)
-                ->get()->row()->ppn_flag;
-            if ($ppn_flag == 1)
-                $tagihan_air_detail->nilai_ppn      = $this->db->select("isnull(value,'0') as value")
-                    ->from("parameter_project")
-                    ->where("project_id", $project->id)
-                    ->where("code", "PPN")->get()->row()->value;
-            else
-                $tagihan_air_detail->nilai_ppn = 0;
-            $tagihan_air_detail->nilai_flag     = 0;
-            $tagihan_air_detail->nilai_denda_flag = 0;
+            //     $this->db->insert('t_tagihan', $data_tagihan);
 
-            $data_tagihan->proyek_id    = $project->id;
+            //     $tagihan_air->t_tagihan_id = $this->db->insert_id();
+            // } else {
+            //     $tagihan_air->t_tagihan_id = $tagihan_sudah_ada->row()->id;
+            // }
 
-            $this->db->where('proyek_id', $project->id);
-            $this->db->where('unit_id', $dataMeterAir['unit_id']);
-            $this->db->where('periode', $dataMeterAir['periode']);
+            // $tagihan_air->unit_id       = $dataMeterAir['unit_id'];
+            // $tagihan_air->kode_tagihan  = "EX-Test";
+            // $tagihan_air->periode       = $dataMeterAir['periode'];
+            // $tagihan_air->status_tagihan = 0;
 
-            $tagihan_sudah_ada = $this->db->get('t_tagihan');
+            // $tagihan_air_detail->nilai              = $biaya;
+            // $tagihan_air_detail->nilai_administrasi = $resultTagihan->administrasi;
+            // $tagihan_air_detail->nilai_denda        = 0;
+            // $tagihan_air_detail->ppn_flag           = $resultTagihan->ppn_flag ? 1 : 0;
+            // $tagihan_air_detail->nilai_pemeliharaan      = $resultTagihan->nilai_pemeliharaan ?? 0;
+            // $service = $this->db->select("*")
+            //     ->from("service")
+            //     ->where("service_jenis_id", 2)
+            //     ->where("project_id", $project->id)
+            //     ->get()->row();
+            // $tagihan_air_info->range_id             = $resultTagihan->range_id;
+            // $tagihan_air_info->range_code           = $resultTagihan->range_code;
+            // $tagihan_air_info->sub_golongan_id      = $resultTagihan->sub_golongan_id;
+            // $tagihan_air_info->sub_golongan_code    = $resultTagihan->sub_golongan_code;
+            // $tagihan_air_info->pemakaian            = $pemakaian;
+            // $tagihan_air_info->denda_jenis_service  = $service->denda_jenis;
+            // $tagihan_air_info->denda_nilai_service  = $service->denda_nilai;
 
-            if (!$tagihan_sudah_ada->num_rows()) {
-                $data_tagihan->unit_id      = $dataMeterAir['unit_id'];
-                $data_tagihan->periode      = $dataMeterAir['periode'];
+            // $dataTagihanAir = [
+            //     "proyek_id"                     => $project->id,
+            //     "unit_id"                       => $dataMeterAir['unit_id'],
+            //     "kode_tagihan"                  => 'kode123',
+            //     "periode"                       => $dataMeterAir['periode'],
+            //     "nilai"                         => $biaya,
+            //     "administrasi"                  => $resultTagihan->administrasi,
+            //     "ppn_flag"                      => $resultTagihan->ppn_flag,
+            //     "denda"                         => 0,
+            //     "penalti"                       => 0,
+            //     "diskon_master_id"              => 0,
+            //     "diskon_master"                 => 0,
+            //     "diskon_request_tagihan_id"     => 0,
+            //     "diskon_request_denda_id"       => 0,
+            //     "diskon_request_pinalti_id"     => 0,
+            //     "status_bayar_flag"             => 0,
+            //     "formula"                       => $resultTagihan->formula,
+            //     "range_id"                      => $resultTagihan->range_id,
+            //     "range_code"                    => $resultTagihan->range_code,
+            //     "sub_golongan_id"               => $resultTagihan->sub_golongan_id,
+            //     "sub_golongan_code"             => $resultTagihan->sub_golongan_code,
+            //     "pemakaian"                     => $pemakaian
+            // ];
 
-                $this->db->insert('t_tagihan', $data_tagihan);
+            // $resultTagihanAir =   $this->db->query("
+            //                                         SELECT
+            //                                             id
+            //                                         FROM t_tagihan_air
+            //                                         Where periode = '$dataTagihanAir[periode]'
+            //                                         AND unit_id = $dataTagihanAir[unit_id]
+            //                                     ")->row();
 
-                $tagihan_air->t_tagihan_id = $this->db->insert_id();
-            } else {
-                $tagihan_air->t_tagihan_id = $tagihan_sudah_ada->row()->id;
-            }
+            // if ($resultTagihanAir) { //jika t_meter_air sudah ada, maka di update
+            //     $this->db->where('id', $resultTagihanAir->id);
+            //     $this->db->update('t_tagihan_air', $tagihan_air);
 
-            $tagihan_air->unit_id       = $dataMeterAir['unit_id'];
-            $tagihan_air->kode_tagihan  = "EX-Test";
-            $tagihan_air->periode       = $dataMeterAir['periode'];
-            $tagihan_air->status_tagihan = 0;
-        // END hide by Iman 27/05/2021 | EMS363 - EMS365
+            //     $this->db->where('t_tagihan_air_id', $resultTagihanAir->id);
+            //     $this->db->update("t_tagihan_air_detail", $tagihan_air_detail);
 
-        // $this->db->insert("t_tagihan_air",$tagihan_air);
+            //     $this->db->where('t_tagihan_air_id', $resultTagihanAir->id);
+            //     $this->db->update("t_tagihan_air_info", $tagihan_air_info);
+            // } else {
+            //     $this->db->insert('t_tagihan_air', $tagihan_air);
 
-        // BEGIN hide by Iman 27/05/2021 | EMS363 - EMS365 | NGGA JADI
-            $tagihan_air_detail->nilai              = $biaya;
-            $tagihan_air_detail->nilai_administrasi = $resultTagihan->administrasi;
-            $tagihan_air_detail->nilai_denda        = 0;
-            $tagihan_air_detail->ppn_flag           = $resultTagihan->ppn_flag ? 1 : 0;
-            $tagihan_air_detail->nilai_pemeliharaan      = $resultTagihan->nilai_pemeliharaan ?? 0;
-            $service = $this->db->select("*")
-                ->from("service")
-                ->where("service_jenis_id", 2)
-                ->where("project_id", $project->id)
-                ->get()->row();
-            $tagihan_air_info->range_id             = $resultTagihan->range_id;
-            $tagihan_air_info->range_code           = $resultTagihan->range_code;
-            $tagihan_air_info->sub_golongan_id      = $resultTagihan->sub_golongan_id;
-            $tagihan_air_info->sub_golongan_code    = $resultTagihan->sub_golongan_code;
-            $tagihan_air_info->pemakaian            = $pemakaian;
-            $tagihan_air_info->denda_jenis_service  = $service->denda_jenis;
-            $tagihan_air_info->denda_nilai_service  = $service->denda_nilai;
-        // END hide by Iman 27/05/2021 | EMS363 - EMS365
+            //     $tagihan_air_detail->t_tagihan_air_id   = $this->db->insert_id();
+            //     $tagihan_air_info->t_tagihan_air_id     = $tagihan_air_detail->t_tagihan_air_id;
 
-        // $meter_air->unit_id     = $tagihan_air->unit_id;
-        // $meter_air->periode     = $tagihan_air->periode;
-        // $meter_air->meter_awal  = $v->Meter_awal;
-        // $meter_air->meter_akhir = $v->Meter_akhir;
-        // $meter_air->keterangan  = "Data Migrasi dari $source";
-        // $this->db->insert("t_pencatatan_meter_air",$dataMeterAir);
-
-
-        // BEGIN hide by Iman 27/05/2021 | EMS363 - EMS365 | NGGA JADI
-            $dataTagihanAir = [
-                "proyek_id"                     => $project->id,
-                "unit_id"                       => $dataMeterAir['unit_id'],
-                "kode_tagihan"                  => 'kode123',
-                "periode"                       => $dataMeterAir['periode'],
-                "nilai"                         => $biaya,
-                "administrasi"                  => $resultTagihan->administrasi,
-                "ppn_flag"                      => $resultTagihan->ppn_flag,
-                "denda"                         => 0,
-                "penalti"                       => 0,
-                "diskon_master_id"              => 0,
-                "diskon_master"                 => 0,
-                "diskon_request_tagihan_id"     => 0,
-                "diskon_request_denda_id"       => 0,
-                "diskon_request_pinalti_id"     => 0,
-                "status_bayar_flag"             => 0,
-                "formula"                       => $resultTagihan->formula,
-                "range_id"                      => $resultTagihan->range_id,
-                "range_code"                    => $resultTagihan->range_code,
-                "sub_golongan_id"               => $resultTagihan->sub_golongan_id,
-                "sub_golongan_code"             => $resultTagihan->sub_golongan_code,
-                "pemakaian"                     => $pemakaian
-            ];
-
-            $resultTagihanAir =   $this->db->query("
-                                                    SELECT
-                                                        id
-                                                    FROM t_tagihan_air
-                                                    Where periode = '$dataTagihanAir[periode]'
-                                                    AND unit_id = $dataTagihanAir[unit_id]
-                                                ")->row();
-
-            if ($resultTagihanAir) { //jika t_meter_air sudah ada, maka di update
-                $this->db->where('id', $resultTagihanAir->id);
-                $this->db->update('t_tagihan_air', $tagihan_air);
-
-                $this->db->where('t_tagihan_air_id', $resultTagihanAir->id);
-                $this->db->update("t_tagihan_air_detail", $tagihan_air_detail);
-
-                $this->db->where('t_tagihan_air_id', $resultTagihanAir->id);
-                $this->db->update("t_tagihan_air_info", $tagihan_air_info);
-            } else {
-                $this->db->insert('t_tagihan_air', $tagihan_air);
-
-                $tagihan_air_detail->t_tagihan_air_id   = $this->db->insert_id();
-                $tagihan_air_info->t_tagihan_air_id     = $tagihan_air_detail->t_tagihan_air_id;
-
-                $this->db->insert("t_tagihan_air_detail", $tagihan_air_detail);
-                $this->db->insert("t_tagihan_air_info", $tagihan_air_info);
-            }
+            //     $this->db->insert("t_tagihan_air_detail", $tagihan_air_detail);
+            //     $this->db->insert("t_tagihan_air_info", $tagihan_air_info);
+            // }
         // END hide by Iman 27/05/2021 | EMS363 - EMS365
 
         if ($this->db->trans_status() === FALSE) {
@@ -1025,198 +963,174 @@ class m_meter_air extends CI_Model
         $this->db->trans_complete();
 
         // BEGIN hide by Iman 27/05/2021 | EMS363 - EMS365 | NGGA JADI
-            $this->db->trans_start();
-            $resultTagihan = $this->db->query("
-                                SELECT 
-                                    sub_golongan.administrasi,
-                                    service.ppn_flag,
-                                    range_air.formula,
-                                    range_air.id as range_id,
-                                    range_air.code as range_code,
-                                    sub_golongan.id as sub_golongan_id,
-                                    sub_golongan.code as sub_golongan_code
-                                FROM unit_air
-                                JOIN sub_golongan
-                                    ON sub_golongan.id = unit_air.sub_gol_id
-                                JOIN range_air
-                                    ON range_air.id = sub_golongan.range_id
-                                JOIN service
-                                    ON service.id = sub_golongan.service_id
-                                where unit_air.unit_id = $unit_id
-                            ")->row();
-            $resultPemakaian =  $this->db->query("
-                                            SELECT 
-                                                meter
-                                            FROM t_meter_air
-                                            WHERE unit_id = $dataMeterAir[unit_id]
-                                            AND periode = '$dataMeterAir[periode]'
-                                            OR unit_id = $dataMeterAir[unit_id]
-                                            AND periode = DATEADD(month,-1,'$dataMeterAir[periode]')
-                                            ORDER BY periode
-                                        ")->result();
-        // END hide by Iman 27/05/2021 | EMS363 - EMS365
+            // $this->db->trans_start();
+            // $resultTagihan = $this->db->query("
+            //                     SELECT 
+            //                         sub_golongan.administrasi,
+            //                         service.ppn_flag,
+            //                         range_air.formula,
+            //                         range_air.id as range_id,
+            //                         range_air.code as range_code,
+            //                         sub_golongan.id as sub_golongan_id,
+            //                         sub_golongan.code as sub_golongan_code
+            //                     FROM unit_air
+            //                     JOIN sub_golongan
+            //                         ON sub_golongan.id = unit_air.sub_gol_id
+            //                     JOIN range_air
+            //                         ON range_air.id = sub_golongan.range_id
+            //                     JOIN service
+            //                         ON service.id = sub_golongan.service_id
+            //                     where unit_air.unit_id = $unit_id
+            //                 ")->row();
+            // $resultPemakaian =  $this->db->query("
+            //                                 SELECT 
+            //                                     meter
+            //                                 FROM t_meter_air
+            //                                 WHERE unit_id = $dataMeterAir[unit_id]
+            //                                 AND periode = '$dataMeterAir[periode]'
+            //                                 OR unit_id = $dataMeterAir[unit_id]
+            //                                 AND periode = DATEADD(month,-1,'$dataMeterAir[periode]')
+            //                                 ORDER BY periode
+            //                             ")->result();
 
-        // $pemakaian = $meter_awal!=0?$meter-$meter_awal:0;
-        // BEGIN hide by Iman 27/05/2021 | EMS363 - EMS365 | NGGA JADI
-            $pemakaian1 = $meter - $meter_awal;
-            $pemakaian2 = $meter_awal_baru - $meter_akhir_baru;
-            $pemakaian = $pemakaian1 + $pemakaian2;
-        // END
+            // $pemakaian1 = $meter - $meter_awal;
+            // $pemakaian2 = $meter_awal_baru - $meter_akhir_baru;
+            // $pemakaian = $pemakaian1 + $pemakaian2;
 
-        // $pemakaian = $this->getSelect($resultMeterAir->id)?$this->getSelect($resultMeterAir->id)[0]->pemakaian:0;
-        // BEGIN hide by Iman 27/05/2021 | EMS363 - EMS365 | NGGA JADI
-            $minimum_pemakaian_rp = $this->db
-                ->select('minimum_pemakaian,minimum_rp')
-                ->from('unit')
-                ->join('unit_air', 'unit_air.unit_id = unit.id')
-                ->join('sub_golongan', 'sub_golongan.id = unit_air.sub_gol_id')
-                ->where('unit.id', $unit_id)->get()->row();
-            if ($minimum_pemakaian_rp->minimum_pemakaian > $pemakaian)
-                $pemakaian = $minimum_pemakaian_rp->minimum_pemakaian;
-        // END hide by Iman 27/05/2021 | EMS363 - EMS365
+            // $minimum_pemakaian_rp = $this->db
+            //     ->select('minimum_pemakaian,minimum_rp')
+            //     ->from('unit')
+            //     ->join('unit_air', 'unit_air.unit_id = unit.id')
+            //     ->join('sub_golongan', 'sub_golongan.id = unit_air.sub_gol_id')
+            //     ->where('unit.id', $unit_id)->get()->row();
+            // if ($minimum_pemakaian_rp->minimum_pemakaian > $pemakaian)
+            //     $pemakaian = $minimum_pemakaian_rp->minimum_pemakaian;
 
+            // $biaya = $this->harga_air(1, $resultTagihan->range_id, $pemakaian, $unit_id);
+            // if ($minimum_pemakaian_rp->minimum_rp > $biaya)
+            //     $biaya = $minimum_pemakaian_rp->minimum_rp;
 
-        // $pemakaian = $resultPemakaian[1]->meter - $resultPemakaian[0]->meter;
-        // 1 ialah flag untuk air di m_sub_golongan
-        // BEGIN hide by Iman 27/05/2021 | EMS363 - EMS365 | NGGA JADI
-            $biaya = $this->harga_air(1, $resultTagihan->range_id, $pemakaian, $unit_id);
-            if ($minimum_pemakaian_rp->minimum_rp > $biaya)
-                $biaya = $minimum_pemakaian_rp->minimum_rp;
+            // $tagihan_air         = (object)[];
+            // $tagihan_air_detail  = (object)[];
+            // $tagihan_air_info    = (object)[];
+            // $meter_air           = (object)[];
+            // $data_tagihan        = (object)[];
 
-            $tagihan_air         = (object)[];
-            $tagihan_air_detail  = (object)[];
-            $tagihan_air_info    = (object)[];
-            $meter_air           = (object)[];
-            $data_tagihan        = (object)[];
-
-            $tagihan_air->proyek_id             = $project->id;
+            // $tagihan_air->proyek_id             = $project->id;
 
 
-            $tagihan_air_detail->source_table   = "";
-            $tagihan_air_detail->active         = 1;
-        // END hide by Iman 27/05/2021 | EMS363 - EMS365
-        $tagihan_air_detail->user_id        = $user_id;
+            // $tagihan_air_detail->source_table   = "";
+            // $tagihan_air_detail->active         = 1;
 
-        // BEGIN hide by Iman 27/05/2021 | EMS363 - EMS365 | NGGA JADI
-            $ppn_flag = $this->db->select("ppn_flag")
-                ->from("service")
-                ->where("service.project_id", $project->id)
-                ->where("service_jenis_id", 2)
-                ->get()->row()->ppn_flag;
-            if ($ppn_flag == 1)
-                $tagihan_air_detail->nilai_ppn      = $this->db->select("isnull(value,'0') as value")
-                    ->from("parameter_project")
-                    ->where("project_id", $project->id)
-                    ->where("code", "PPN")->get()->row()->value;
-            else
-                $tagihan_air_detail->nilai_ppn = 0;
-            $tagihan_air_detail->nilai_flag     = 0;
-            $tagihan_air_detail->nilai_denda_flag = 0;
+            // $tagihan_air_detail->user_id        = $user_id;
 
-            $data_tagihan->proyek_id    = $project->id;
+            // $ppn_flag = $this->db->select("ppn_flag")
+            //     ->from("service")
+            //     ->where("service.project_id", $project->id)
+            //     ->where("service_jenis_id", 2)
+            //     ->get()->row()->ppn_flag;
+            // if ($ppn_flag == 1)
+            //     $tagihan_air_detail->nilai_ppn      = $this->db->select("isnull(value,'0') as value")
+            //         ->from("parameter_project")
+            //         ->where("project_id", $project->id)
+            //         ->where("code", "PPN")->get()->row()->value;
+            // else
+            //     $tagihan_air_detail->nilai_ppn = 0;
+            // $tagihan_air_detail->nilai_flag     = 0;
+            // $tagihan_air_detail->nilai_denda_flag = 0;
 
-            $this->db->where('proyek_id', $project->id);
-            $this->db->where('unit_id', $dataMeterAir['unit_id']);
-            $this->db->where('periode', $dataMeterAir['periode']);
+            // $data_tagihan->proyek_id    = $project->id;
 
-            $tagihan_sudah_ada = $this->db->get('t_tagihan');
+            // $this->db->where('proyek_id', $project->id);
+            // $this->db->where('unit_id', $dataMeterAir['unit_id']);
+            // $this->db->where('periode', $dataMeterAir['periode']);
 
-            if (!$tagihan_sudah_ada->num_rows()) {
-                $data_tagihan->unit_id      = $dataMeterAir['unit_id'];
-                $data_tagihan->periode      = $dataMeterAir['periode'];
+            // $tagihan_sudah_ada = $this->db->get('t_tagihan');
 
-                $this->db->insert('t_tagihan', $data_tagihan);
+            // if (!$tagihan_sudah_ada->num_rows()) {
+            //     $data_tagihan->unit_id      = $dataMeterAir['unit_id'];
+            //     $data_tagihan->periode      = $dataMeterAir['periode'];
 
-                $tagihan_air->t_tagihan_id = $this->db->insert_id();
-            } else {
-                $tagihan_air->t_tagihan_id = $tagihan_sudah_ada->row()->id;
-            }
+            //     $this->db->insert('t_tagihan', $data_tagihan);
 
-            $tagihan_air->unit_id       = $dataMeterAir['unit_id'];
-            $tagihan_air->kode_tagihan  = "EX-Test";
-            $tagihan_air->periode       = $dataMeterAir['periode'];
-            $tagihan_air->status_tagihan = 0;
-        // END hide by Iman 27/05/2021 | EMS363 - EMS365
-        // $this->db->insert("t_tagihan_air",$tagihan_air);
+            //     $tagihan_air->t_tagihan_id = $this->db->insert_id();
+            // } else {
+            //     $tagihan_air->t_tagihan_id = $tagihan_sudah_ada->row()->id;
+            // }
 
-        // BEGIN hide by Iman 27/05/2021 | EMS363 - EMS365 | NGGA JADI
-            $tagihan_air_detail->nilai              = $biaya;
-            $tagihan_air_detail->nilai_administrasi = $resultTagihan->administrasi;
-            $tagihan_air_detail->nilai_denda        = 0;
-            $tagihan_air_detail->ppn_flag           = $resultTagihan->ppn_flag ? 1 : 0;
+            // $tagihan_air->unit_id       = $dataMeterAir['unit_id'];
+            // $tagihan_air->kode_tagihan  = "EX-Test";
+            // $tagihan_air->periode       = $dataMeterAir['periode'];
+            // $tagihan_air->status_tagihan = 0;
 
-            $service = $this->db->select("*")
-                ->from("service")
-                ->where("service_jenis_id", 2)
-                ->where("project_id", $project->id)
-                ->get()->row();
-            $tagihan_air_info->range_id             = $resultTagihan->range_id;
-            $tagihan_air_info->range_code           = $resultTagihan->range_code;
-            $tagihan_air_info->sub_golongan_id      = $resultTagihan->sub_golongan_id;
-            $tagihan_air_info->sub_golongan_code    = $resultTagihan->sub_golongan_code;
-            $tagihan_air_info->pemakaian            = $pemakaian;
-            $tagihan_air_info->denda_jenis_service  = $service->denda_jenis;
-            $tagihan_air_info->denda_nilai_service  = $service->denda_nilai;
-        // END hide by Iman 27/05/2021 | EMS363 - EMS365
+            // $tagihan_air_detail->nilai              = $biaya;
+            // $tagihan_air_detail->nilai_administrasi = $resultTagihan->administrasi;
+            // $tagihan_air_detail->nilai_denda        = 0;
+            // $tagihan_air_detail->ppn_flag           = $resultTagihan->ppn_flag ? 1 : 0;
 
-        // $meter_air->unit_id     = $tagihan_air->unit_id;
-        // $meter_air->periode     = $tagihan_air->periode;
-        // $meter_air->meter_awal  = $v->Meter_awal;
-        // $meter_air->meter_akhir = $v->Meter_akhir;
-        // $meter_air->keterangan  = "Data Migrasi dari $source";
-        // $this->db->insert("t_pencatatan_meter_air",$dataMeterAir);
+            // $service = $this->db->select("*")
+            //     ->from("service")
+            //     ->where("service_jenis_id", 2)
+            //     ->where("project_id", $project->id)
+            //     ->get()->row();
+            // $tagihan_air_info->range_id             = $resultTagihan->range_id;
+            // $tagihan_air_info->range_code           = $resultTagihan->range_code;
+            // $tagihan_air_info->sub_golongan_id      = $resultTagihan->sub_golongan_id;
+            // $tagihan_air_info->sub_golongan_code    = $resultTagihan->sub_golongan_code;
+            // $tagihan_air_info->pemakaian            = $pemakaian;
+            // $tagihan_air_info->denda_jenis_service  = $service->denda_jenis;
+            // $tagihan_air_info->denda_nilai_service  = $service->denda_nilai;
 
-        // BEGIN hide by Iman 27/05/2021 | EMS363 - EMS365 | NGGA JADI
-            $dataTagihanAir = [
-                "proyek_id"                     => $project->id,
-                "unit_id"                       => $dataMeterAir['unit_id'],
-                "kode_tagihan"                  => 'kode123',
-                "periode"                       => $dataMeterAir['periode'],
-                "nilai"                         => $biaya,
-                "administrasi"                  => $resultTagihan->administrasi,
-                "ppn_flag"                      => $resultTagihan->ppn_flag,
-                "denda"                         => 0,
-                "penalti"                       => 0,
-                "diskon_master_id"              => 0,
-                "diskon_master"                 => 0,
-                "diskon_request_tagihan_id"     => 0,
-                "diskon_request_denda_id"       => 0,
-                "diskon_request_pinalti_id"     => 0,
-                "status_bayar_flag"             => 0,
-                "formula"                       => $resultTagihan->formula,
-                "range_id"                      => $resultTagihan->range_id,
-                "range_code"                    => $resultTagihan->range_code,
-                "sub_golongan_id"               => $resultTagihan->sub_golongan_id,
-                "sub_golongan_code"             => $resultTagihan->sub_golongan_code,
-                "pemakaian"                     => $pemakaian
-            ];
+            // $dataTagihanAir = [
+            //     "proyek_id"                     => $project->id,
+            //     "unit_id"                       => $dataMeterAir['unit_id'],
+            //     "kode_tagihan"                  => 'kode123',
+            //     "periode"                       => $dataMeterAir['periode'],
+            //     "nilai"                         => $biaya,
+            //     "administrasi"                  => $resultTagihan->administrasi,
+            //     "ppn_flag"                      => $resultTagihan->ppn_flag,
+            //     "denda"                         => 0,
+            //     "penalti"                       => 0,
+            //     "diskon_master_id"              => 0,
+            //     "diskon_master"                 => 0,
+            //     "diskon_request_tagihan_id"     => 0,
+            //     "diskon_request_denda_id"       => 0,
+            //     "diskon_request_pinalti_id"     => 0,
+            //     "status_bayar_flag"             => 0,
+            //     "formula"                       => $resultTagihan->formula,
+            //     "range_id"                      => $resultTagihan->range_id,
+            //     "range_code"                    => $resultTagihan->range_code,
+            //     "sub_golongan_id"               => $resultTagihan->sub_golongan_id,
+            //     "sub_golongan_code"             => $resultTagihan->sub_golongan_code,
+            //     "pemakaian"                     => $pemakaian
+            // ];
 
-            $resultTagihanAir =   $this->db->query("
-                                                    SELECT
-                                                        id
-                                                    FROM t_tagihan_air
-                                                    Where periode = '$dataTagihanAir[periode]'
-                                                    AND unit_id = $dataTagihanAir[unit_id]
-                                                ")->row();
+            // $resultTagihanAir =   $this->db->query("
+            //                                         SELECT
+            //                                             id
+            //                                         FROM t_tagihan_air
+            //                                         Where periode = '$dataTagihanAir[periode]'
+            //                                         AND unit_id = $dataTagihanAir[unit_id]
+            //                                     ")->row();
 
-            if ($resultTagihanAir) { //jika t_meter_air sudah ada, maka di update
-                $this->db->where('id', $resultTagihanAir->id);
-                $this->db->update('t_tagihan_air', $tagihan_air);
+            // if ($resultTagihanAir) { //jika t_meter_air sudah ada, maka di update
+            //     $this->db->where('id', $resultTagihanAir->id);
+            //     $this->db->update('t_tagihan_air', $tagihan_air);
 
-                $this->db->where('t_tagihan_air_id', $resultTagihanAir->id);
-                $this->db->update("t_tagihan_air_detail", $tagihan_air_detail);
+            //     $this->db->where('t_tagihan_air_id', $resultTagihanAir->id);
+            //     $this->db->update("t_tagihan_air_detail", $tagihan_air_detail);
 
-                $this->db->where('t_tagihan_air_id', $resultTagihanAir->id);
-                $this->db->update("t_tagihan_air_info", $tagihan_air_info);
-            } else {
-                $this->db->insert('t_tagihan_air', $tagihan_air);
+            //     $this->db->where('t_tagihan_air_id', $resultTagihanAir->id);
+            //     $this->db->update("t_tagihan_air_info", $tagihan_air_info);
+            // } else {
+            //     $this->db->insert('t_tagihan_air', $tagihan_air);
 
-                $tagihan_air_detail->t_tagihan_air_id   = $this->db->insert_id();
-                $tagihan_air_info->t_tagihan_air_id     = $tagihan_air_detail->t_tagihan_air_id;
+            //     $tagihan_air_detail->t_tagihan_air_id   = $this->db->insert_id();
+            //     $tagihan_air_info->t_tagihan_air_id     = $tagihan_air_detail->t_tagihan_air_id;
 
-                $this->db->insert("t_tagihan_air_detail", $tagihan_air_detail);
-                $this->db->insert("t_tagihan_air_info", $tagihan_air_info);
-            }
+            //     $this->db->insert("t_tagihan_air_detail", $tagihan_air_detail);
+            //     $this->db->insert("t_tagihan_air_info", $tagihan_air_info);
+            // }
         // END hide by Iman 27/05/2021 | EMS363 - EMS365
 
         if ($this->db->trans_status() === FALSE) {
@@ -1625,5 +1539,217 @@ class m_meter_air extends CI_Model
         } else {
             return 'error';
         }
+    }
+
+    public function biaya_air($range_id, $pemakaian, $formula)
+    {
+        if ($formula == 1) {
+            $query = $this->db->query("
+                    select top 1
+                        (CAST(harga as BIGINT) * ".$pemakaian.") as harga
+                    from range_air_detail
+                    where range_air_id = ".$range_id."
+                    and range_awal <= ".$pemakaian."
+                    order by range_awal desc
+                ");
+            $hasil = $query->result_array()[0]['harga'];
+
+            return $hasil;
+        } elseif ($formula == 2) {
+            $query = $this->db->query("
+                    select
+                        range_awal,
+                        range_akhir,
+                        harga
+                    from range_air_detail
+                    where range_air_id = ".$range_id."
+                    and range_awal <= ".$pemakaian."
+                ");
+            $result = $query->result_array();
+            $i = 0;
+            do {
+                if ($pemakaian > ($result[$i]['range_akhir'] - ($i != 0 ? $result[$i - 1]['range_akhir'] : 0))) { //selisih { //15 > 10 ? true
+                    if ($i == 0) // false
+                        $hasil += (($result[$i]['range_akhir']) * $result[$i]['harga']); //hasil = 20 * 8800
+                    else //true
+                        $hasil += (($result[$i]['range_akhir'] - $result[$i - 1]['range_akhir']) * $result[$i]['harga']);   //= 10 * 9800
+                } else {
+                    $hasil += ($pemakaian * $result[$i]['harga']); //
+
+                    return $hasil;
+                }
+                if ($i == 0)
+                    $pemakaian -=  $result[$i]['range_akhir']; // 35 - 20 = 15
+                else
+                    $pemakaian -= ($result[$i]['range_akhir'] - $result[$i - 1]['range_akhir']);
+                ++$i; // 1
+            } while ($pemakaian > 0);
+        } elseif ($formula == 3) {
+            $query = $this->db->query("
+                    select
+                        range_akhir,
+                        harga
+                    from range_air_detail
+                    where range_air_id = ".$range_id."
+                    and range_awal <= ".$pemakaian."
+                ");
+            $result = $query->result_array();
+            $pemakaian -= $result[0]['range_akhir'];
+            $hasil = $result[0]['harga'];
+            $i = 1;
+            if   (isset($result[$i])) {
+                do {
+                    if ($pemakaian > ($result[$i]['range_akhir'] - ($i != 0 ? $result[$i - 1]['range_akhir'] : 0))) { 
+                        $hasil += (($result[$i]['range_akhir'] - $result[$i - 1]['range_akhir']) * $result[$i]['harga']);
+                    } else {
+                        $hasil += ($pemakaian * $result[$i]['harga']);
+
+                        return $hasil;
+                    }
+
+                    $pemakaian -= ($result[$i]['range_akhir'] - $result[$i - 1]['range_akhir']);
+                    ++$i;
+                } while ($pemakaian > 0);
+            }
+
+            return $hasil;
+        } elseif ($formula == 4) {
+            $query = $this->db->query("
+                        select
+                            harga
+                        from range_air_detail
+                        where range_air_id = ".$range_id."
+                        and range_awal <= ".$pemakaian."
+                        and range_akhir >= ".$pemakaian."
+                    ");
+            $hasil = $query->row();
+            if ($hasil == null) {
+                $query = $this->db->query("
+                            select top 1
+                                harga
+                            from range_air_detail
+                            where range_air_id = ".$range_id."
+                            order by harga DESC
+                        ");
+                $hasil = $query->row();
+            }
+
+            return $hasil->harga;
+        } else {
+            return 0;
+        }
+    }
+    public function generate_tagihan_air($project_id, $periode)
+    {
+        $periode_old = date("Y-m-d", strtotime("-1 month", strtotime($periode)));
+
+        $res = $this->db->select("
+            tpma.id, 
+            tpma.unit_id, 
+            'Data Inputan' AS keterangan,
+            IIF(
+                tpma.meter_awal > 0,
+                tpma.meter_awal,
+                (
+                    SELECT TOP 1
+                        isnull(tpma1.meter_akhir, 0) AS meter_awal
+                    FROM 
+                        t_pencatatan_meter_air AS tpma1
+                    WHERE
+                        tpma1.unit_id = tpma.unit_id AND
+                        tpma1.periode = '".$periode_old."'
+                )
+            ) AS meter_awal,
+            tpma.meter_akhir,
+            sg.administrasi,
+            s.ppn_flag,
+            IIF (
+                s.ppn_flag = 1,
+                isnull(pp.value,'0'),
+                '0' 
+            ) AS nilai_ppn, 
+            s.denda_jenis,
+            s.denda_nilai,
+            ra.formula,
+            ra.id as range_id,
+            ra.code as range_code,
+            sg.id as sub_golongan_id,
+            sg.code as sub_golongan_code,
+            isnull(sg.minimum_pemakaian,0) AS minimum_pemakaian,
+            isnull(sg.minimum_rp,0) AS minimum_rp,
+            isnull(pa.nilai,0) as nilai_pemeliharaan
+        ")
+                ->from('t_pencatatan_meter_air tpma')
+                ->join('unit u', 'u.id = tpma.unit_id AND u.project_id = '.$project_id, 'INNER')
+                ->join('parameter_project pp', "pp.code = 'PPN' AND pp.project_id = ".$project_id, 'INNER')
+                ->join('unit_air ua', 'ua.unit_id = u.id', 'INNER')
+                ->join('sub_golongan sg', 'sg.id = ua.sub_gol_id', 'INNER')
+                ->join('range_air ra', 'ra.id = sg.range_id', 'INNER')
+                ->join('service s', 's.id = sg.service_id AND s.service_jenis_id = 2', 'INNER')
+                ->join('t_tagihan_air tta', "tta.unit_id = tpma.unit_id AND tta.periode = '".$periode."'", 'LEFT')
+                ->join('pemeliharaan_air pa', 'pa.id = sg.pemeliharaan_air_id', 'LEFT')
+                ->where('tpma.periode', $periode)
+                ->where('tta.id IS NULL')
+                ->get();
+
+        $count_success = 0;
+        foreach ($res->result() as $r) {
+            $pemakaian = $r->meter_akhir - $r->meter_awal;
+            $pemakaian = ($pemakaian<0 ? 0 : $pemakaian);
+            if ($r->minimum_pemakaian > $pemakaian){
+                $pemakaian = $r->minimum_pemakaian;
+            }
+
+            $this->db->trans_begin();
+                $biaya = $this->biaya_air($r->range_id, $pemakaian, $r->unit_id);
+                if ($r->minimum_rp > $biaya)
+                    $biaya = $minimum_pemakaian_rp->minimum_rp;
+
+                $data_tagihan        = (object)[];
+                $data_tagihan->proyek_id    = $project_id;
+                $data_tagihan->unit_id      = $r->unit_id;
+                $data_tagihan->periode      = $periode;
+                $this->db->insert('t_tagihan', $data_tagihan);
+
+                $tagihan_air         = (object)[];
+                $tagihan_air->proyek_id         = $project_id;
+                $tagihan_air->t_tagihan_id      = $this->db->insert_id();
+                $tagihan_air->unit_id           = $r->unit_id;
+                $tagihan_air->kode_tagihan      = "EX-Test";
+                $tagihan_air->periode           = $periode;
+                $tagihan_air->status_tagihan    = 0;
+                $this->db->insert('t_tagihan_air', $tagihan_air);
+
+                $tagihan_air_detail  = (object)[];
+                $tagihan_air_detail->t_tagihan_air_id   = $this->db->insert_id();
+                $tagihan_air_detail->nilai_ppn          = $r->nilai_ppn;
+                $tagihan_air_detail->nilai_flag         = 0;
+                $tagihan_air_detail->nilai_denda_flag   = 0;
+                $tagihan_air_detail->nilai              = $biaya;
+                $tagihan_air_detail->nilai_administrasi = $r->administrasi;
+                $tagihan_air_detail->nilai_denda        = 0;
+                $tagihan_air_detail->ppn_flag           = $r->ppn_flag ? 1 : 0;
+                $tagihan_air_detail->nilai_pemeliharaan = $r->nilai_pemeliharaan ?? 0;
+                $this->db->insert("t_tagihan_air_detail", $tagihan_air_detail);
+
+                $tagihan_air_info    = (object)[];
+                $tagihan_air_info->t_tagihan_air_id     = $tagihan_air_detail->t_tagihan_air_id;
+                $tagihan_air_info->range_id             = $r->range_id;
+                $tagihan_air_info->range_code           = $r->range_code;
+                $tagihan_air_info->sub_golongan_id      = $r->sub_golongan_id;
+                $tagihan_air_info->sub_golongan_code    = $r->sub_golongan_code;
+                $tagihan_air_info->pemakaian            = $pemakaian;
+                $tagihan_air_info->denda_jenis_service  = $r->denda_jenis;
+                $tagihan_air_info->denda_nilai_service  = $r->denda_nilai;
+                $this->db->insert("t_tagihan_air_info", $tagihan_air_info);
+            
+            if ($this->db->trans_status() === FALSE) {
+                $this->db->trans_rollback();
+            } else {
+                $this->db->trans_commit();
+                $count_success++;
+            }
+        }
+        return $count_success;
     }
 }
