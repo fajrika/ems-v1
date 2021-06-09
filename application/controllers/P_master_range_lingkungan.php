@@ -28,7 +28,6 @@ class P_master_range_lingkungan extends CI_Controller {
 		$this->load->view('core/footer');
 	}
 	
-	
 	public function add()
 	{
 		$this->load->model('m_range_lingkungan');
@@ -41,7 +40,6 @@ class P_master_range_lingkungan extends CI_Controller {
 		$this->load->view('core/body_footer');
 		$this->load->view('core/footer');
 	}
-	
 	
 	public function save()
 	{	
@@ -108,10 +106,12 @@ class P_master_range_lingkungan extends CI_Controller {
 		}			
 	}
 	
-	
-	
-	  public function edit()
+	public function edit()
     {
+    	// echo "<pre>";
+    	// print_r($this->input->post());
+    	// echo "</pre>";
+    	// exit();
         $status = 0;
         if ($this->input->post('kode_range')) {
             $this->load->model('alert');
@@ -132,26 +132,18 @@ class P_master_range_lingkungan extends CI_Controller {
 				'kavling_fix' => $this->input->post('biaya_kavling'),
 				'service_charge' => $this->input->post('service_charge'),
 				'ppn_charge' => $this->input->post('ppn'),
-				
-				
 					
-				
                 'id_range_bangunan' => $this->input->post('id_range_bangunan[]'),
                 'range_awal' => $this->input->post('range_awal[]'),
                 'range_akhir' => $this->input->post('range_akhir[]'),
                 'harga_hpp' => $this->input->post('harga_hpp[]'),
                 'harga_range' => $this->input->post('harga_range[]'),
 				
-				
 				'id_range_kavling' => $this->input->post('id_range_kavling[]'),
                 'range_awal2' => $this->input->post('range_awal2[]'),
                 'range_akhir2' => $this->input->post('range_akhir2[]'),
                 'harga_hpp2' => $this->input->post('harga_hpp2[]'),
                 'harga_range2' => $this->input->post('harga_range2[]'),
-				
-				
-				
-				
             ]);
             $this->alert->css();
         }
@@ -180,8 +172,6 @@ class P_master_range_lingkungan extends CI_Controller {
             $this->load->view('core/alert', ['title' => 'Gagal | Double', 'text' => 'Data Inputan suda Ada', 'type' => 'danger']);
         }
     }
-	
-	
 	
 	public function delete()
     {

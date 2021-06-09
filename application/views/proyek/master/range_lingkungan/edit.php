@@ -57,9 +57,6 @@ defined('BASEPATH') or exit('No direct script access allowed');
 <div class="x_content">
     <br />
     <form id="form" data-parsley-validate="" class="form-horizontal form-label-left" novalidate="" method="post" action="<?= site_url(); ?>/P_master_range_lingkungan/edit?id=<?= $this->input->get('id'); ?>">
-
-
-
         <div class="col-md-6 col-xs-12">
             <div class="form-group">
                 <label class="control-label col-md-4 col-sm-3 col-xs-12">Kode</label>
@@ -77,7 +74,7 @@ defined('BASEPATH') or exit('No direct script access allowed');
             <div class="form-group">
                 <label class="control-label col-md-4 col-sm-3 col-xs-12">Keterangan</label>
                 <div class="col-md-8 col-sm-8 col-xs-12">
-                    <textarea class="form-control disabled-form" rows="3" name="keterangan" placeholder='Masukkan Keterangan' disabled> <?= $data_select->description; ?></textarea>
+                    <textarea class="form-control disabled-form" rows="3" name="keterangan" placeholder='Masukkan Keterangan' disabled><?= $data_select->description; ?></textarea>
                 </div>
             </div>
 
@@ -178,14 +175,12 @@ defined('BASEPATH') or exit('No direct script access allowed');
                 <div class="col-md-8">
                     <div class="">
                         <label>
-                            <input id="ppn" type="checkbox" class="js-switch disabled-form" name="ppn" value='1' <?= $data_select->ppn_charge
-                                                                                                                        == 1 ? 'checked' : ''; ?> disabled />Aktif
+                            <input id="ppn" type="checkbox" class="js-switch disabled-form" name="ppn" value='1' <?= $data_select->ppn_charge == 1 ? 'checked' : ''; ?> disabled />Aktif
                         </label>
                     </div>
                 </div>
             </div>
         </div>
-
 
         <div id="detail" class="">
             <div class="col-md-12 col-sm-12 col-xs-12">
@@ -289,15 +284,8 @@ defined('BASEPATH') or exit('No direct script access allowed');
                                                     }
                                                 }
                                                 ?>
-
-
-
-
-
                                                 <input id="idf2" value="1" type="hidden" />
-
                                             </tbody>
-
                                         </table>
                                         <button type="button" id="button_range_kavling" class="btn btn-primary pull-right  disabled-form" disabled><i class="fa fa-plus"></i> Range Kavling</button>
                                     </p>
@@ -314,7 +302,6 @@ defined('BASEPATH') or exit('No direct script access allowed');
         </div>
     </form>
 </div>
-
 
 <div class="x_panel">
     <div class="x_title">
@@ -366,18 +353,9 @@ defined('BASEPATH') or exit('No direct script access allowed');
     </div>
 </div>
 
-
-
-
-
-
-
-
 <!-- jQuery -->
 <script type="text/javascript">
     $(function() {
-
-
         $("#flag_bangunan").change(function() {
             if ($("#flag_bangunan").is(':checked')) {
                 $("#formula_bangunan").attr('disabled', true);
@@ -447,20 +425,10 @@ defined('BASEPATH') or exit('No direct script access allowed');
                 $("#komponen-luas-kavling").css('display', '');
                 $("#tab_content2").css('display', '');
                 $("#komponen-kavling").tab().show();
-
             }
         });
-
-
     });
 </script>
-
-
-
-
-
-
-
 
 <script type="text/javascript">
     $(function() {
@@ -489,11 +457,6 @@ defined('BASEPATH') or exit('No direct script access allowed');
         $("#tbody_range_bangunan").append(str);
     });
 
-
-
-
-
-
     function hapusElemen(idf) {
         $(idf).remove();
         var idf = document.getElementById("idf").value;
@@ -501,8 +464,6 @@ defined('BASEPATH') or exit('No direct script access allowed');
         document.getElementById("idf").value = idf;
     }
 </script>
-
-
 
 <!-- jQuery -->
 <script type="text/javascript">
@@ -531,11 +492,6 @@ defined('BASEPATH') or exit('No direct script access allowed');
             "</tr>";
         $("#tbody_range_kavling").append(str);
     });
-
-
-
-
-
 
     function hapusElemen2(idf2) {
         $(idf2).remove();
@@ -638,7 +594,6 @@ defined('BASEPATH') or exit('No direct script access allowed');
         
         window.open(window.location.href,'_self');
     });
-
 
     $(".btn-modal").click(function() {
         url = '<?= site_url(); ?>/core/get_log_detail';

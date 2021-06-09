@@ -4,7 +4,6 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 class m_range_lingkungan extends CI_Model {
 
     public function get()
-		
     {
 		
 	    $project = $this->m_core->project();
@@ -13,7 +12,6 @@ class m_range_lingkungan extends CI_Model {
         ");
         return $query->result_array();
     }
-
 
     public function getSelect($id){
         $this->load->model('m_core');
@@ -28,7 +26,6 @@ class m_range_lingkungan extends CI_Model {
         return $row; 
     }
 
-
     public function get_range_detail_bangunan($id)
     {
         $this->load->model('m_core');
@@ -39,9 +36,7 @@ class m_range_lingkungan extends CI_Model {
             order by  id asc
         ");
 		return $query->result_array();
-		
     }
-
 
     public function get_range_detail_kavling($id)
     {
@@ -53,42 +48,65 @@ class m_range_lingkungan extends CI_Model {
             order by  id asc
         ");
 		return $query->result_array();
-		
     }
-    
 
     public function get_log($id)
     {
         $this->load->model('m_core');
         $project = $this->m_core->project();
         $query = $this->db->query("
-            			
-			SELECT  
-                    range_lingkungan.code					 as code,
-                    range_lingkungan.name					 as name,                    
-                    range_lingkungan.description			 as description, 
-                    case when range_lingkungan.active = 0	 then 'Tidak Aktif' else 'Aktif' end as aktif, 
-                    case when range_lingkungan.[delete] = 0 then 'Tidak di Hapus' else 'Terhapus' end as [delete],
-                    range_lingkungan_detail.id				as id_range_lingkungan_detail,
-                    range_lingkungan_detail.range_awal		as range_awal,
-					range_lingkungan_detail.range_akhir	as range_akhir,
-					range_lingkungan_detail.harga_hpp		as harga_hpp,
-                    range_lingkungan_detail.harga	as harga_range,
-                    range_lingkungan_detail.flag_jenis	as flag_jenis
-                    
-                   
-            FROM range_lingkungan
-            LEFT JOIN range_lingkungan_detail		ON range_lingkungan.id = range_lingkungan_detail.range_lingkungan_id
-            WHERE				range_lingkungan.id             = $id
-            AND					range_lingkungan.project_id     = $project->id
-            ORDER BY			range_lingkungan.id		  ASC
-			
-			
-			
-			
-			
-			
-			
+			SELECT
+                range_lingkungan.code AS code,
+                range_lingkungan.name AS name,
+                range_lingkungan.formula_bangunan AS formula_bangunan,
+                range_lingkungan.description AS description,
+                range_lingkungan.keamanan AS keamanan,
+                range_lingkungan.kebersihan AS kebersihan,
+                range_lingkungan.bangunan_fix AS bangunan_fix,
+                range_lingkungan.kavling_fix AS kavling_fix,
+                CASE
+                    WHEN range_lingkungan.service_charge = 0 THEN
+                    'Tidak Aktif' ELSE 'Aktif' 
+                END AS service_charge,
+                CASE
+                    WHEN range_lingkungan.ppn_charge = 0 THEN
+                    'Tidak Aktif' ELSE 'Aktif' 
+                END AS ppn_charge,
+                CASE
+                    WHEN range_lingkungan.flag_bangunan = 0 THEN
+                    'Tidak Aktif' ELSE 'Aktif' 
+                END AS flag_bangunan,
+                CASE
+                    WHEN range_lingkungan.flag_kavling = 0 THEN
+                    'Tidak Aktif' ELSE 'Aktif' 
+                END AS flag_kavling,
+                CASE
+                    WHEN range_lingkungan.active = 0 THEN
+                    'Tidak Aktif' ELSE 'Aktif' 
+                END AS aktif,
+                CASE
+                    WHEN range_lingkungan.[delete] = 0 THEN
+                    'Tidak di Hapus' ELSE 'Terhapus' 
+                END AS [delete],
+                range_lingkungan.formula_kavling AS formula_kavling,
+                CASE
+                    WHEN range_lingkungan.lock = 0 THEN
+                    'Tidak Aktif' ELSE 'Aktif' 
+                END AS lock,
+                range_lingkungan_detail.id AS id_range_lingkungan_detail,
+                range_lingkungan_detail.range_awal AS range_awal,
+                range_lingkungan_detail.range_akhir AS range_akhir,
+                range_lingkungan_detail.harga_hpp AS harga_hpp,
+                range_lingkungan_detail.harga AS harga_range,
+                range_lingkungan_detail.flag_jenis AS flag_jenis 
+            FROM
+                range_lingkungan
+                LEFT JOIN range_lingkungan_detail ON range_lingkungan.id = range_lingkungan_detail.range_lingkungan_id 
+            WHERE
+                range_lingkungan.id = $id 
+                AND range_lingkungan.project_id = $project->id 
+            ORDER BY
+                range_lingkungan.id ASC
         ");
         $row = $query->result_array();
         $hasil = [];
@@ -97,9 +115,20 @@ class m_range_lingkungan extends CI_Model {
             if (!array_key_exists('code', $hasil)) {
                 $hasil['code'] = $v['code'];
                 $hasil['name'] = $v['name'];
+                $hasil['formula_bangunan'] = $v['formula_bangunan'];
                 $hasil['description'] = $v['description'];
                 $hasil['aktif'] = $v['aktif'];
                 $hasil['delete'] = $v['delete'];
+                $hasil['keamanan'] = $v['keamanan'];
+                $hasil['kebersihan'] = $v['kebersihan'];
+                $hasil['bangunan_fix'] = $v['bangunan_fix'];
+                $hasil['kavling_fix'] = $v['kavling_fix'];
+                $hasil['service_charge'] = $v['service_charge'];
+                $hasil['ppn_charge'] = $v['ppn_charge'];
+                $hasil['flag_bangunan'] = $v['flag_bangunan'];
+                $hasil['flag_kavling'] = $v['flag_kavling'];
+                $hasil['formula_kavling'] = $v['formula_kavling'];
+                $hasil['lock'] = $v['lock'];
             }
             $hasil[$i.' id_range_lingkungan_detail'] = $v['id_range_lingkungan_detail'];
             $hasil[$i.' range_awal'] = $v['range_awal'];
@@ -114,10 +143,6 @@ class m_range_lingkungan extends CI_Model {
         return $hasil;
     }
 	
-	
-
-
-	
 	public function get_log_detail($id){
         $this->load->model('m_core');
         $project = $this->m_core->project();
@@ -129,7 +154,6 @@ class m_range_lingkungan extends CI_Model {
         return $row; 
     }
 	
-	
 	public function cek($id){
         $this->load->model('m_core');
         $project = $this->m_core->project();
@@ -140,8 +164,6 @@ class m_range_lingkungan extends CI_Model {
         $row = $query->row();
         return isset($row)?1:0;
     }
-	
-	
     
 	public function save($dataTmp)
     {
@@ -281,7 +303,7 @@ class m_range_lingkungan extends CI_Model {
     }
 	
 	
-	  public function edit($dataTmp)
+    public function edit($dataTmp)
     {
         // echo '<pre>';
         // print_r($dataTmp);
@@ -319,138 +341,124 @@ class m_range_lingkungan extends CI_Model {
             'active' => $dataTmp['active'] ? 1 : 0,
             'delete' => 0
         ];
-
-
-        
-
         
        // echo '<pre>';
        // print_r($data);
        // echo '</pre>';
 
        if ($this->db->count_all_results() != 0) {
-        
-        //proses edit
-        $beforeRange = $this->get_log($dataTmp['id']);
+            //proses edit
+            $beforeRange = $this->get_log($dataTmp['id']);
 
-        $this->db->where('id', $dataTmp['id']);
-        $this->db->update('range_lingkungan', $data);
-        $afterRange = $this->get_log($dataTmp['id']);
-        $diff = (object) (array_diff_assoc((array) $afterRange, (array) $beforeRange));
-        $tmpDiff = (array) $diff;
-        if(true){
-            $i = 0;
-            $j = 0;
-            $jumlahRangeBangunanBaru = 0;
-            $jumlahRangeKavlingBaru = 0;
-
-             //echo '<pre>';
-             //   print_r($dataTmp);
-             //   echo '</pre>';
-            if (isset($dataTmp['id_range_bangunan'] )) {
-
-            foreach ($dataTmp['id_range_bangunan'] as $v) {
-                // echo '<pre>';
-                // print_r($v);
-                // echo '</pre>';
-                // var_dump($dataTmp['id_rekening'][$i]);
-                $dataRangeLingkunganDetailBangunanTmp = [];
-                $dataRangeLingkunganDetailBangunanTmp =
-                [
-                    'range_lingkungan_id' => $dataTmp['id'],
-                    'range_awal' =>  $this->m_core->currency_to_number($dataTmp['range_awal'][$i]),  
-                    'range_akhir' =>  $this->m_core->currency_to_number($dataTmp['range_akhir'][$i]),  
-                    'harga_hpp' =>  $this->m_core->currency_to_number($dataTmp['harga_hpp'][$i]), 
-                    'harga' =>  $this->m_core->currency_to_number($dataTmp['harga_range'][$i]),     
-                    'flag_jenis'=> 0,
-                    'active'=> 1,                    
-                    'delete' => 0
-
-                ];
-                if ($v != 0) {
-                    $jumlahRangeBangunanBaru++;
-                    // $dataRekeningTmp['id'] = $dataTmp['id_rekening'][$i];
-                    // edit rekening
-                    $this->db->where('id', $dataTmp['id_range_bangunan'][$i]);
-                    $this->db->update('range_lingkungan_detail', $dataRangeLingkunganDetailBangunanTmp);
-                }else{
-                    // add rekening
-                    $this->db->insert('range_lingkungan_detail', $dataRangeLingkunganDetailBangunanTmp);  
-
-                }
-
-                // echo '<pre>';
-                // print_r($dataRekeningTmp);
-                // echo '</pre>';
-                $i++;
-            }
-
-        }
-
-        }
-
-        if (isset($dataTmp['id_range_kavling'] )) {
-
-
-            foreach ($dataTmp['id_range_kavling'] as $m) {
-                // echo '<pre>';
-                // print_r($v);
-                // echo '</pre>';
-                
-                $dataRangeLingkunganDetailKavlingTmp = [];
-                $dataRangeLingkunganDetailKavlingTmp =
-                [
-                    'range_lingkungan_id' => $dataTmp['id'],
-                    'range_awal' =>  $this->m_core->currency_to_number($dataTmp['range_awal2'][$j]), 
-                    'range_akhir' =>  $this->m_core->currency_to_number($dataTmp['range_akhir2'][$j]),  
-                    'harga_hpp' =>  $this->m_core->currency_to_number($dataTmp['harga_hpp2'][$j]),   
-                    'harga' =>  $this->m_core->currency_to_number($dataTmp['harga_range2'][$j]),    
-                    'flag_jenis'=> 1,
-                    'active'=> 1,                    
-                    'delete' => 0
-
-                ];
-                if ($m != 0) {
-                    $jumlahRangeKavlingBaru++;
-                   
-                    // edit range
-                    $this->db->where('id', $dataTmp['id_range_kavling'][$j]);
-                    $this->db->update('range_lingkungan_detail', $dataRangeLingkunganDetailKavlingTmp);
-                }else{
-                    // add range
-                    $this->db->insert('range_lingkungan_detail', $dataRangeLingkunganDetailKavlingTmp);  
-
-                }
-
-               
-                $j++;
-            }
-
-           
-            $after = $this->get_log($dataTmp['id']);
-            $diff = (object) (array_diff_assoc((array) $after, (array) $before));
+            $this->db->where('id', $dataTmp['id']);
+            $this->db->update('range_lingkungan', $data);
+            $afterRange = $this->get_log($dataTmp['id']);
+            $diff = (object) (array_diff_assoc((array) $afterRange, (array) $beforeRange));
             $tmpDiff = (array) $diff;
-            // echo '<pre>';
-            //     print_r($before);
-            // echo '</pre>';
-            // echo '<pre>';
-            //     print_r($after);
-            // echo '</pre>';
-            // echo '<pre>';
-            //     print_r($tmpDiff);
-            // echo '</pre>';
-            if ($tmpDiff) {
-                $this->m_log->log_save('range_lingkungan', $dataTmp['id'], 'Edit', $diff);
+            if(true){
+                $i = 0;
+                $j = 0;
+                $jumlahRangeBangunanBaru = 0;
+                $jumlahRangeKavlingBaru = 0;
 
-                return 'success';
+                 //echo '<pre>';
+                 //   print_r($dataTmp);
+                 //   echo '</pre>';
+                if (isset($dataTmp['id_range_bangunan'] )) {
+
+                    foreach ($dataTmp['id_range_bangunan'] as $v) {
+                        // echo '<pre>';
+                        // print_r($v);
+                        // echo '</pre>';
+                        // var_dump($dataTmp['id_rekening'][$i]);
+                        $dataRangeLingkunganDetailBangunanTmp = [];
+                        $dataRangeLingkunganDetailBangunanTmp =
+                        [
+                            'range_lingkungan_id' => $dataTmp['id'],
+                            'range_awal' =>  $this->m_core->currency_to_number($dataTmp['range_awal'][$i]),  
+                            'range_akhir' =>  $this->m_core->currency_to_number($dataTmp['range_akhir'][$i]),  
+                            'harga_hpp' =>  $this->m_core->currency_to_number($dataTmp['harga_hpp'][$i]), 
+                            'harga' =>  $this->m_core->currency_to_number($dataTmp['harga_range'][$i]),     
+                            'flag_jenis'=> 0,
+                            'active'=> 1,                    
+                            'delete' => 0
+
+                        ];
+                        if ($v != 0) {
+                            $jumlahRangeBangunanBaru++;
+                            // $dataRekeningTmp['id'] = $dataTmp['id_rekening'][$i];
+                            // edit rekening
+                            $this->db->where('id', $dataTmp['id_range_bangunan'][$i]);
+                            $this->db->update('range_lingkungan_detail', $dataRangeLingkunganDetailBangunanTmp);
+                        }else{
+                            // add rekening
+                            $this->db->insert('range_lingkungan_detail', $dataRangeLingkunganDetailBangunanTmp);  
+
+                        }
+
+                        // echo '<pre>';
+                        // print_r($dataRekeningTmp);
+                        // echo '</pre>';
+                        $i++;
+                    }
+                }
+            }
+
+            if (isset($dataTmp['id_range_kavling'] )) {
+
+
+                foreach ($dataTmp['id_range_kavling'] as $m) {
+                    // echo '<pre>';
+                    // print_r($v);
+                    // echo '</pre>';
+                    
+                    $dataRangeLingkunganDetailKavlingTmp = [];
+                    $dataRangeLingkunganDetailKavlingTmp =
+                    [
+                        'range_lingkungan_id' => $dataTmp['id'],
+                        'range_awal' =>  $this->m_core->currency_to_number($dataTmp['range_awal2'][$j]), 
+                        'range_akhir' =>  $this->m_core->currency_to_number($dataTmp['range_akhir2'][$j]),  
+                        'harga_hpp' =>  $this->m_core->currency_to_number($dataTmp['harga_hpp2'][$j]),   
+                        'harga' =>  $this->m_core->currency_to_number($dataTmp['harga_range2'][$j]),    
+                        'flag_jenis'=> 1,
+                        'active'=> 1,                    
+                        'delete' => 0
+
+                    ];
+                    if ($m != 0) {
+                        $jumlahRangeKavlingBaru++;
+                       
+                        // edit range
+                        $this->db->where('id', $dataTmp['id_range_kavling'][$j]);
+                        $this->db->update('range_lingkungan_detail', $dataRangeLingkunganDetailKavlingTmp);
+                    }else{
+                        // add range
+                        $this->db->insert('range_lingkungan_detail', $dataRangeLingkunganDetailKavlingTmp);  
+                    }
+
+                    $j++;
+                }
+               
+                $after = $this->get_log($dataTmp['id']);
+                $diff = (object) (array_diff_assoc((array) $after, (array) $before));
+                $tmpDiff = (array) $diff;
+                // echo '<pre>';
+                //     print_r($before);
+                // echo '</pre>';
+                // echo '<pre>';
+                //     print_r($after);
+                // echo '</pre>';
+                // echo '<pre>';
+                //     print_r($tmpDiff);
+                // echo '</pre>';
+                if ($tmpDiff) {
+                    $this->m_log->log_save('range_lingkungan', $dataTmp['id'], 'Edit', $diff);
+
+                    return 'success';
+                }
             }
         }
-
     }
-       
-       
-    }
-	
 	
 	public function delete($dataTmp)
     {
@@ -483,7 +491,4 @@ class m_range_lingkungan extends CI_Model {
                  
         }
     }
-	
-	
-
 }
