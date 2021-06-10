@@ -137,7 +137,12 @@ class m_diskon extends CI_Model {
                                     WHEN diskon.parameter = 3 THEN 'Persen'
                                 END as parameter,
                                 diskon.description,
-                                diskon.minimal_bulan
+                                diskon.minimal_bulan,
+                                service_jenis.code_default as service_jenis,
+                                diskon.periode_diskon_awal,
+                                diskon.periode_diskon_akhir,
+                                diskon.periode_berlaku_awal,
+                                diskon.periode_berlaku_akhir
                             ")
                         ->from("diskon")
                         ->join("gol_diskon",
@@ -152,12 +157,13 @@ class m_diskon extends CI_Model {
                         ->join("paket_service",
                             "paket_service.id = diskon.paket_service_id",
                             "LEFT")
+                        ->join("service_jenis",
+                            "service_jenis.id = diskon.service_jenis_id",
+                            "LEFT")
                         ->where("diskon.project_id",$project->id)
                         ->where("diskon.id",$id)
                         ->get()->row();
     }
-
-
     
     public function ajax_save($dataTmp){
         $this->load->model('m_log');
@@ -224,7 +230,6 @@ class m_diskon extends CI_Model {
             $return->message = "Data sudah ada";
         }
         return $return;
-        
     }
     public function ajax_edit($dataTmp){
         $this->load->model('m_log');
@@ -281,6 +286,8 @@ class m_diskon extends CI_Model {
         $this->db->where('periode_berlaku_akhir', $data->periode_berlaku_akhir);
         $this->db->where('minimal_bulan', $data->minimal_bulan);
         $this->db->where('project_id', $project->id);
+        // echo $this->db->from('diskon')->get_compiled_select();
+        // exit();
         $result = $this->db->from('diskon')->get()->row();
         // validasi double
         // var_dump($result);
@@ -289,14 +296,13 @@ class m_diskon extends CI_Model {
                 $this->db->where("id",$id);
                 $this->db->update('diskon', $data);
                 $dataLog = $this->get_log($this->db->insert_id());
-                $this->m_log->log_save('diskon',$this->db->insert_id(),'Tambah',$dataLog);    
+                $this->m_log->log_save('diskon',$this->db->insert_id(),'Edit',$dataLog);    
             }
         }else{
             $return->status = 0;
             $return->message = "Data sudah ada";
         }
         return $return;
-        
     }
     public function save($dataTmp)
     {        
@@ -311,7 +317,6 @@ class m_diskon extends CI_Model {
             'active'                => 1,
             'delete'                => 0,
         ];
-		
 		
 		$data_diskon_detail = [
             'service_id'            => $dataTmp['service_id'],
@@ -355,14 +360,14 @@ class m_diskon extends CI_Model {
                 $this->db->insert('diskon_detail', $data_diskon_detail2);
                 $dataLog = $this->get_log_diskon($this->db->insert_id());
                 $this->m_log->log_save('diskon_detail',$this->db->insert_id(),'Tambah',$dataLog);
-
 			}
             $dataLog = $this->get_log_diskon($id);
             $this->m_log->log_save('diskon',$id,'Tambah',$dataLog);
 							
             return 'success';
-        }else return 'double';
-
+        } else {
+            return 'double';
+        }
     }
 
     public function cek($id){
@@ -414,7 +419,6 @@ class m_diskon extends CI_Model {
         //print_r($dataTmp);
         //echo '</pre>';
 
-        
         //$this->db->where('project_id', $project->id);
         $this->db->where('diskon_id', $dataTmp['id']);
         $this->db->update('diskon_detail', ['delete' => 1]);
@@ -480,14 +484,7 @@ class m_diskon extends CI_Model {
             } else {
                 return 'Tidak Ada Perubahan';
             }
-
-
-
-
-
-
         }
-        
     }
     public function delete($id){
         $project = $this->m_core->project();
@@ -500,7 +497,5 @@ class m_diskon extends CI_Model {
         else
             return false;
     }
-	
-
 }
 ?>

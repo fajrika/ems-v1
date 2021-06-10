@@ -107,6 +107,5 @@ class m_log extends CI_Model {
 
         // }
         // $this->db->insert('log', $data);
-        
     }
 }

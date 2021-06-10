@@ -37,7 +37,6 @@ class P_master_diskon extends CI_Controller{
     
     public function add()
 	{   
-        
         $this->load->model('m_service');
         $this->load->model('m_purpose_use');
         $this->load->model('m_gol_diskon');
@@ -45,7 +44,6 @@ class P_master_diskon extends CI_Controller{
         $dataPurposeUse = $this->m_purpose_use->get();
         
         $dataService = $this->m_service->get();
-
 
         $this->load->model('alert');
         $this->load->view('core/header');
@@ -114,6 +112,5 @@ class P_master_diskon extends CI_Controller{
     public function ajax_edit(){
         echo(json_encode($this->m_diskon->ajax_edit($this->input->get())));
     }
-
 }
 ?>
