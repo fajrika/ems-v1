@@ -634,6 +634,7 @@ class P_master_unit extends CI_Controller
 			->from('customer')
 			->where('project_id', $GLOBALS['project']->id)
 			->where("customer.name like '%" . $this->input->get('data') . "%'")
+            ->where("customer.delete <>", 1)
 			->limit(10)
 			->get()->result();		
 		echo json_encode($customers);
