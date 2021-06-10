@@ -49,7 +49,6 @@ class m_unit extends CI_Model
     }
     public function getSelectMetodePenagihan($id)
     {
-
         $project = $this->m_core->project();
         $query = $this->db->query("
         SELECT 
@@ -299,7 +298,6 @@ class m_unit extends CI_Model
     }
     public function ajax_get_sub_golongan($golongan_id, $jenis, $like)
     {
-
         $data = $this->db
             ->select('sub_golongan.id')
             ->from('sub_golongan')
@@ -420,7 +418,6 @@ class m_unit extends CI_Model
     //         FROM diskon
     //         where active = 1
     //         order by id asc
-
     //     ');
 
     //     return $query->result_array();
@@ -521,20 +518,28 @@ class m_unit extends CI_Model
                 unit.virtual_account as [Virtual Account],
                 pt.name as [PT],
                 unit.tgl_st [Tanggal ST],
+                unit.tgl_bangun [Tanggal Bangun],
                 CASE unit.kirim_tagihan
                     WHEN 1 THEN 'Pemilik'
                     WHEN 2 THEN 'Penghuni'
                     ELSE 'Pemilik dan Penghuni'
                 END as [Kirim Tagihan],
+                CASE unit.diskon_flag
+                    when 1 then 'Aktif'
+                    else 'Tidak Aktif'
+                end as [Diskon Flag],
                 CASE unit.active
                     when 1 then 'Aktif'
                     else 'Tidak Aktif'
                 end as [Status Unit],
+                CASE unit.status_jual
+                    when 1 then 'Aktif'
+                    else 'Tidak Aktif'
+                end as [Status Jual],
                 CASE unit.[delete]
                     when 1 then 'Terhapus'
                     else 'Tidak Terhapus'
                 end as [Status Delete Unit],
-                
                 
                 CASE unit_air.aktif
                     WHEN 1 THEN 'Aktif'
@@ -567,8 +572,10 @@ class m_unit extends CI_Model
                 sub_gol_listrik.name as [Informasi Listrik -> Sub Golongan],
                 pemeliharaan_meter_listrik.code as [Informasi Listrik -> Kode Sewa Meter],
                 unit_listrik.no_seri_meter as [Informasi Listrik -> Nomor Seri Meter],
-                unit_listrik.angka_meter_sekarang as [Informasi Listrik -> Angka Meter Sekarang]
-                
+                unit_listrik.angka_meter_sekarang as [Informasi Listrik -> Angka Meter Sekarang],
+
+                product_category.name as [Product Category],
+                purpose_use.name as [Purpose Use]
                 
             FROM unit
             
@@ -587,7 +594,6 @@ class m_unit extends CI_Model
             LEFT JOIN jenis_golongan
                 ON jenis_golongan.id = unit.gol_id
 
-                
             LEFT JOIN unit_air
                 ON unit_air.unit_id = unit.id
             LEFT JOIN pemeliharaan_air
@@ -606,6 +612,9 @@ class m_unit extends CI_Model
                 ON unit_lingkungan.unit_id  = unit.id
             LEFT JOIN sub_golongan as sub_gol_lingkungan
                 ON sub_gol_lingkungan.id = unit_lingkungan.sub_gol_id
+
+            LEFT JOIN product_category
+                ON product_category.id = unit.product_category_id
                 
             WHERE unit.id = $id
             AND kawasan.project_id = $project->id
@@ -626,7 +635,6 @@ class m_unit extends CI_Model
             WHERE unit_metode_penagihan.unit_id = $id
         ");
         $row = $query->result_array();
-
 
         // echo('<pre>');
         //     print_r($row);
@@ -667,10 +675,6 @@ class m_unit extends CI_Model
         return isset($row) ? 1 : 0;
     }
 
-
-
-
-
     public function save($dataTmp)
     {
         // echo('<pre>');
@@ -681,7 +685,6 @@ class m_unit extends CI_Model
         $this->load->model('m_log');
 
         $project = $this->m_core->project();
-
 
         $dataUnit =
             [
@@ -738,7 +741,6 @@ class m_unit extends CI_Model
                 'no_seri_meter' => $dataTmp['no_seri_meter_listrik'],
             ];
         $dataUnitMetodePenagihan = $dataTmp['metode_tagihan'];
-
 
         $this->db->join('blok', 'unit.blok_id = blok.id');
         $this->db->join('kawasan', 'blok.kawasan_id = kawasan.id');
@@ -802,7 +804,6 @@ class m_unit extends CI_Model
         // $this->db->where('unit.blok_id', $dataTmp['blok_id']);
         // $this->db->from('unit');
 
-
         $dataUnit =
             [
                 'blok_id' => $dataTmp['blok_id'],
@@ -825,7 +826,6 @@ class m_unit extends CI_Model
                 'delete' => 0,
                 'status_jual'     => $dataTmp['status_jual'],
             ];
-
 
         $dataUnitAir =
             [
@@ -862,13 +862,6 @@ class m_unit extends CI_Model
         //     ];
         $dataSelectMetodePenagihan = $dataTmp['metode_tagihan'];
 
-
-
-
-
-
-
-
         //    echo '<pre>';
         //    print_r($dataUnitAir);
         //    echo '</pre>';
@@ -876,11 +869,8 @@ class m_unit extends CI_Model
         // die;
         // if ($this->db->count_all_results() != 0) {
 
-
-
         $this->db->where('id', $dataTmp['id']);
         $this->db->update('unit', $dataUnit);
-
 
         if ($this->db->where('unit_id', $dataTmp['id'])->from("unit_air")->count_all_results() > 0) {
             $this->db->where('unit_id', $dataTmp['id']);
@@ -904,8 +894,6 @@ class m_unit extends CI_Model
         // }else{
         // }
 
-
-
         // $this->db->where('unit_id', $dataTmp['id']);
         // $this->db->update('unit_listrik', $dataUnitListrik);
 
@@ -919,9 +907,6 @@ class m_unit extends CI_Model
                 ]);
             }
         }
-
-
-
 
         $after = $this->get_log($dataTmp['id']);
         $diff = (object)(array_diff_assoc((array)$after, (array)$before));

@@ -29,7 +29,6 @@ class P_master_unit extends CI_Controller
         ini_set('sqlsrv.ClientBufferMaxKBSize','5242880'); // Setting to 512M
         ini_set('pdo_sqlsrv.client_buffer_max_kb_size','5242880'); // Setting to 512M - for pdo_sqlsrv
         ini_set('max_execution_time','-1'); // Setting to 512M - for pdo_sqlsrv
-
     }
 
     public function index()
@@ -82,60 +81,59 @@ class P_master_unit extends CI_Controller
         $this->return('application/json', $this->m_unit->ajax_get_customer($GLOBALS['project']->id, $this->input->get('data')), 200);
     }
 
-
     public function save()
     {	
         if (!empty($this->input->post()))
         {
-        $status = $this->m_unit->save([
-            // 'kawasan_flag' => $this->input->post('kawasan_flag'),
-            'blok' => $this->input->post('blok'),
-            'no_unit' => $this->input->post('nomor_unit'),
-            'pemilik_customer_id' => $this->input->post('pemilik'),
-            'penghuni_customer_id' => $this->input->post('penghuni'),
-            'luas_tanah' => $this->input->post('luas_tanah'),
-            'luas_bangunan' => $this->input->post('luas_bangunan'),
-            'luas_taman' => $this->input->post('luas_taman'),
-            'unit_type' => $this->input->post('jenis_unit'),
-            'status_tagihan' => $this->input->post('status_tagihan'),
-            'virtual_account' => $this->input->post('virtual_account'),
-            'product_category_id' => $this->input->post('produk_kategori'),
-            'gol_id' => $this->input->post('golongan'),
-            'pt' => $this->input->post('pt'),
-            'flag_diskon' => $this->input->post('flag_diskon'),
-            'kirim_tagihan' => $this->input->post('kirim_tagihan'),
-            'tgl_st' => $this->input->post('tgl_st'),
-            
+            $status = $this->m_unit->save([
+                // 'kawasan_flag' => $this->input->post('kawasan_flag'),
+                'blok' => $this->input->post('blok'),
+                'no_unit' => $this->input->post('nomor_unit'),
+                'pemilik_customer_id' => $this->input->post('pemilik'),
+                'penghuni_customer_id' => $this->input->post('penghuni'),
+                'luas_tanah' => $this->input->post('luas_tanah'),
+                'luas_bangunan' => $this->input->post('luas_bangunan'),
+                'luas_taman' => $this->input->post('luas_taman'),
+                'unit_type' => $this->input->post('jenis_unit'),
+                'status_tagihan' => $this->input->post('status_tagihan'),
+                'virtual_account' => $this->input->post('virtual_account'),
+                'product_category_id' => $this->input->post('produk_kategori'),
+                'gol_id' => $this->input->post('golongan'),
+                'pt' => $this->input->post('pt'),
+                'flag_diskon' => $this->input->post('flag_diskon'),
+                'kirim_tagihan' => $this->input->post('kirim_tagihan'),
+                'tgl_st' => $this->input->post('tgl_st'),
+                
 
-            'air_aktif' => $this->input->post('meter_air_aktif'),
-            'tgl_aktif_air' => $this->input->post('tanggal_aktif_air'),
-            'tgl_putus_air' => $this->input->post('tanggal_putus_air'),
-            'meter_air_id' => $this->input->post('pemeliharaan_meter_air'),
-            'nilai_penyambungan_air' => $this->input->post('nilai_penyambungan'),
-            'sub_gol_air_id' => $this->input->post('sub_golongan_air'),
-            'angka_meter_sekarang_air' => $this->input->post('angka_meter_air'),
-            'barcode_meter_air_id' => $this->input->post('barcode_id'),
-            'no_seri_meter_air' => $this->input->post('nomor_meter_air'),
-            
+                'air_aktif' => $this->input->post('meter_air_aktif'),
+                'tgl_aktif_air' => $this->input->post('tanggal_aktif_air'),
+                'tgl_putus_air' => $this->input->post('tanggal_putus_air'),
+                'meter_air_id' => $this->input->post('pemeliharaan_meter_air'),
+                'nilai_penyambungan_air' => $this->input->post('nilai_penyambungan'),
+                'sub_gol_air_id' => $this->input->post('sub_golongan_air'),
+                'angka_meter_sekarang_air' => $this->input->post('angka_meter_air'),
+                'barcode_meter_air_id' => $this->input->post('barcode_id'),
+                'no_seri_meter_air' => $this->input->post('nomor_meter_air'),
+                
 
-            'lingkungan_aktif' => $this->input->post('meter_pl_aktif'),
-            'tgl_aktif_lingkungan' => $this->input->post('pl_tanggal_aktif'),
-            'tgl_nonaktif_lingkungan' => $this->input->post('tanggal_non_aktif_pl'),
-            'sub_gol_lingkungan_id' => $this->input->post('sub_golongan_lingkungan'),
-            'tgl_mandiri_lingkungan' => $this->input->post('tanggal_mandiri_pl'),
+                'lingkungan_aktif' => $this->input->post('meter_pl_aktif'),
+                'tgl_aktif_lingkungan' => $this->input->post('pl_tanggal_aktif'),
+                'tgl_nonaktif_lingkungan' => $this->input->post('tanggal_non_aktif_pl'),
+                'sub_gol_lingkungan_id' => $this->input->post('sub_golongan_lingkungan'),
+                'tgl_mandiri_lingkungan' => $this->input->post('tanggal_mandiri_pl'),
 
 
-            'listrik_aktif' => $this->input->post('meter_listrik_aktif'),
-            'tgl_aktif_listrik' => $this->input->post('tanggal_aktif_listrik'),
-            'tgl_putus_listrik' => $this->input->post('tanggal_putus_listrik'),
-			'angka_meter_sekarang_listrik' => $this->input->post('angka_meter_listrik'),
-			'meter_listrik_id' => $this->input->post('sewa_meter_listrik'),
-			'sub_gol_listrik_id' => $this->input->post('sub_golongan_listrik'),
-            'no_seri_meter_listrik' => $this->input->post('nomor_seri_listrik'),
-            'status_jual' => $this->input->post('status_jual'),
+                'listrik_aktif' => $this->input->post('meter_listrik_aktif'),
+                'tgl_aktif_listrik' => $this->input->post('tanggal_aktif_listrik'),
+                'tgl_putus_listrik' => $this->input->post('tanggal_putus_listrik'),
+    			'angka_meter_sekarang_listrik' => $this->input->post('angka_meter_listrik'),
+    			'meter_listrik_id' => $this->input->post('sewa_meter_listrik'),
+    			'sub_gol_listrik_id' => $this->input->post('sub_golongan_listrik'),
+                'no_seri_meter_listrik' => $this->input->post('nomor_seri_listrik'),
+                'status_jual' => $this->input->post('status_jual'),
 
-            'metode_tagihan' => $this->input->post('metode_tagihan[]'),
-        ]);
+                'metode_tagihan' => $this->input->post('metode_tagihan[]'),
+            ]);
         }
 
         $this->load->model('alert');
@@ -174,12 +172,12 @@ class P_master_unit extends CI_Controller
 	
         if (!empty($this->input->post()))
         {
-        if ($status == 'success') {
-            $this->load->view('core/alert', ['title' => 'Berhasil', 'text' => 'Data Berhasil di Tambah', 'type' => 'success']);
-        } elseif ($status == 'double') {
-            $this->load->view('core/alert', ['title' => 'Gagal', 'text' => 'Data Inputan suda Ada', 'type' => 'danger']);
-        }
-	}
+            if ($status == 'success') {
+                $this->load->view('core/alert', ['title' => 'Berhasil', 'text' => 'Data Berhasil di Tambah', 'type' => 'success']);
+            } elseif ($status == 'double') {
+                $this->load->view('core/alert', ['title' => 'Gagal', 'text' => 'Data Inputan suda Ada', 'type' => 'danger']);
+            }
+    	}
     }
 
     public function edit()
@@ -213,7 +211,6 @@ class P_master_unit extends CI_Controller
                 'tgl_st' => $this->input->post('tgl_st'),
                 'active' => $this->input->post('active'),
                 
-    
                 'air_aktif' => $this->input->post('meter_air_aktif'),
                 'tgl_aktif_air' => $this->input->post('tanggal_aktif_air'),
                 'tgl_putus_air' => $this->input->post('tanggal_putus_air'),
@@ -223,14 +220,12 @@ class P_master_unit extends CI_Controller
                 'angka_meter_sekarang_air' => $this->input->post('angka_meter_air'),
                 'barcode_meter_air_id' => $this->input->post('barcode_id'),
                 'no_seri_meter_air' => $this->input->post('nomor_meter_air'),
-                
     
                 'lingkungan_aktif' => $this->input->post('meter_pl_aktif'),
                 'tgl_aktif_lingkungan' => $this->input->post('pl_tanggal_aktif'),
                 'tgl_nonaktif_lingkungan' => $this->input->post('tanggal_non_aktif_pl'),
                 'sub_gol_lingkungan_id' => $this->input->post('sub_golongan_lingkungan'),
                 'tgl_mandiri_lingkungan' => $this->input->post('tanggal_mandiri_pl'),
-    
     
                 // 'listrik_aktif' => $this->input->post('meter_listrik_aktif'),
                 // 'tgl_aktif_listrik' => $this->input->post('tanggal_aktif_listrik'),
@@ -242,9 +237,6 @@ class P_master_unit extends CI_Controller
     
                 'status_jual' => $this->input->post('status_jual'),
                 'metode_tagihan' => $this->input->post('metode_tagihan[]'),
-    
-
-
             ];
 
             $status = $this->m_unit->edit([
@@ -266,7 +258,6 @@ class P_master_unit extends CI_Controller
                 'diskon_flag' => $this->input->post('flag_diskon'),
                 'kirim_tagihan' => $this->input->post('kirim_tagihan'),
                 'active' => $this->input->post('active'),
-                
     
                 'air_aktif' => $this->input->post('meter_air_aktif'),
                 // 'tgl_aktif_air' => $this->input->post('tanggal_aktif_air'),
@@ -624,8 +615,6 @@ class P_master_unit extends CI_Controller
         );
         $this->load->library("SSP");
 
-        
-
         $table = SSP::simple( $_GET, $sql_details, $table, $primaryKey, $columns );
         foreach ($table["data"] as $k => $v) {
 			// var_dump($table["data"][$k][count($v)-1]);
@@ -636,7 +625,6 @@ class P_master_unit extends CI_Controller
                 </a>";
         }
         echo(json_encode($table));		
-
     }
 
     public function get_ajax_customer()
