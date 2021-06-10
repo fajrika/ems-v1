@@ -51,7 +51,6 @@ class P_master_customer extends CI_Controller {
 		$this->load->view('core/footer');
 	}
 	
-	
 	public function save()
 	{	
         if (!empty($this->input->post()))
@@ -112,9 +111,6 @@ class P_master_customer extends CI_Controller {
         if ($this->input->post('code')) {
 			$this->load->model('alert');
 			
-
-			
-
             $status = $this->m_customer->edit([
 				'id' 			=> $this->input->get('id'),
 				'code' 			=> $this->input->post('code'),

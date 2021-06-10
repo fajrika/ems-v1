@@ -144,8 +144,6 @@ class m_customer extends CI_Model {
 	
 	public function save($dataTmp)
     {
-        
-        
         $this->load->model('m_core');
         $this->load->model('m_log');
         $project = $this->m_core->project();
@@ -190,10 +188,9 @@ class m_customer extends CI_Model {
             $this->m_log->log_save('customer', $idTMP, 'Tambah', $dataLog);
 
             return 'success';
-        }else return 'double';
-        
-        
-        
+        } else {
+            return 'double';
+        }
     }
     public function edit($dataTmp)
     {
@@ -201,8 +198,6 @@ class m_customer extends CI_Model {
         $this->load->model('m_log');
         $project = $this->m_core->project();
         $data = 
-
-
         [   
             'code' 		    => $dataTmp['code'],
             'pt_id' 		=> $dataTmp['pt_id'],
