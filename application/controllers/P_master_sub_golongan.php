@@ -56,19 +56,19 @@ class P_master_sub_golongan extends CI_Controller
     {	
         if (!empty($this->input->post()))
         {   
-        $status = $this->m_sub_golongan->save([
-            'golongan' => $this->input->post('golongan'),
-            'code' => $this->input->post('code'),
-            'nama_sub' => $this->input->post('nama_sub'),
-            'minimum_pemakaian' => $this->input->post('minimum_pemakaian'),
-            'nilai_minimum' => $this->input->post('nilai_minimum'),
-            'administrasi' => $this->input->post('administrasi'),
-            'range_flag' => $this->input->post('range_flag'),
-            'range_id' => $this->input->post('range_id'),
-            'keterangan' => $this->input->post('keterangan'),
-            'pemeliharaan_air_id' => $this->input->post('pemeliharaan_air_id')
-        ]);
-	}
+            $status = $this->m_sub_golongan->save([
+                'golongan' => $this->input->post('golongan'),
+                'code' => $this->input->post('code'),
+                'nama_sub' => $this->input->post('nama_sub'),
+                'minimum_pemakaian' => $this->input->post('minimum_pemakaian'),
+                'nilai_minimum' => $this->input->post('nilai_minimum'),
+                'administrasi' => $this->input->post('administrasi'),
+                'range_flag' => $this->input->post('range_flag'),
+                'range_id' => $this->input->post('range_id'),
+                'keterangan' => $this->input->post('keterangan'),
+                'pemeliharaan_air_id' => $this->input->post('pemeliharaan_air_id')
+            ]);
+    	}
         $this->load->model('m_pemeliharaan_air');
         $dataPemeliharaanAir =$this->m_pemeliharaan_air->get();
 
@@ -88,12 +88,12 @@ class P_master_sub_golongan extends CI_Controller
 	
         if (!empty($this->input->post()))
         {
-        if ($status == 'success') {
-            $this->load->view('core/alert', ['title' => 'Berhasil', 'text' => 'Data Berhasil di Tambah', 'type' => 'success']);
-        } elseif ($status == 'double') {
-            $this->load->view('core/alert', ['title' => 'Gagal', 'text' => 'Data Inputan sudah Ada', 'type' => 'danger']);
-        }
-	}
+            if ($status == 'success') {
+                $this->load->view('core/alert', ['title' => 'Berhasil', 'text' => 'Data Berhasil di Tambah', 'type' => 'success']);
+            } elseif ($status == 'double') {
+                $this->load->view('core/alert', ['title' => 'Gagal', 'text' => 'Data Inputan sudah Ada', 'type' => 'danger']);
+            }
+    	}
     }
 
     public function edit()
@@ -201,8 +201,6 @@ class P_master_sub_golongan extends CI_Controller
         echo json_encode($this->m_sub_golongan->get_minimum($this->input->get('data1'), $this->input->get('data2'), $this->input->get('data3')));
     }
 
-
-
     public function delete()
     {
         $this->load->model('alert');
@@ -225,6 +223,4 @@ class P_master_sub_golongan extends CI_Controller
             $this->load->view('core/alert', ['title' => 'Berhasil', 'text' => 'Data Berhasil di Delete', 'type' => 'success']);
         } 
     }
-
-
 }

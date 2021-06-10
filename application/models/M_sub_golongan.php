@@ -384,130 +384,128 @@ class m_sub_golongan extends CI_Model
     {
         $data3 = 2;
         $data3 = $data3 ? $this->m_core->currency_to_number($data3) : 0;
-            $this->load->model('m_core');
-            $hasil = 0;
-            $tableName = '';
-            $rumus = 0;
-            if ($data1 == '2') {
-                $tableName = 'range_air_detail';
-                $tableNameid = 'range_air_id';
-                $tableRange =  'range_air';
-                $rumus = $this->db->select('formula')->from("range_air")->where('id',$data2)->get()->row()->formula;
-            } elseif ($data1 == '1') {
-                $tableName = 'range_lingkungan_detail';
-                $tableNameid = 'range_lingkungan_id';
-                $tableRange =  'range_lingkungan';
-                // $rumus = 0;
-            } elseif ($data1 == '3') {
-                $tableName = 'range_listrik_detail';
-                $tableNameid = 'range_listrik_id';
-            }
-            // $rumus = $this->db->get_where('parameter_project', array('name' => 'Rumus Hitung Air', 'project_id' => 1))->row()->value;
-            // $rumus = $this->db->select('formula')->from($tableRange)->where('id',$data2)->get()->row()->formula;
+        $this->load->model('m_core');
+        $hasil = 0;
+        $tableName = '';
+        $rumus = 0;
+        if ($data1 == '2') {
+            $tableName = 'range_air_detail';
+            $tableNameid = 'range_air_id';
+            $tableRange =  'range_air';
+            $rumus = $this->db->select('formula')->from("range_air")->where('id',$data2)->get()->row()->formula;
+        } elseif ($data1 == '1') {
+            $tableName = 'range_lingkungan_detail';
+            $tableNameid = 'range_lingkungan_id';
+            $tableRange =  'range_lingkungan';
+            // $rumus = 0;
+        } elseif ($data1 == '3') {
+            $tableName = 'range_listrik_detail';
+            $tableNameid = 'range_listrik_id';
+        }
+        // $rumus = $this->db->get_where('parameter_project', array('name' => 'Rumus Hitung Air', 'project_id' => 1))->row()->value;
+        // $rumus = $this->db->select('formula')->from($tableRange)->where('id',$data2)->get()->row()->formula;
 
-            if ($rumus == 1) {
-                $query = $this->db->query("
-                    select top 1
-                        (CAST(harga as BIGINT) * $data3) as harga
-                    from $tableName
-                    where $tableNameid = $data2
-                    and range_awal <= $data3
-                    order by range_awal desc
-                ");
-                $hasil = $query->result_array()[0]['harga'];
+        if ($rumus == 1) {
+            $query = $this->db->query("
+                select top 1
+                    (CAST(harga as BIGINT) * $data3) as harga
+                from $tableName
+                where $tableNameid = $data2
+                and range_awal <= $data3
+                order by range_awal desc
+            ");
+            $hasil = $query->result_array()[0]['harga'];
 
-                return $hasil;
-            } elseif ($rumus == 2) {
-                echo("a");
-                $query = $this->db->query("
-                    select
-                        range_awal,
-                        range_akhir,
-                        harga
-                    from $tableName
-                    where $tableNameid = $data2
-                    and range_awal <= $data3
-                ");
-                $result = $query->result_array();
-                $i = 0;
+            return $hasil;
+        } elseif ($rumus == 2) {
+            echo("a");
+            $query = $this->db->query("
+                select
+                    range_awal,
+                    range_akhir,
+                    harga
+                from $tableName
+                where $tableNameid = $data2
+                and range_awal <= $data3
+            ");
+            $result = $query->result_array();
+            $i = 0;
+            do {
+                if ($data3 > $result[$i]['range_akhir']) {
+                    if($i == 0)
+                        $hasil += (($result[$i]['range_akhir']) * $result[$i]['harga']);
+                    else
+                        $hasil += (($result[$i]['range_akhir']-$result[$i-1]['range_akhir']) * $result[$i]['harga']);   
+                } else {
+                    $hasil += ($data3 * $result[$i]['harga']);
+
+                    return $hasil;
+                }
+                if($i == 0)
+                    $data3 -=  $result[$i]['range_akhir'];
+                else
+                    $data3 -= ($result[$i]['range_akhir']-$result[$i-1]['range_akhir']);
+                ++$i;
+                // var_dump($data3);
+            } while ($data3 > 0);
+        } elseif ($rumus == 3) {
+            $query = $this->db->query("
+                select
+                    range_akhir,
+                    harga
+                from $tableName
+                where $tableNameid = $data2
+                and range_awal <= $data3
+            ");
+            $result = $query->result_array();
+            $data3 -= $result[0]['range_akhir'];
+            $hasil = $result[0]['harga'];
+            $i = 1;
+            if (isset($result[$i])) {
                 do {
                     if ($data3 > $result[$i]['range_akhir']) {
-                        if($i == 0)
-                            $hasil += (($result[$i]['range_akhir']) * $result[$i]['harga']);
-                        else
-                            $hasil += (($result[$i]['range_akhir']-$result[$i-1]['range_akhir']) * $result[$i]['harga']);   
+                        $hasil += (($result[$i]['range_akhir']-$result[$i-1]['range_akhir']) * $result[$i]['harga']);
                     } else {
                         $hasil += ($data3 * $result[$i]['harga']);
 
                         return $hasil;
                     }
-                    if($i == 0)
-                        $data3 -=  $result[$i]['range_akhir'];
-                    else
-                        $data3 -= ($result[$i]['range_akhir']-$result[$i-1]['range_akhir']);
+                    
+                    $data3 -= ($result[$i]['range_akhir']-$result[$i-1]['range_akhir']);
                     ++$i;
                     // var_dump($data3);
                 } while ($data3 > 0);
-            } elseif ($rumus == 3) {
-                $query = $this->db->query("
+            }
+
+            return $hasil;
+        } elseif ($rumus == 4) {
+            $query = $this->db->query("
                     select
-                        range_akhir,
                         harga
                     from $tableName
                     where $tableNameid = $data2
                     and range_awal <= $data3
+                    and range_akhir >= $data3
                 ");
-                $result = $query->result_array();
-                $data3 -= $result[0]['range_akhir'];
-                $hasil = $result[0]['harga'];
-                $i = 1;
-                if (isset($result[$i])) {
-                    do {
-                        if ($data3 > $result[$i]['range_akhir']) {
-                            $hasil += (($result[$i]['range_akhir']-$result[$i-1]['range_akhir']) * $result[$i]['harga']);
-                        } else {
-                            $hasil += ($data3 * $result[$i]['harga']);
-
-                            return $hasil;
-                        }
-                        
-                        $data3 -= ($result[$i]['range_akhir']-$result[$i-1]['range_akhir']);
-                        ++$i;
-                        // var_dump($data3);
-                    } while ($data3 > 0);
-                    
-                }
-
-                return $hasil;
-            } elseif ($rumus == 4) {
+            $hasil = $query->row();
+            if ($hasil == null) {
                 $query = $this->db->query("
-                        select
+                        select top 1
                             harga
                         from $tableName
                         where $tableNameid = $data2
-                        and range_awal <= $data3
-                        and range_akhir >= $data3
+                        order by harga DESC
                     ");
                 $hasil = $query->row();
-                if ($hasil == null) {
-                    $query = $this->db->query("
-                            select top 1
-                                harga
-                            from $tableName
-                            where $tableNameid = $data2
-                            order by harga DESC
-                        ");
-                    $hasil = $query->row();
-                }
-
-                return $hasil->harga;
-            }else{
-                return 0;
             }
+
+            return $hasil->harga;
+        } else {
+            return 0;
+        }
 
         return 0;
     }
-
 
     public function delete($dataTmp)
     {
@@ -523,25 +521,21 @@ class m_sub_golongan extends CI_Model
 
         // validasi apakah user dengan project $project boleh edit data ini
         if ($this->db->count_all_results() != 0) {
-          
-                        $before = $this->get_log($dataTmp['id']);
-                        $this->db->where('id', $dataTmp['id']);
-                        $this->db->update('sub_golongan', ['delete' => 1]);
-                        $after = $this->get_log($dataTmp['id']);
+            $before = $this->get_log($dataTmp['id']);
+            $this->db->where('id', $dataTmp['id']);
+            $this->db->update('sub_golongan', ['delete' => 1]);
+            $after = $this->get_log($dataTmp['id']);
 
-                        $diff = (object) (array_diff_assoc((array) $after, (array) $before));
-                        $tmpDiff = (array) $diff;
+            $diff = (object) (array_diff_assoc((array) $after, (array) $before));
+            $tmpDiff = (array) $diff;
 
-                        if ($tmpDiff) {
-                            $this->m_log->log_save('sub_golongan', $dataTmp['id'], 'Edit', $diff);
+            if ($tmpDiff) {
+                $this->m_log->log_save('sub_golongan', $dataTmp['id'], 'Edit', $diff);
 
-                            return 'success';
-                        } else {
-                            return 'Tidak Ada Perubahan';
-                        }
-                   
+                return 'success';
+            } else {
+                return 'Tidak Ada Perubahan';
+            }
         }
     }
-
-
 }

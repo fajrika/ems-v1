@@ -51,22 +51,21 @@ class P_master_paket_service extends CI_Controller
     {	
         if (!empty($this->input->post()))
         {
-        $status = $this->m_paket_service->save([
-            'jenis_service' => $this->input->post('jenis_service'),
-            'kode_paket' => $this->input->post('code'),
-            'nama_pekerjaan' => $this->input->post('nama_pekerjaan'),
-            'satuan' => $this->input->post('satuan'),
-            'biaya_satuan_langganan' => $this->input->post('biaya_satuan_langganan'),
-            'biaya_satuan_tanpa_langganan' => $this->input->post('biaya_satuan_tanpa_langganan'),
-            'biaya_registrasi_aktif' => $this->input->post('biaya_registrasi_aktif'),
-            'biaya_registrasi' => $this->input->post('biaya_registrasi'),
-            'biaya_pemasangan_aktif' => $this->input->post('biaya_pemasangan_aktif'),
-            'biaya_pemasangan' => $this->input->post('biaya_pemasangan'),
-            'minimal_langganan' => $this->input->post('minimal_langganan'),
-            'tipe_periode'      => $this->input->post('tipe_periode')
-
-        ]);
-	}
+            $status = $this->m_paket_service->save([
+                'jenis_service' => $this->input->post('jenis_service'),
+                'kode_paket' => $this->input->post('code'),
+                'nama_pekerjaan' => $this->input->post('nama_pekerjaan'),
+                'satuan' => $this->input->post('satuan'),
+                'biaya_satuan_langganan' => $this->input->post('biaya_satuan_langganan'),
+                'biaya_satuan_tanpa_langganan' => $this->input->post('biaya_satuan_tanpa_langganan'),
+                'biaya_registrasi_aktif' => $this->input->post('biaya_registrasi_aktif'),
+                'biaya_registrasi' => $this->input->post('biaya_registrasi'),
+                'biaya_pemasangan_aktif' => $this->input->post('biaya_pemasangan_aktif'),
+                'biaya_pemasangan' => $this->input->post('biaya_pemasangan'),
+                'minimal_langganan' => $this->input->post('minimal_langganan'),
+                'tipe_periode'      => $this->input->post('tipe_periode')
+            ]);
+    	}
 
         $this->load->model('alert');
         $this->load->model('m_paket_service');
@@ -83,12 +82,12 @@ class P_master_paket_service extends CI_Controller
 	
         if (!empty($this->input->post()))
         {
-        if ($status == 'success') {
-            $this->load->view('core/alert', ['title' => 'Berhasil', 'text' => 'Data Berhasil di Tambah', 'type' => 'success']);
-        } elseif ($status == 'double') {
-            $this->load->view('core/alert', ['title' => 'Gagal', 'text' => 'Data Inputan suda Ada', 'type' => 'danger']);
-        }
-	}
+            if ($status == 'success') {
+                $this->load->view('core/alert', ['title' => 'Berhasil', 'text' => 'Data Berhasil di Tambah', 'type' => 'success']);
+            } elseif ($status == 'double') {
+                $this->load->view('core/alert', ['title' => 'Gagal', 'text' => 'Data Inputan suda Ada', 'type' => 'danger']);
+            }
+    	}
     }
 
     public function edit()
@@ -139,8 +138,7 @@ class P_master_paket_service extends CI_Controller
         }
     }
 
-
-     public function delete()
+    public function delete()
     {
         $this->load->model('alert');
 
@@ -162,8 +160,4 @@ class P_master_paket_service extends CI_Controller
             $this->load->view('core/alert', ['title' => 'Berhasil', 'text' => 'Data Berhasil di Delete', 'type' => 'success']);
         } 
     }
-
-
-
-
 }
