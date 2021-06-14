@@ -1035,7 +1035,7 @@ $fullUrl = site_url() . "/" . implode("/", (array_slice($this->uri->segment_arra
                                             <div class="form-group">
                                                 <label class="control-label col-lg-3 col-md-3 col-sm-12">Keterangan<br></label>
                                                 <div class="col-lg-9 col-md-9 col-sm-12">
-                                                    <textarea class="form-control" name="description" id="description_void" rows="3"></textarea>
+                                                    <textarea class="form-control" name="description" id="description" rows="3"></textarea>
                                                 </div>
                                             </div>
                                         </div>
@@ -1191,7 +1191,7 @@ $fullUrl = site_url() . "/" . implode("/", (array_slice($this->uri->segment_arra
                                         type: "GET",
                                         data: {
                                             pembayaran_id: $("#description").attr('pembayaran_id'),
-                                            description: $("#description_void").val()
+                                            description: $("#description").val()
                                         },
                                         url: "<?= site_url() ?>/Transaksi/P_unit/ajax_save_void",
                                         dataType: "json",
