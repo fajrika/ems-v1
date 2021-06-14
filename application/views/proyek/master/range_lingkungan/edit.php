@@ -46,7 +46,7 @@ defined('BASEPATH') or exit('No direct script access allowed');
             <i class="fa fa-arrow-left"></i>
             Back
         </button>
-        <button class="btn btn-primary" onClick="window.location.href='<?= site_url(); ?>/P_master_range_lingkungan/edit?id=<?= $dataRangeLingkungan[0]['id'] ?>'">
+        <button class="btn btn-primary" onClick="window.open(window.location.href,'_self')">
             <i class="fa fa-repeat"></i>
             Refresh
         </button>
