@@ -7,37 +7,38 @@ class m_approval extends CI_Model
     public function get_view(){
         $group_user_id = isset($this->session->userdata['group'])?$this->session->userdata['group']:'0';
 
-        return $this->db
-            ->select("
-                approval.id,
-                dokumen_code as dokumen_code,
-                dokumen_jenis.name as dokumen_jenis,
-                FORMAT(tgl_tambah,'dd-MM-yyyy') as tgl_tambah,
-                user.name as user_request,
-                approval_status.status as status_dokumen
-            ")
-            ->from('approval')
-            ->join('dokumen_jenis', 'dokumen_jenis.id = approval.dokumen_jenis_id')
-            ->join('user', 'user.id = approval.user_id')
-            ->join('approval_status', 'approval_status.id = approval.approval_status_id')
-            ->join("approval_mengetahui", "approval_mengetahui.approval_id = approval.id")
-            ->join("approval_wewenang", "approval_wewenang.approval_id = approval.id")
-            ->join("approval_wewenang_user", "approval_wewenang_user.approval_wewenang_id = approval_wewenang.id")
-            ->where("
-                (
-                    approval.group_user_id = $group_user_id
-                    or approval_mengetahui.group_user_id = $group_user_id
-                    or approval_wewenang.group_user_id = $group_user_id
-                    or (
-                        approval_wewenang_user.group_user_id = $group_user_id 
-                        and  approval_wewenang.approval_status_id = 3
-                    )
-                )
-            ")
-            ->distinct()
-            ->get()
-            ->result();
-        // print_r($this->db->last_query());exit;
+        return $this->db->select("
+                                    approval.id,
+                                    dokumen_code as dokumen_code,
+                                    dokumen_jenis.name as dokumen_jenis,
+                                    FORMAT(tgl_tambah,'dd-MM-yyyy') as tgl_tambah,
+                                    user.name as user_request,
+                                    approval_status.status as status_dokumen
+                                    ")
+                            ->from('approval')
+                            ->join('dokumen_jenis',
+                                    'dokumen_jenis.id = approval.dokumen_jenis_id')
+                            ->join('user',
+                                    'user.id = approval.user_id')
+                            ->join('approval_status',
+                                    'approval_status.id = approval.approval_status_id')
+                            ->join("approval_mengetahui",
+                                    "approval_mengetahui.approval_id = approval.id")
+                            ->join("approval_wewenang",
+                                    "approval_wewenang.approval_id = approval.id")
+                            ->join("approval_wewenang_user",
+                                    "approval_wewenang_user.approval_wewenang_id = approval_wewenang.id")
+                            ->where("(
+                                    approval.group_user_id = $group_user_id
+                                    or approval_mengetahui.group_user_id = $group_user_id
+                                    or approval_wewenang.group_user_id = $group_user_id
+                                    or (
+                                        approval_wewenang_user.group_user_id = $group_user_id 
+                                        and  approval_wewenang.approval_status_id = 3
+                                        )
+                                    )")
+                            ->distinct()
+                            ->get()->result();
     }
     public function get_view_bu()
     {
@@ -234,91 +235,90 @@ class m_approval extends CI_Model
         // var_dump($group_user_id);
         $project = $this->m_core->project();
         //izin, 0: tidak, 1: mengetahui, 2 approve/reject
-        $izin   = $this->db
-            ->select("
-                CASE 
-                    WHEN (approval_wewenang_user.group_user_id = $group_user_id
-                            and approval_wewenang.approval_status_id = 3) THEN
-                        2
-                    WHEN approval_wewenang.group_user_id = $group_user_id THEN
-                        1
-                    WHEN approval_mengetahui.group_user_id = $group_user_id THEN
-                        1
-                    WHEN approval.group_user_id = $group_user_id THEN
-                        1
-                    WHEN (approval_wewenang_user.group_user_id = $group_user_id
-                        and (approval_wewenang.approval_status_id = 1 or approval_wewenang.approval_status_id = 2)) THEN
-                        1
-                    else
-                        0
-                END as izin
-            ")
-            ->from('approval')
-            ->join("approval_mengetahui",
-                    "approval_mengetahui.approval_id = approval.id")
-            ->join("approval_wewenang",
-                    "approval_wewenang.approval_id = approval.id")
-            ->join("approval_wewenang_user",
-                    "approval_wewenang_user.approval_wewenang_id = approval_wewenang.id")
-            ->where('approval.id',$id)
-            ->order_by('izin desc')
-            // ->where("(
-            //         approval.group_user_id = $group_user_id
-            //         or approval_mengetahui.group_user_id = $group_user_id
-            //         or approval_wewenang.group_user_id = $group_user_id
-            //         or (
-            //             approval_wewenang_user.group_user_id = $group_user_id 
-            //             and  approval_wewenang.approval_status_id = 3
-            //             )
-            //         )")
-            ->distinct()
-            ->get()->row();
-            // echo("<pre>");
-            // print_r($izin);
-            // echo("</pre>");
+        $izin   = $this->db->select("
+                                        CASE 
+                                            WHEN (approval_wewenang_user.group_user_id = $group_user_id
+                                                    and approval_wewenang.approval_status_id = 3) THEN
+                                                2
+                                            WHEN approval_wewenang.group_user_id = $group_user_id THEN
+                                                1
+                                            WHEN approval_mengetahui.group_user_id = $group_user_id THEN
+                                                1
+                                            WHEN approval.group_user_id = $group_user_id THEN
+                                                1
+                                            WHEN (approval_wewenang_user.group_user_id = $group_user_id
+                                                and (approval_wewenang.approval_status_id = 1 or approval_wewenang.approval_status_id = 2)) THEN
+                                                1
+                                            else
+                                                0
+                                        END as izin
+                                        ")
+                                        
+                                ->from('approval')
+                                ->join("approval_mengetahui",
+                                        "approval_mengetahui.approval_id = approval.id")
+                                ->join("approval_wewenang",
+                                        "approval_wewenang.approval_id = approval.id")
+                                ->join("approval_wewenang_user",
+                                        "approval_wewenang_user.approval_wewenang_id = approval_wewenang.id")
+                                ->where('approval.id',$id)
+                                ->order_by('izin desc')
+                                // ->where("(
+                                //         approval.group_user_id = $group_user_id
+                                //         or approval_mengetahui.group_user_id = $group_user_id
+                                //         or approval_wewenang.group_user_id = $group_user_id
+                                //         or (
+                                //             approval_wewenang_user.group_user_id = $group_user_id 
+                                //             and  approval_wewenang.approval_status_id = 3
+                                //             )
+                                //         )")
+                                ->distinct()
+                                ->get()->row();
+        // echo("<pre>");
+        // print_r($izin);
+        // echo("</pre>");
 
         $izin = $izin?$izin->izin:0;
 
-        $dokumen = $this->db
-            ->select("
-                dokumen_jenis.name as dokumen,
-                approval.dokumen_code,
-                concat([user].name,' (',jabatan.name,')') as request,
-                approval.dokumen_nilai,
-                approval.tgl_tambah,
-                approval.jarak_approval_closed as jarak_request_closed,
-                approval.tgl_closed,
-                approval.tgl_approve,
-                approval.approval_status_id as status_dokumen_id,
-                approval_status.status as status_dokumen,
-                ''  as status_request,
-                '' as status_request_id,
-                approval.user_id,
-                approval.jabatan_id,
-                pemutihan.description,
-                (
-                    STUFF((
-                          SELECT DISTINCT '|' + CONCAT(b.code,'/',u.no_unit)
-                          FROM unit u
-                          INNER JOIN pemutihan_unit pu ON u.id = pu.unit_id
-                          INNER JOIN blok b ON b.id = u.blok_id
-                          WHERE pu.pemutihan_id = pemutihan.id
-                          FOR XML PATH(''), TYPE).value('.', 'NVARCHAR(MAX)'), 1, 1, '')
-                ) AS units")
-            ->from("approval")
-            ->join("dokumen_jenis",
-                    "dokumen_jenis.id = approval.dokumen_jenis_id")
-            ->join("user",
-                    "user.id = approval.user_id")
-            ->join("jabatan",
-                    "jabatan.id = approval.jabatan_id")
-            ->join("approval_status",
-                    "approval_status.id = approval.approval_status_id")
-            ->join("pemutihan",
-                    "pemutihan.id = approval.dokumen_id",
-                    "LEFT")
-            ->where("approval.id",$id)
-            ->get()->row();
+        $dokumen = $this->db->select("
+                                dokumen_jenis.name as dokumen,
+                                approval.dokumen_code,
+                                concat([user].name,' (',jabatan.name,')') as request,
+                                approval.dokumen_nilai,
+                                approval.tgl_tambah,
+                                approval.jarak_approval_closed as jarak_request_closed,
+                                approval.tgl_closed,
+                                approval.tgl_approve,
+                                approval.approval_status_id as status_dokumen_id,
+                                approval_status.status as status_dokumen,
+                                ''  as status_request,
+                                '' as status_request_id,
+                                approval.user_id,
+                                approval.jabatan_id,
+                                pemutihan.description,
+                                (
+                                    STUFF((
+                                          SELECT DISTINCT '|' + CONCAT(b.code,'/',u.no_unit)
+                                          FROM unit u
+                                          INNER JOIN pemutihan_unit pu ON u.id = pu.unit_id
+                                          INNER JOIN blok b ON b.id = u.blok_id
+                                          WHERE pu.pemutihan_id = pemutihan.id
+                                          FOR XML PATH(''), TYPE).value('.', 'NVARCHAR(MAX)'), 1, 1, '')
+                                ) AS units")
+                            ->from("approval")
+                            ->join("dokumen_jenis",
+                                    "dokumen_jenis.id = approval.dokumen_jenis_id")
+                            ->join("user",
+                                    "user.id = approval.user_id")
+                            ->join("jabatan",
+                                    "jabatan.id = approval.jabatan_id")
+                            ->join("approval_status",
+                                    "approval_status.id = approval.approval_status_id")
+                            ->join("pemutihan",
+                                    "pemutihan.id = approval.dokumen_id",
+                                    "LEFT")
+                            ->where("approval.id",$id)
+                            ->get()->row();
         $jabatan_id = $this->db->select("jabatan_id")
             ->from("group_user")
             ->where("id", $this->session->userdata["group"])
@@ -679,26 +679,22 @@ class m_approval extends CI_Model
 
         }
     }
-    public function approve($approval_id,$description)
-    {
+    public function approve($approval_id,$description){
         $return = (object)[];
         $return->status = 0;
         $return->message = "Gagal melakukan Approve";
         
-        $project   = $this->m_core->project();
+        $project = $this->m_core->project();
         $smtp_host = 'smtp.office365.com';
         $smtp_user = 'no.reply@ciputra.com';
         $smtp_pass = 'Som69936';
         $smtp_port = '587';
-
-        $group_user_id   = $this->session->userdata["group"];
-        $jabatan_user_id = $this->db
-            ->select("user_id,jabatan_id")
-            ->from("group_user")
-            ->where("id", $group_user_id)
-            ->get()
-            ->row();
-
+        
+        $group_user_id = $this->session->userdata["group"];
+        $jabatan_user_id = $this->db->select("user_id,jabatan_id")
+                                    ->from("group_user")
+                                    ->where("id", $group_user_id)
+                                    ->get()->row();
         $jabatan_id = $jabatan_user_id?$jabatan_user_id->jabatan_id:0;
         $user_id = $jabatan_user_id?$jabatan_user_id->user_id:0;
         if($jabatan_id == 0 || $user_id == 0){
@@ -707,29 +703,30 @@ class m_approval extends CI_Model
             return $return;
         }
         $date = date('Y-m-d H:i:s.000');
-        $approval = $this->db
-            ->select("*")
-            ->from('approval')
-            ->where('approval.id',$approval_id)
-            ->get()
-            ->row();
-
+        $approval = $this->db->select("*")
+                                ->from('approval')
+                                ->where('approval.id',$approval_id)
+                                ->get()->row();
         $approval_wewenang = (object)[];
-        $approval_wewenang_id = $this->db
-            ->select("approval_wewenang.id")
-            ->from('approval')
-            ->join('dokumen_jenis', 'dokumen_jenis.id = approval.dokumen_jenis_id')
-            ->join('user', 'user.id = approval.user_id')
-            ->join('approval_status', 'approval_status.id = approval.approval_status_id')
-            ->join("approval_mengetahui", "approval_mengetahui.approval_id = approval.id")
-            ->join("approval_wewenang", "approval_wewenang.approval_id = approval.id")
-            ->join("approval_wewenang_user", "approval_wewenang_user.approval_wewenang_id = approval_wewenang.id")
-            ->where("approval_wewenang_user.group_user_id",$group_user_id) 
-            ->where("approval_wewenang.approval_status_id",3)
-            ->where("approval.id",$approval_id)
-            ->distinct()
-            ->get()->row();
-
+        $approval_wewenang_id = $this->db->select("approval_wewenang.id")
+                                            ->from('approval')
+                                            ->join('dokumen_jenis',
+                                                    'dokumen_jenis.id = approval.dokumen_jenis_id')
+                                            ->join('user',
+                                                    'user.id = approval.user_id')
+                                            ->join('approval_status',
+                                                    'approval_status.id = approval.approval_status_id')
+                                            ->join("approval_mengetahui",
+                                                    "approval_mengetahui.approval_id = approval.id")
+                                            ->join("approval_wewenang",
+                                                    "approval_wewenang.approval_id = approval.id")
+                                            ->join("approval_wewenang_user",
+                                                    "approval_wewenang_user.approval_wewenang_id = approval_wewenang.id")
+                                            ->where("approval_wewenang_user.group_user_id",$group_user_id) 
+                                            ->where("approval_wewenang.approval_status_id",3)
+                                            ->where("approval.id",$approval_id)
+                                            ->distinct()
+                                            ->get()->row();
         $approval_wewenang_id = $approval_wewenang_id?$approval_wewenang_id->id:0;
         if($approval_wewenang_id == 0){
             // return "approval_wewenang_id = 0";
@@ -748,19 +745,18 @@ class m_approval extends CI_Model
         $this->db->where("approval_wewenang.approval_id",$approval_id);        
         $this->db->update("approval_wewenang",$approval_wewenang);
         $approval_wewenang->id                  = $approval_wewenang_id;
-
-        $next_approval_wewenang_id = $this->db
-            ->select("approval_wewenang.id")
-            ->from('approval')
-            ->join('user', 'user.id = approval.user_id')
-            ->join("approval_wewenang", "approval_wewenang.approval_id = approval.id")
-            ->where("approval_wewenang.id >",$approval_wewenang->id) 
-            ->where("approval_wewenang.approval_status_id",0)
-            ->where("approval.id",$approval_id)
-            ->distinct()
-            ->get()
-            ->row();
-
+        
+        $next_approval_wewenang_id = $this->db->select("approval_wewenang.id")
+                                            ->from('approval')
+                                            ->join('user',
+                                                    'user.id = approval.user_id')
+                                            ->join("approval_wewenang",
+                                                    "approval_wewenang.approval_id = approval.id")
+                                            ->where("approval_wewenang.id >",$approval_wewenang->id) 
+                                            ->where("approval_wewenang.approval_status_id",0)
+                                            ->where("approval.id",$approval_id)
+                                            ->distinct()
+                                            ->get()->row();
         $next_approval_wewenang_id = $next_approval_wewenang_id?$next_approval_wewenang_id->id:0;
         if($next_approval_wewenang_id == 0){
             if($approval->dokumen_jenis_id == 1){ // pemutihan
@@ -772,21 +768,15 @@ class m_approval extends CI_Model
                 $this->db->set("t_pembayaran.is_void",1);
                 $this->db->update("t_pembayaran");            
 
-                $t_pembayaran_detail = $this->db
-                    ->select("*") 
-                    ->from("t_pembayaran_detail")
-                    ->where("t_pembayaran_detail.t_pembayaran_id",$approval->dokumen_id)
-                    ->get()
-                    ->result();
-
+                $t_pembayaran_detail = $this->db->select("*") 
+                                                ->from("t_pembayaran_detail")
+                                                ->where("t_pembayaran_detail.t_pembayaran_id",$approval->dokumen_id)
+                                                ->get()->result();
                 foreach ($t_pembayaran_detail as $k => $v) {
-                    $service_jenis_id = $this->db
-                        ->select("*")
-                        ->from("service")
-                        ->where("service.id", $v->service_id)
-                        ->get()
-                        ->row();
-
+                    $service_jenis_id = $this->db->select("*")
+                                                    ->from("service")
+                                                    ->where("service.id",$v->service_id)
+                                                    ->get()->row();
                     $service_jenis_id = $service_jenis_id?$service_jenis_id->service_jenis_id:0;
                     if($service_jenis_id == 1){//ipl
                         $this->db->where("t_tagihan_lingkungan.id",$v->tagihan_service_id);
@@ -798,12 +788,12 @@ class m_approval extends CI_Model
                         $this->db->update("t_tagihan_air");
                     }
                 }
-            }
 
+            }
             $approval = (object)[];
             $approval->approval_status_id   = 1;
-            $approval->tgl_closed  = date("Y-m-d");
-            $approval->tgl_approve = date("Y-m-d"); // nanti di hapus aja gak dibutuhin lagi
+            $approval->tgl_closed           = date("Y-m-d");
+            $approval->tgl_approve          = date("Y-m-d"); // nanti di hapus aja gak dibutuhin lagi
 
             $this->db->where("approval.id",$approval_id);
             $this->db->update("approval",$approval);
@@ -814,14 +804,13 @@ class m_approval extends CI_Model
 
             //nanti untuk last approve (close)
         }
-        $tujuan_email = $this->db
-            ->select('user.name, user.email')
-            ->from('approval_wewenang_user')
-            ->join("user", "user.id = approval_wewenang_user.user_id")
-            ->where_in("approval_wewenang_user.approval_wewenang_id",$next_approval_wewenang_id)
-            ->distinct()
-            ->get()
-            ->result();
+        $tujuan_email = $this->db->select('user.name, user.email')
+                                            ->from('approval_wewenang_user')
+                                            ->join("user",
+                                                    "user.id = approval_wewenang_user.user_id")
+                                            ->where_in("approval_wewenang_user.approval_wewenang_id",$next_approval_wewenang_id)
+                                            ->distinct()
+                                            ->get()->result();
 
         $next_approval_wewenang = (object)[];
         $next_approval_wewenang->approval_status_id = 3;                                
@@ -830,17 +819,14 @@ class m_approval extends CI_Model
         $this->db->update("approval_wewenang",$next_approval_wewenang);                 
         $next_approval_wewenang->id = $next_approval_wewenang_id;
 
-        $name_user_create = $this->db
-            ->select('name') 
-            ->from('user')
-            ->where('user.id', $approval->user_id)
-            ->get()->row();
-
-        $name_dokumen = $this->db
-            ->select('name') 
-            ->from('dokumen_jenis')
-            ->where('dokumen_jenis.id', $approval->dokumen_jenis_id)
-            ->get()->row();
+        $name_user_create = $this->db->select('name') 
+                                    ->from('user')
+                                    ->where('user.id',$approval->user_id)
+                                    ->get()->row();
+        $name_dokumen = $this->db->select('name') 
+                                    ->from('dokumen_jenis')
+                                    ->where('dokumen_jenis.id',$approval->dokumen_jenis_id)
+                                    ->get()->row();
 
         $config = [
             'mailtype'  => 'html',
@@ -853,6 +839,7 @@ class m_approval extends CI_Model
             'crlf'      => "\r\n",
             'newline'   => "\r\n",
             'smtp_crypto'=> 'tls',
+
         ];
 
         $this->load->library('email', $config);
@@ -874,10 +861,10 @@ class m_approval extends CI_Model
             $this->email->from($smtp_user, 'EMS Ciputra');
             $this->email->subject($this->m_parameter_project->get($project->id, "subjeck_email_approval"));
             $this->email->message($tmp);
-            // $this->email->to($v->email);
-            $this->email->to("dandoridwanto@ymail.com");
+            $this->email->to($v->email);
 
             // echo ("Email Wewenang $v->email");
+
             if ($this->email->send()) {
                 // echo ("Success Kirim Email");
                 // $email_success++;
@@ -886,7 +873,6 @@ class m_approval extends CI_Model
                 
             }
         }
-
         $approval = (object)[];
         $approval->approval_status_id   = 3;
         $this->db->where("approval.id",$approval_id);
@@ -897,6 +883,7 @@ class m_approval extends CI_Model
         return $return;
 
         // return "Sukses - Lanjut Approval";
+
     }
     public function reject($approval_id,$description){
         $return = (object)[];
@@ -984,10 +971,13 @@ class m_approval extends CI_Model
         $this->db->where("approval.id",$approval_id);
         $this->db->update("approval",$approval);
 
+
         $return->status = 1;
         $return->message = "Sukses - Approval di Closed dengan status Reject";
         return $return;
+
         // return "Sukses - Lanjut Approval";
+
     }
     public function approve_bu($id,$description,$tipe){
         $jabatan_id = $this->db->select("user_id,jabatan_id")
@@ -1195,107 +1185,5 @@ class m_approval extends CI_Model
             $this->db->update('approval_detail');
         }
 
-    }
-
-    // delete approval
-    public function approval_delete($approval_id)
-    {
-        $return = (object)[];
-        $return->status = 0;
-        $return->message = "Gagal Hapus Approve";
-        $group_user_id = $this->session->userdata["group"];
-        $jabatan_user_id = $this->db
-            ->select("user_id,jabatan_id")
-            ->from("group_user")
-            ->where("id", $group_user_id)
-            ->get()
-            ->row();
-
-        $jabatan_id = $jabatan_user_id ? $jabatan_user_id->jabatan_id : 0;
-        $user_id = $jabatan_user_id ? $jabatan_user_id->user_id:0;
-        if($jabatan_id == 0 || $user_id == 0){
-            $return->status = 0;
-            $return->message = "Gagal mendapatkan data jabatan dan/atau user";
-            return $return;
-        }
-
-        $approval = $this->db->where('approval.id', $approval_id)->get('approval');
-        if ($approval->num_rows() > 0)
-        {
-            $approval = $approval->row();
-            $approval_wewenang = (object)[];
-            $approval_wewenang_id = $this->db
-                ->select("approval_wewenang.id")
-                ->from('approval')
-                ->join('dokumen_jenis', 'dokumen_jenis.id = approval.dokumen_jenis_id')
-                ->join('user', 'user.id = approval.user_id')
-                ->join('approval_status', 'approval_status.id = approval.approval_status_id')
-                ->join("approval_mengetahui", "approval_mengetahui.approval_id = approval.id")
-                ->join("approval_wewenang", "approval_wewenang.approval_id = approval.id")
-                ->join("approval_wewenang_user", "approval_wewenang_user.approval_wewenang_id = approval_wewenang.id")
-                ->where("approval_wewenang_user.group_user_id",$group_user_id) 
-                ->where("approval_wewenang.approval_status_id",3)
-                ->where("approval.id",$approval_id)
-                ->distinct()
-                ->get()->row();
-
-            $approval_wewenang_id = $approval_wewenang_id ? $approval_wewenang_id->id : 0;
-            if ($approval_wewenang_id == 0) {
-                $return->status = 0;
-                $return->message = "Gagal mendapatkan data Wewenang anda (izin)";
-                return $return;
-            }
-            $approval_wewenang->id = $approval_wewenang_id;
-
-            $next_approval_wewenang_id = $this->db
-                ->select("approval_wewenang.id")
-                ->from('approval')
-                ->join('user', 'user.id = approval.user_id')
-                ->join("approval_wewenang", "approval_wewenang.approval_id = approval.id")
-                ->where("approval_wewenang.id >",$approval_wewenang->id) 
-                ->where("approval_wewenang.approval_status_id",0)
-                ->where("approval.id",$approval_id)
-                ->distinct()
-                ->get()
-                ->row();
-
-            $next_approval_wewenang_id = $next_approval_wewenang_id ? $next_approval_wewenang_id->id : 0;
-            if($next_approval_wewenang_id == 0)
-            {
-                /**
-                 * Delete Approval
-                 *  - Delete approval_wewenang_user
-                 *  - Delete approval_wewenang
-                 *  - Delete approval_mengetahui
-                 *  - Delete pemutihan_unit
-                 *  - Delete pemutihan
-                 *  - Delete approval
-                 */
-
-                $delete_approval_mengetahui = $this->db->where('approval_id', $approval_id)->limit(1)->delete('approval_mengetahui');
-                if ($delete_approval_mengetahui) 
-                {
-                    $get_approval_wewenang = $this->db->where('approval_id', $approval_id)->limit(1)->get('approval_wewenang');
-                    if ($get_approval_wewenang->num_rows() > 0) 
-                    {
-                        $rows = $get_approval_wewenang->row();
-                        $approval_wewenang_user = $this->db->where('approval_wewenang_id', $rows->id)->delete('approval_wewenang_user');
-                    }
-
-                    $delete_approval_wewenang = $this->db->where('approval_id', $approval_id)->limit(1)->delete('approval_wewenang');
-                    $delete_pemutihan_unit = $this->db->where('pemutihan_id', $approval->dokumen_id)->delete('pemutihan_unit');
-                    $delete_pemutihan = $this->db->where('id', $approval->dokumen_id)->limit(1)->delete('pemutihan');
-                    $delete_approval = $this->db->where('id', $approval_id)->limit(1)->delete('approval');
-                }
-
-                $return->status = 1;
-                $return->message = "Sukses - Approval Deleted";
-                return $return;
-            }
-
-            $return->status = 1;
-            $return->message = "Sukses - Approval Terhapus";
-            return $return;
-        }
     }
 }

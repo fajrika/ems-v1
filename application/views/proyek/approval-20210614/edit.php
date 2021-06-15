@@ -1,6 +1,11 @@
-
+<?php
+defined('BASEPATH') or exit('No direct script access allowed');
+?>
+<!DOCTYPE html>
 <link href="<?= base_url() ?>vendors/switchery/dist/switchery.min.css" rel="stylesheet">
 <script src="<?= base_url() ?>vendors/switchery/dist/switchery.min.js"></script>
+
+
 <link href="<?= base_url() ?>vendors/select2/dist/css/select2.min.css" rel="stylesheet">
 <script src="<?= base_url() ?>vendors/select2/dist/js/select2.min.js"></script>
 <div style="float:right">
@@ -52,6 +57,7 @@
             <li>
                 <div class="block">
                     <div class="tags">
+
                         <a class='tag' style='background:rgba(38,185,154,.88)'>
                             Mengetahui
                         </a>
@@ -63,26 +69,29 @@
                             <?php endforeach; ?>
                         </h2>
                     </div>
+                        <!-- <div class="byline">
+                                <span>13 hours ago</span> by <a>Jane Smith</a>
+                            </div> -->
                 </div>
             </li>
             <?php $is_pending = 0; 
                 foreach ($data->wewenang as $k => $v) : 
             ?>
+
             <li>
                 <div class="block">
                     <div class="tags">
-                        <a class='tag' 
-                            <?php $max = 0;
-                            if ($v->approval_status_id == 0)
-                                echo ("style='background:rgba(243,156,18,.88)'");
-                            if ($v->approval_status_id == 1)
-                                echo ("style='background:rgba(38,185,154,.88)'");
-                            if ($v->approval_status_id == 2)
-                                echo ("style='background:rgba(231,76,60,.88)'");
-                            if ($v->approval_status_id == 3)
-                                echo ("style='background:rgba(52,152,219,.88)'");
-                            ?>
-                        >
+
+                        <a class='tag' <?php $max = 0;
+                                        if ($v->approval_status_id == 0)
+                                            echo ("style='background:rgba(243,156,18,.88)'");
+                                        if ($v->approval_status_id == 1)
+                                            echo ("style='background:rgba(38,185,154,.88)'");
+                                        if ($v->approval_status_id == 2)
+                                            echo ("style='background:rgba(231,76,60,.88)'");
+                                        if ($v->approval_status_id == 3)
+                                            echo ("style='background:rgba(52,152,219,.88)'");
+                                        ?>>
                             <?php
                             echo ("<span>Wewenang</span>");
                             ?>
@@ -96,10 +105,14 @@
                                 <a><?="Pending : $v->daftar_user"?></a>
                             <?php endif; ?>
                             <?php if($v->approval_status_id == 0) $is_pending = 1;?>
+
                         </h2>
                         <div class="byline">
                            <span> Status</span> Telah dikirim Email
                         </div>
+                        <!-- <div class="byline">
+                                    <span>13 hours ago</span> by <a>Jane Smith</a>
+                                </div> -->
                         <p class="excerpt">Deskripsi : <?= $v->description ?> </a>
                         </p>
                     </div>
@@ -107,20 +120,19 @@
             </li>
             <?php endforeach; ?>
 
+            
             <li>
                 <div class="block">
                     <div class="tags">
 
-                        <a class='tag' 
-                            <?php $max = 0;
-                            if ($data->dokumen->status_dokumen_id == 0)
-                                echo ("style='background:rgba(243,156,18,.88)'");
-                            if ($data->dokumen->status_dokumen_id == 1)
-                                echo ("style='background:rgba(38,185,154,.88)'");
-                            if ($data->dokumen->status_dokumen_id == 2)
-                                echo ("style='background:rgba(231,76,60,.88)'");
-                            ?>
-                            >
+                        <a class='tag' <?php $max = 0;
+                                        if ($data->dokumen->status_dokumen_id == 0)
+                                            echo ("style='background:rgba(243,156,18,.88)'");
+                                        if ($data->dokumen->status_dokumen_id == 1)
+                                            echo ("style='background:rgba(38,185,154,.88)'");
+                                        if ($data->dokumen->status_dokumen_id == 2)
+                                            echo ("style='background:rgba(231,76,60,.88)'");
+                                        ?>>
                             <?php
                             echo ("<span>Status Akhir</span>");
                             ?>
@@ -135,11 +147,16 @@
                             <?php endif;?>
                             <?=$data->dokumen->status_dokumen?>
                         </h2>
+                        <!-- <div class="byline">
+                            <span>13 hours ago</span> by <a>Jane Smith</a>
+                        </div> -->
+                        <!-- <p class="excerpt">Description</a> -->
                         </p>
                     </div>
                 </div>
             </li>
         </ul>
+
     </div>
 
     <div class="col-md-6 col-sm-6 col-xs-12">
@@ -208,37 +225,11 @@
             <div id="btn-action" class="col-lg-9 col-md-9 col-sm-9 col-lg-offset-3 col-md-offset-3 col-sm-offset-3">
                 <div class="form-group" style="margin-top:20px">
                     <div class="center-margin">
-                        <?php
-                        $app_id = $this->input->get("id");
-                        $dokumen_id = $this->db->select('dokumen_id')->where('id', $app_id)->get('approval');
-                        if ($dokumen_id->num_rows() > 0) {
-                            $status_pemutihan = $this->db
-                                ->join('pemutihan_unit', 'pemutihan.id = pemutihan_unit.pemutihan_id')
-                                ->join(
-                                    't_tagihan_air', 
-                                    'pemutihan_unit.unit_id = t_tagihan_air.unit_id AND pemutihan_unit.periode = t_tagihan_air.periode', 
-                                    'left'
-                                )
-                                ->join(
-                                    't_tagihan_lingkungan', 
-                                    'pemutihan_unit.unit_id = t_tagihan_lingkungan.unit_id AND pemutihan_unit.periode = t_tagihan_lingkungan.periode', 
-                                    'left'
-                                )
-                                ->where('pemutihan.id', $dokumen_id->row()->dokumen_id)
-                                ->where('pemutihan.status', 1)
-                                ->where('(t_tagihan_air.status_tagihan=0 OR t_tagihan_lingkungan.status_tagihan=0)')
-                                ->get('pemutihan');
-                            if ($status_pemutihan->num_rows() > 0) {
-                            ?>
-                                <a data-toggle="modal" data-target="#modal_delete" class="btn btn-danger"><i class="fa fa-remove"></i> Delete</a>
-                            <?php
-                            }
-                        }
-                        ?>
                         <?php if ($data->izin == 2) : ?>
-                            <a data-toggle="modal" data-target="#modal2" class="btn btn-warning"><i class="fa fa-refresh"></i> Reject</a>
-                            <a data-toggle="modal" data-target="#modal" class="btn btn-success"><i class="fa fa-check"></i> Approve</a>
+                            <a data-toggle="modal" data-target="#modal2" class="btn btn-danger">Reject</a>
+                            <a data-toggle="modal" data-target="#modal" class="btn btn-success">Approve</a>
                         <?php endif; ?>
+
                     </div>
                 </div>
             </div>
@@ -299,27 +290,11 @@
 </div>
 </div>
 
-<div class="x_content">
-    <div class="modal" id="modal_delete" tabindex="-1" data-backdrop="static" data-keyboard="false">
-        <div class="modal-dialog" id="modal-dialog" style="width: 20%;">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-                    <h4 class="modal-title" id="modal-title">Konfirmasi</h4>
-                </div>
-                <div class="modal-body" id="modal-body">Data akan dihapus permanen!</div>
-                <div class="modal-footer" id="modal-footer">
-                    <button type="button" class="btn btn-sm btn-danger" id="delete_app">Yes Delete</button>
-                    <button type="button" class="btn btn-sm btn-default" data-dismiss="modal">Close</button>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
 <!-- Modal -->
 <script src="<?= base_url() ?>vendors/jquery.easy-pie-chart/dist/jquery.easypiechart.min.js"></script>
 <!-- jQuery Knob -->
 <script src="<?= base_url() ?>vendors/jquery-knob/dist/jquery.knob.min.js"></script>
+
 <script>
     $(function() {
         var id_approval = <?= $this->input->get("id") ?>;
@@ -349,12 +324,13 @@
                         notif('Gagal', data.message, 'alert');
                     }
                     setTimeout(function () { 
-                        if(!alert('Halaman akan di refresh otomatis untuk update data!')){
-                            window.open(window.location.href,'_self');
-                        }
-                    }, 5 * 1000);
-                }
+                            if(!alert('Halaman akan di refresh otomatis untuk update data!')){
+                                window.open(window.location.href,'_self');
+                            }
+                        }, 5 * 1000);
+                    }
             });
+
         });
         $("#btn-reject").click(function() {
             $.ajax({
@@ -379,34 +355,8 @@
                     }, 5 * 1000);
                 }
             });
+
         });
         $('.select2').select2();
-
-        // delete approval
-        $(document).on('click', '#delete_app', function(e){
-            e.preventDefault();
-            $.ajax({
-                url: "<?=site_url('p_approval/delete_approval');?>",
-                cache: false,
-                type: "POST",
-                data: {id: id_approval},
-                dataType: 'json',
-                success: function(data) {
-                    if (data.status == 1) {
-                        $("#btn-action").hide();
-                        notif('Sukses', data.message, 'success');
-                        $('#modal_delete').modal('hide');
-                    }else{
-                        notif('Gagal', data.message, 'alert');
-                    }
-
-                    setTimeout(function(){
-                        if(!alert('Halaman akan di refresh otomatis untuk update data!')){
-                            window.location.href="<?=site_url('P_approval');?>";
-                        }
-                    }, 2000);
-                }
-            });
-        });
     });
 </script>

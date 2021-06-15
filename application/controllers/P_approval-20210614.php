@@ -93,6 +93,7 @@ class P_approval extends CI_Controller
 		echo json_encode($this->m_approval->mengajukan($this->input->post("id"),0)); // 1 mengajukan, 0 cancel 
 	}
 
+
 	public function ajax_approve(){
 		echo json_encode($this->m_approval->approve($this->input->post("id"),$this->input->post("deskripsi")));// 1 approve, 0 reject
 	}
@@ -100,9 +101,6 @@ class P_approval extends CI_Controller
 		echo json_encode($this->m_approval->reject($this->input->post("id"),$this->input->post("deskripsi"),0));// 1 approve, 0 reject
 	}
 
-    // delete approval
-    public function delete_approval() 
-    {
-		echo json_encode($this->m_approval->approval_delete($this->input->post("id")));
-    }
+
+	
 }
