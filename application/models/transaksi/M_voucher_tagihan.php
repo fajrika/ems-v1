@@ -694,8 +694,11 @@ class m_voucher_tagihan extends CI_Model
         }
         return (object) $transaction;
     }
-    public function validasi_gabungan($data)
+    public function validasi_gabungan($data,$project_id)
     {
+        $subholding = $this->db->select('subholding')->from('project')->where('id',$project_id)->get()->row()->subholding;
+        $code_sh = ($subholding==2?'CM':'ESTATE');
+
         $data = (object) $data;
         $date = date("Y-m-d");
         $dataValidasi = (object) [];
@@ -704,7 +707,7 @@ class m_voucher_tagihan extends CI_Model
         $dataValidasi->pt_id                = $data->pt_erems_id;
 
         $dataValidasi->uploaduniquenumber   = 57312;
-        $dataValidasi->department           = "ESTATE";
+        $dataValidasi->department           = $code_sh;
         $dataValidasi->dataflow             = "I";
         $dataValidasi->is_customer          = 0;
         $dataValidasi->is_vendor            = 1;
@@ -775,31 +778,29 @@ class m_voucher_tagihan extends CI_Model
 
         die;
 
-        $project = $this->m_core->project();
-
         $project_id_erems = $this->db->select("source_id")
             ->from("project")
-            ->where("id", $project->id)
+            ->where("id", $$project_id)
             ->get()->row()->source_id;
 
         if ($jenis == "Service") {
             $data   = $this->db->select("*")
                 ->from("view_belum_transfer_keuangan_tagihan")
-                ->where("project_id", $project->id)
+                ->where("project_id", $project_id)
                 ->where("id", $id)
                 ->get()->row();
         }
         if ($jenis == "PPN") {
             $data       = $this->db->select("*")
                 ->from("view_belum_transfer_keuangan_ppn")
-                ->where("project_id", $project->id)
+                ->where("project_id", $project_id)
                 ->where("id", $id)
                 ->get()->row();
         }
         if ($jenis == "Denda/Penalti") {
             $data       = $this->db->select("*")
                 ->from("view_belum_transfer_keuangan_denda_penalti")
-                ->where("project_id", $project->id)
+                ->where("project_id", $project_id)
                 ->where("id", $id)
                 ->get()->row();
         }
@@ -820,7 +821,7 @@ class m_voucher_tagihan extends CI_Model
         $dataValidasi->pt_id                = $pt_id_erems;
 
         $dataValidasi->uploaduniquenumber   = 57312;
-        $dataValidasi->department           = "ESTATE";
+        $dataValidasi->department           = $code_sh;
         $dataValidasi->dataflow             = "I";
         $dataValidasi->is_customer          = 0;
         $dataValidasi->is_vendor            = 1;
@@ -1078,8 +1079,11 @@ class m_voucher_tagihan extends CI_Model
             ];
         }
     }
-    public function kirim_voucher_gabungan($data)
+    public function kirim_voucher_gabungan($data,$project_id)
     {
+        $subholding = $this->db->select('subholding')->from('project')->where('id',$project_id)->get()->row()->subholding;
+        $code_sh = ($subholding==2?'CM':'ESTATE');
+
         $data = (object) $data;
         $date = date("Y-m-d");
         $user_id = $this->m_core->user_id();
@@ -1159,7 +1163,7 @@ class m_voucher_tagihan extends CI_Model
 
             $dataValidasi->pt_id                = $data->pt_erems_id;
             $dataValidasi->uploaduniquenumber   = $id_header;
-            $dataValidasi->department           = "ESTATE";
+            $dataValidasi->department           = $code_sh;
             $dataValidasi->dataflow             = "I";
             $dataValidasi->is_customer          = 0;
             $dataValidasi->is_vendor            = 1;

@@ -83,7 +83,7 @@ class P_voucher_tagihan extends CI_Controller
     }
     public function ajax_validasi_gabungan(){
         // $data = explode(".",$this->input->GET('id'));
-        echo json_encode($this->m_voucher_tagihan->validasi_gabungan($this->input->get()));
+        echo json_encode($this->m_voucher_tagihan->validasi_gabungan($this->input->get(),$GLOBALS['project']->id));
     }
     
     public function ajax_kirim(){
@@ -93,7 +93,7 @@ class P_voucher_tagihan extends CI_Controller
         echo json_encode($this->m_voucher_tagihan->kirim_voucher_gabungan($this->input->post()));
     }
     public function test(){
-        $this->m_voucher_tagihan->kirim_voucher_gabungan($this->input->get());
+        $this->m_voucher_tagihan->kirim_voucher_gabungan($this->input->get(),$GLOBALS['project']->id);
     }
 }
 
