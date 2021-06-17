@@ -169,8 +169,6 @@ class m_approval extends CI_Model
             $this->db->trans_commit();
         }
 		return $return;
-
-
     }
     public function approve_void_pembayaran($approval_id){
         $source_id = $this->db->select("source_id")
@@ -543,7 +541,6 @@ class m_approval extends CI_Model
         $data->dokumen          = $dokumen;
         $data->jabatan_id       = $jabatan_id;
         return $data;
-        
     }
     public function mengajukan($id,$tipe){
         $jabatan_id = $this->db->select("user_id,jabatan_id")
@@ -1234,7 +1231,7 @@ class m_approval extends CI_Model
                 ->join("approval_wewenang", "approval_wewenang.approval_id = approval.id")
                 ->join("approval_wewenang_user", "approval_wewenang_user.approval_wewenang_id = approval_wewenang.id")
                 ->where("approval_wewenang_user.group_user_id",$group_user_id) 
-                ->where("approval_wewenang.approval_status_id",3)
+                // ->where("approval_wewenang.approval_status_id",3)
                 ->where("approval.id",$approval_id)
                 ->distinct()
                 ->get()->row();
