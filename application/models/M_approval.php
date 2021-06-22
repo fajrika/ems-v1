@@ -14,21 +14,7 @@ class m_approval extends CI_Model
                 dokumen_jenis.name as dokumen_jenis,
                 FORMAT(tgl_tambah,'dd-MM-yyyy') as tgl_tambah,
                 user.name as user_request,
-                approval_status.status as status_dokumen,
-                isnull((
-                    CASE 
-                        WHEN (approval.dokumen_jenis_id = 1) THEN
-                            (
-                                SELECT SUM(isnull(ttl1.status_tagihan,0) + isnull(tta1.status_tagihan,0)) AS tagihan_terbayar
-                                FROM pemutihan_unit AS pu1
-                                LEFT JOIN t_tagihan_lingkungan AS ttl1 ON ttl1.unit_id = pu1.unit_id AND ttl1.periode = pu1.periode AND pu1.service_jenis_id = 1
-                                LEFT JOIN t_tagihan_air AS tta1 ON tta1.unit_id = pu1.unit_id AND tta1.periode = pu1.periode AND pu1.service_jenis_id = 2
-                                WHERE pu1.pemutihan_id = approval.dokumen_id
-                            )
-                        else
-                            0
-                    END
-                ),0) AS status_pembayaran
+                approval_status.status as status_dokumen
             ")
             ->from('approval')
             ->join('dokumen_jenis', 'dokumen_jenis.id = approval.dokumen_jenis_id')
@@ -46,23 +32,24 @@ class m_approval extends CI_Model
                         approval_wewenang_user.group_user_id = $group_user_id 
                         and  approval_wewenang.approval_status_id = 3
                     )
-                ) AND (
-                    isnull((
-                        CASE 
-                            WHEN (approval.dokumen_jenis_id = 1) THEN
-                                (
-                                    SELECT SUM(isnull(ttl1.status_tagihan,0) + isnull(tta1.status_tagihan,0)) AS tagihan_terbayar
-                                    FROM pemutihan_unit AS pu1
-                                    LEFT JOIN t_tagihan_lingkungan AS ttl1 ON ttl1.unit_id = pu1.unit_id AND ttl1.periode = pu1.periode AND pu1.service_jenis_id = 1
-                                    LEFT JOIN t_tagihan_air AS tta1 ON tta1.unit_id = pu1.unit_id AND tta1.periode = pu1.periode AND pu1.service_jenis_id = 2
-                                    WHERE pu1.pemutihan_id = approval.dokumen_id
-                                )
-                            else
-                                0
-                        END
-                    ),0) < 1
                 )
             ")
+             // AND (
+             //        isnull((
+             //            CASE 
+             //                WHEN (approval.dokumen_jenis_id = 1) THEN
+             //                    (
+             //                        SELECT SUM(isnull(ttl1.status_tagihan,0) + isnull(tta1.status_tagihan,0)) AS tagihan_terbayar
+             //                        FROM pemutihan_unit AS pu1
+             //                        LEFT JOIN t_tagihan_lingkungan AS ttl1 ON ttl1.unit_id = pu1.unit_id AND ttl1.periode = pu1.periode AND pu1.service_jenis_id = 1
+             //                        LEFT JOIN t_tagihan_air AS tta1 ON tta1.unit_id = pu1.unit_id AND tta1.periode = pu1.periode AND pu1.service_jenis_id = 2
+             //                        WHERE pu1.pemutihan_id = approval.dokumen_id
+             //                    )
+             //                else
+             //                    0
+             //            END
+             //        ),0) < 1
+             //    )
             ->distinct();
         return $this->db->get()->result();
         // echo $this->db->get_compiled_select();  exit();
