@@ -587,7 +587,7 @@ defined('BASEPATH') or exit('No direct script access allowed');
 			$.ajax({
 				type: "POST",
 				data: {
-					unit_virtual_id: $("#unit_virtual").val(),
+                    unit_id: $("#unit_virtual").val(),
 					bayar: bayar,
 					bayar_deposit: bayar_deposit,
 					cara_pembayaran: $("[name = cara_pembayaran]").val(),
