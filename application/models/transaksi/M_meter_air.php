@@ -1732,6 +1732,7 @@ class m_meter_air extends CI_Model
                 $tagihan_air_detail->nilai_pemeliharaan = $r->nilai_pemeliharaan ?? 0;
                 $this->db->insert("t_tagihan_air_detail", $tagihan_air_detail);
 
+
                 $tagihan_air_info    = (object)[];
                 $tagihan_air_info->t_tagihan_air_id     = $tagihan_air_detail->t_tagihan_air_id;
                 $tagihan_air_info->range_id             = $r->range_id;
@@ -1742,7 +1743,7 @@ class m_meter_air extends CI_Model
                 $tagihan_air_info->denda_jenis_service  = $r->denda_jenis;
                 $tagihan_air_info->denda_nilai_service  = $r->denda_nilai;
                 $this->db->insert("t_tagihan_air_info", $tagihan_air_info);
-            
+                
             if ($this->db->trans_status() === FALSE) {
                 $this->db->trans_rollback();
             } else {

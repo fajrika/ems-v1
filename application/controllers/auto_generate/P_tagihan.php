@@ -107,7 +107,6 @@ class P_tagihan extends CI_Controller
         echo date("y-m-d h:i:s")." - Mulai";
         write_file("./log/".date("y-m-d").'_log_auto_generate.txt',"\n".date("y-m-d h:i:s")." - Mulai", 'a+');
 
-
         $periode = $this->input->get("periode")?$this->input->get("periode"):date("m/Y");
         $periode = implode('-', array_reverse(explode('-', str_replace('/', '-', $periode)))).'-01';
         $project_id = $this->input->get("project_id")??0;
