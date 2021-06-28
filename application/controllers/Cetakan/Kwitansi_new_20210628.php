@@ -54,7 +54,7 @@ class Kwitansi_new extends CI_Controller
     public function all($pembayaran_id)
     {
         $pembayaran = $this->db->from("t_pembayaran")->where('id', $pembayaran_id)->get()->row();
-        $grand_total = $this->db->select('sum(bayar+bayar_deposit) as grand_total')->from("t_pembayaran_detail")->where('t_pembayaran_id', $pembayaran_id)->get()->row()->grand_total;
+        $grand_total = $this->db->select('sum(bayar) as grand_total')->from("t_pembayaran_detail")->where('t_pembayaran_id', $pembayaran_id)->get()->row()->grand_total;
 
         //uid
         $unit = $this->db->select("
@@ -145,7 +145,7 @@ class Kwitansi_new extends CI_Controller
             $tmp->total_denda += $el->nilai_denda_ipl;
             $tmp->total_diskon += $el->nilai_diskon;
             $tmp->total_terbayar_sebelum += $el->nilai_terbayar;
-            $tmp->total_terbayar_saat_ini += $el->bayar + $el->bayar_deposit;
+            $tmp->total_terbayar_saat_ini += $el->bayar;
         }
         $tmp->total_ppn = $tmp->total_tagihan - $tmp->total_pokok;
         $pembayaran_detail_ipl->summary = $tmp;
@@ -249,20 +249,6 @@ class Kwitansi_new extends CI_Controller
             $sisa_deposit = 0;
         }
 
-        $pemakaian_deposit = "
-            SELECT
-                SUM(t_pembayaran_detail.bayar_deposit) AS nilai 
-            FROM
-                t_pembayaran_detail
-            WHERE 1=1
-                AND t_pembayaran_detail.t_pembayaran_id = '".$pembayaran_id."'
-            ";
-        $pemakaian_deposit = $this->db->query($pemakaian_deposit);
-        if ($pemakaian_deposit->num_rows() > 0) {
-            $pemakaian_deposit = number_format($pemakaian_deposit->row()->nilai, 0, ",", ".");
-        } else {
-            $pemakaian_deposit = 0;
-        }
 
         if ($pembayaran_detail_air->summary->total_diskon > 0 OR $pembayaran_detail_ipl->summary->total_diskon > 0)  {
             $grand_total = ($grand_total - $pembayaran_detail_air->summary->total_diskon) - $pembayaran_detail_ipl->summary->total_diskon;
@@ -285,7 +271,7 @@ class Kwitansi_new extends CI_Controller
                 "pembayaran_air"        => $pembayaran_detail_air->summary,
                 "grand_total"           => $grand_total,
                 "terbilang"             => strtoupper($this->terbilang($grand_total)),
-                "pemakaian_deposit"     => $pemakaian_deposit,
+                "pemakaian_deposit"     => 0,
                 "sisa_deposit"          => $sisa_deposit,
                 "date"                  => date("Y-m-d"),
                 "user"                  => $user,
