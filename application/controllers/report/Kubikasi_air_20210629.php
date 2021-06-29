@@ -89,7 +89,7 @@ class Kubikasi_air extends CI_Controller {
 
         foreach ($table['data'] as $key => $value) 
         {
-            $table['data'][$key][8] = (is_null($table['data'][$key][8])?"Tagihan Belum Digenerate":number_format($table['data'][$key][8], 0, ",", ","));
+            $table['data'][$key][8] = number_format($table['data'][$key][8], 0, ",", ",");
         }
         echo(json_encode($table));
     }
@@ -218,7 +218,7 @@ class Kubikasi_air extends CI_Controller {
                 INNER JOIN blok ON blok.id = unit.blok_id
                 INNER JOIN kawasan ON  kawasan.id = blok.kawasan_id
                 INNER JOIN customer AS pemilik ON pemilik.id = unit.pemilik_customer_id
-                LEFT JOIN
+                INNER JOIN
                 ( 
                     SELECT 
                         t_tagihan_air.unit_id,
@@ -323,7 +323,7 @@ class Kubikasi_air extends CI_Controller {
                 $spreadsheet->getActiveSheet()->setCellValue('F'.$nomor, $d->meter_awal)->getStyle('F'.$nomor)->getAlignment()->setHorizontal(Alignment::HORIZONTAL_RIGHT);
                 $spreadsheet->getActiveSheet()->setCellValue('G'.$nomor, $d->meter_akhir)->getStyle('G'.$nomor)->getAlignment()->setHorizontal(Alignment::HORIZONTAL_RIGHT);
                 $spreadsheet->getActiveSheet()->setCellValue('H'.$nomor, $d->meter_pakai)->getStyle('H'.$nomor)->getAlignment()->setHorizontal(Alignment::HORIZONTAL_RIGHT);
-                $spreadsheet->getActiveSheet()->setCellValue('I'.$nomor, (is_null($d->nilai_pakai)?"Tagihan Belum Digenerate":number_format($d->nilai_pakai, 0, ",", ",")))->getStyle('I'.$nomor)->getAlignment()->setHorizontal(Alignment::HORIZONTAL_RIGHT);
+                $spreadsheet->getActiveSheet()->setCellValue('I'.$nomor, number_format($d->nilai_pakai, 0, ",", ","))->getStyle('I'.$nomor)->getAlignment()->setHorizontal(Alignment::HORIZONTAL_RIGHT);
                 $nomor++;
             }
         }
