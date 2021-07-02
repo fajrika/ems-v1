@@ -762,10 +762,17 @@ class m_voucher_tagihan extends CI_Model
                 $result2->message = "ERROR di API atau Koneksi Internet";
             } else {
                 // Show me the result
-                $transaction = json_decode($data, TRUE);
-                // var_dump($transaction);
-                $result2->result = "Sukses";
-                $result2->message = "Data Sukses ter-Validasi";
+                $transaction = json_decode($data);
+                if ($transaction->result)
+                {
+                    $result2->result = "Sukses";
+                    $result2->message = "Data Sukses ter-Validasi";
+                }
+                else
+                {
+                    $result2->result = "Gagal";
+                    $result2->message = fix_title($transaction->message);
+                }
             }
             curl_close($ch);
             array_push($result, $result2);

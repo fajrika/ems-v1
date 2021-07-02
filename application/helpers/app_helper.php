@@ -155,3 +155,35 @@ if ( ! function_exists('cek_null_empty'))
 		}
 	}
 }
+
+if (!function_exists('fix_title')) {
+	function fix_title($string)
+	{
+		if ($string!="")
+		{
+			$find_characters = array('..',',,','--',"''",'""');
+			$characters = array('.',',','-',"'",'"');
+			$string = fix_whitespace($string);
+
+			// Fix Double characters
+			for ($i=0; $i < count($characters); $i++)
+			{
+				$string = fix_whitespace(str_replace($find_characters[$i], $characters[$i], $string));
+			}
+
+			// Fix first characters
+			while (in_array(substr($string, 0, 1), $characters))
+			{
+				$string = trim(substr($string, 1));
+			}
+
+			// Fix last characters
+			while (in_array(substr($string, strlen($string)-1), $characters))
+			{
+				$string = trim(substr($string, 0, -1));
+			}
+		}
+
+		return $string;
+	}
+}
