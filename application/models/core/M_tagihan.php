@@ -208,7 +208,7 @@ class M_tagihan extends CI_Model
 						(t_pembayaran.is_void = 0 and v_tagihan_lingkungan.status_tagihan in (0,4))
 						or (t_pembayaran.is_void = 1 and v_tagihan_lingkungan.status_tagihan = 0)
 						)",
-				"LEFT"
+				"INNER"
 			)
 			->join(
 				"unit_lingkungan",
