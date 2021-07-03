@@ -24,15 +24,12 @@ class m_login extends CI_Model {
     public function cek_user($username,$password)
     {
         $password = md5($password);
-        $query = $this->db->query("SELECT * FROM [user] WHERE username = '$username' AND password = '$password'");
-        $row = $query->row(); 
-        // var_dump($row);
-        return $row;
-        // if($row){
-        //     $this->set_session($row->name,$row->username,$row->password,$row->group_user_id);
-        // }else{
-        //     echo "no";
-        // }
+        // $query = $this->db->query("SELECT * FROM [user] WHERE username = '$username' AND password = '$password'");
+        return $query = $this->db
+            ->where('username', stripslashes(strip_tags(htmlspecialchars($username, ENT_QUOTES))))
+            ->where('password', $this->db->escape_like_str($password))
+            ->get('user')
+            ->row();
     }
     public function set_session($name,$username,$password,$group_user_id,$unit_id){
         $this->session->set_userdata([
