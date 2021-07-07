@@ -364,10 +364,8 @@ defined('BASEPATH') or exit('No direct script access allowed');
                             }
                         });
                     }
-                    
                 }
             });
-
         });
 		
 		$("#input_pemakaian").keyup(function () {
@@ -389,15 +387,13 @@ defined('BASEPATH') or exit('No direct script access allowed');
 					console.log(data);
 
 					$("#range_id")[0].innerHTML = "";
-
 					$("#range_id").append("<option value='' >Pilih Jenis Range</option>");
 					$.each(data, function (key, val) {
-						$("#range_id").append("<option value='" + val.id + "'>" + val.name.toUpperCase() + "</option>");
+                        if (val.name !== '' && val.name !== null) {
+                            $("#range_id").append("<option value='" + val.id + "'>" + val.name + "</option>");
+                        }
 					});
-
 				}
-
-
 			});
 		});
 
@@ -441,18 +437,15 @@ defined('BASEPATH') or exit('No direct script access allowed');
 					$.each(data, function (key, val) {
 						console.log(val);
 						no = no + 1;
-
 						tmp += "<tr>";
 						tmp += "<td> Range" + no + " </td>";
 						tmp += "<td>" + val.range_awal + " </td>";
 						tmp += "<td>" + val.range_akhir + " </td>";
 						tmp += "<td>" + val.harga + " </td>";
 						tmp += "<tr>";
-
 						// if ((min_use >= val.range_awal) && (min_use <= val.range_akhir)) {
 						// 	nilai = min_use * val.harga;
 						// }
-
 					});
 
 					tmp += "<tbody>";
