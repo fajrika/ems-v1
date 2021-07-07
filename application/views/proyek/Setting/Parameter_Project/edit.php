@@ -130,8 +130,8 @@ defined('BASEPATH') or exit('No direct script access allowed');
                         data2.append($(this).prop("id"), $(this)[0].files[0]);
                     });
                     data = $("#form").serialize();
-                    alert(JSON.stringify(data));
-                    return false;
+                    // alert(JSON.stringify(data));
+                    // return false;
                     url = "<?= site_url() ?>Setting/P_parameter_project/ajax_save_img?id=<?= $this->input->get("id") ?>"+"&"+data;
                     $.ajax({
                         type: "POST",
