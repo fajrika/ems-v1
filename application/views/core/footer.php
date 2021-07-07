@@ -157,7 +157,7 @@
                 success: function(data) {
                     if (data.status)
                     {
-                        window.open(window.location.href,'_self');
+                        reload_page();
                     }
                     else
                     {
@@ -247,6 +247,12 @@
             // $("#loading").hide();
             $(".new_preloader").fadeOut();
         });
+
+        function reload_page() {
+            $(".new_preloader").show();
+            setTimeout(function() { $(".new_preloader").show(); }, 500); //Handle saat ajax complete fadeout preloader 
+            window.open(window.location.href,'_self');
+        }
 
         $(".new_preloader").fadeOut();
     </script>
