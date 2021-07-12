@@ -227,8 +227,8 @@ class m_sub_golongan extends CI_Model
             range_air_id,
             range_awal,
             range_akhir,
-			harga_hpp,
-			harga
+            harga_hpp,
+            harga
 
         FROM range_air_detail where range_air_id = $id
 
@@ -247,8 +247,8 @@ class m_sub_golongan extends CI_Model
             range_lingkungan_id,
             range_awal,
             range_akhir,
-			harga_hpp,
-			harga
+            harga_hpp,
+            harga
 
         FROM range_lingkungan_detail where range_lingkungan_id = $id
 
@@ -267,8 +267,8 @@ class m_sub_golongan extends CI_Model
             range_listrik_id,
             range_awal,
             range_akhir,
-			harga_hpp,
-			harga
+            harga_hpp,
+            harga
 
         FROM range_listrik_detail where range_listrik_id = $id
 
@@ -335,9 +335,8 @@ class m_sub_golongan extends CI_Model
         $project = $this->m_core->project();
         $user_id = $this->m_core->user_id();
         
-        $dataTmp['service_id'] = $this->db->select("id")->from("service")->where("project_id",$project->id)->where("service_jenis_id",2)->get()->row()->id;
-        $data =
-        [
+        $dataTmp['service_id'] = $this->db->select("id")->from("service")->where("project_id",$project->id)->where("service_jenis_id", $dataTmp['range_flag'])->get()->row()->id;
+        $data = [
             'jenis_golongan_id' => $dataTmp['golongan'],
             'code' => $dataTmp['code'],
             'name' => $dataTmp['nama_sub'],
@@ -351,7 +350,6 @@ class m_sub_golongan extends CI_Model
             'active' => $dataTmp['active'],
             'delete' => 0,
             'pemeliharaan_air_id' => $dataTmp['pemeliharaan_air_id']
-
         ];
         
         // $this->db->join('jenis_golongan', 'jenis_golongan.id = sub_golongan.jenis_golongan_id');
