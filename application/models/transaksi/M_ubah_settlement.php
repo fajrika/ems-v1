@@ -39,8 +39,8 @@ class m_ubah_settlement extends CI_Model
         $datas->status = 1;
         foreach ($datas->pembayaran as $index => $data) {
             $data->index = $index + 1;
-            $data->va_ems = substr($data->va, -7);
-            $data->tgl_bayar .= '20';
+            $data->va_ems = substr($data->va, -8);
+            // $data->tgl_bayar .= '20';
             $db = $this->db
                 ->select('
                     row_number() over(ORDER BY t_pembayaran.id) as rn,
@@ -58,7 +58,7 @@ class m_ubah_settlement extends CI_Model
                 ->join(
                     't_pembayaran',
                     "t_pembayaran.unit_id = unit.id
-                    AND CONVERT(varchar(10),tgl_bayar,103) = '$data->tgl_bayar'
+                    AND CONVERT(VARCHAR, t_pembayaran.tgl_bayar, 3) = '$data->tgl_bayar'
                     AND t_pembayaran.cara_pembayaran_id = $cara_pembayaran_id",
                     'left'
                 )
