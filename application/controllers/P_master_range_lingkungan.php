@@ -202,4 +202,24 @@ class P_master_range_lingkungan extends CI_Controller {
         }
     }
 
+	public function edit_modal()
+    {
+        if ($this->m_range_lingkungan->cek($this->input->get('id'))) {
+            $dataRangeLingkungan = $this->m_range_lingkungan->get();
+            $dataRangeLingkunganSelect = $this->m_range_lingkungan->getSelect($this->input->get('id'));
+			$dataRangeDetailBangunan = $this->m_range_lingkungan->get_range_detail_bangunan($this->input->get('id'));
+			$dataRangeDetailKavling = $this->m_range_lingkungan->get_range_detail_kavling($this->input->get('id'));
+            $this->load->model('m_log');
+            $data = $this->m_log->get('range_lingkungan', $this->input->get('id'));
+            $this->load->view('core/header');
+
+			$this->load->view('core/top_bar_modal', ['jabatan' => $GLOBALS['jabatan'], 'project' => $GLOBALS['project']]);
+            $this->load->view('core/body_header_modal', ['title' => 'Master > Range > Range Lingkungan', 'subTitle' => 'Info']);
+            $this->load->view('proyek/master/range_lingkungan/edit_modal', ['data' => $data, 'dataRangeLingkungan' => $dataRangeLingkungan, 'data_select' => $dataRangeLingkunganSelect, 'dataRangeDetailBangunan' => $dataRangeDetailBangunan,  'dataRangeDetailKavling' => $dataRangeDetailKavling    ]);
+            $this->load->view('core/body_footer_modal');
+            $this->load->view('core/footer_modal');
+        } else {
+            echo "Data tidak valid!";
+        }
+    }
 }

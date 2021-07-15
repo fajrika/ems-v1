@@ -116,10 +116,11 @@ defined('BASEPATH') or exit('No direct script access allowed');
 			<div class="form-group">
 				<label class="control-label col-md-3 col-sm-3 col-xs-12">Range</label>
 				<div id="lihat_range">
-					<div class="col-md-9 col-sm-9 col-xs-12">
+					<div class="col-md-9 col-sm-9 col-xs-12" style="display: flex;">
 						<select id="range_id" class="form-control select2" name="range_id">
 							<option value="">--Pilih Range--</option>
 						</select>
+                    	<button type="button" class="btn btn-primary btn-block detail-range" style="height: 3.43rem; width: 9rem; margin-left: 1rem; margin-right: 0;" disabled="">Detail</button>
 					</div>
 				</div>
 			</div>
@@ -160,6 +161,26 @@ defined('BASEPATH') or exit('No direct script access allowed');
 
 	</form>
 </div>
+
+<!-- modals -->
+<!-- Large modal -->
+<div id="modal" class="modal fade" role="dialog" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">×</span>
+                </button>
+                <h4 class="modal-title" id="myModalLabel">Detail Range</h4>
+            </div>
+            <div class="modal-body">
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 <script type="text/javascript">
 	var harga_minimum = 0;
 
@@ -215,95 +236,131 @@ defined('BASEPATH') or exit('No direct script access allowed');
 			ajax_minimum();
 		});
 		$("#range_flag").change(function() {
-			$.ajax({
-				type: "post",
-				url: '<?= site_url(); ?>/P_master_sub_golongan/lihat_range',
-				data: {
-					range_flag: $("#range_flag").val()
-				},
-				dataType: "json",
-				success: function(data) {
-					console.log(data);
+			if ($(this).val()!="") {
+				$.ajax({
+					type: "post",
+					url: '<?= site_url(); ?>/P_master_sub_golongan/lihat_range',
+					data: {
+						range_flag: $("#range_flag").val()
+					},
+					dataType: "json",
+					success: function(data) {
+						console.log(data);
 
-					$("#range_id")[0].innerHTML = "";
+						$("#range_id")[0].innerHTML = "";
 
-					$("#range_id").append("<option value='' >Pilih Range</option>");
-					$.each(data, function(key, val) {
-						val.code = val.code?val.code.toUpperCase():"";
-						val.name = val.name?val.name.toUpperCase():"";
-						
+						$("#range_id").append("<option value='' >Pilih Range</option>");
+						$.each(data, function(key, val) {
+							val.code = val.code?val.code.toUpperCase():"";
+							val.name = val.name?val.name.toUpperCase():"";
+							
 
-						var str = "<option value='" + val.id + "'>"+val.code+ " - " + val.name+ "</option>";
-						$("#range_id").append(str);
-					});
-				}
-			});
-			
+							var str = "<option value='" + val.id + "'>"+val.code+ " - " + val.name+ "</option>";
+							$("#range_id").append(str);
+						});
+					}
+				});	
+			} else {
+				$("#range_id")[0].innerHTML = "";
+				$("#range_id").append("<option value='' >Pilih Range</option>");
+			}
 		});
 
 		$(".select2").select2();
 		$("#range_id").change(function() {
+			if($(this).val()!="") {
+				url = '<?= site_url(); ?>/P_master_sub_golongan/lihat_tabel';
+				var range = $("#range_id").val();
+				var min_use = $("#input_pemakaian").val();
+				var action = "lihat_tabel";
+				var jenis = "sub_golongan";
+				var range_flag = $("#range_flag").val();
+				//var loading = '<p align="center"><img src="images/tenor.gif"> </p>';
+				// $("#print_range").html(loading);
+				$.ajax({
+					url: url,
+					method: "POST",
+					data: {
+						range: range,
+						action: action,
+						jenis: jenis,
+						id: range,
+						min_use: min_use,
+						range_flag: range_flag
+					},
+					dataType: "json",
+					success: function(data) {
+						$('.detail-range').prop('disabled',false);
 
-			url = '<?= site_url(); ?>/P_master_sub_golongan/lihat_tabel';
-			var range = $("#range_id").val();
-			var min_use = $("#input_pemakaian").val();
-			var action = "lihat_tabel";
-			var jenis = "sub_golongan";
-			var range_flag = $("#range_flag").val();
-			//var loading = '<p align="center"><img src="images/tenor.gif"> </p>';
-			// $("#print_range").html(loading);
-			$.ajax({
-				url: url,
-				method: "POST",
-				data: {
-					range: range,
-					action: action,
-					jenis: jenis,
-					id: range,
-					min_use: min_use,
-					range_flag: range_flag
-				},
-				dataType: "json",
-				success: function(data) {
-					var tmp = "<table class='table table-responsive'>";
-					tmp += "<thead>";
-					tmp += "<tr>";
-					tmp += "<th>Range</th>";
-					tmp += "<th>Range Awal</th>";
-					tmp += "<th>Range Akhir</th>";
-					tmp += "<th>Harga</th>";
-					tmp += "<tr>";
-					tmp += "<thead>";
-					tmp += "<tbody>";
-
-					var no = 0;
-					// var nilai = 0;
-
-					$.each(data, function(key, val) {
-						console.log(val);
-						no = no + 1;
-
+						var tmp = "<table class='table table-responsive'>";
+						tmp += "<thead>";
 						tmp += "<tr>";
-						tmp += "<td> Range" + no + " </td>";
-						tmp += "<td>" + val.range_awal + " </td>";
-						tmp += "<td>" + val.range_akhir + " </td>";
-						tmp += "<td>" + val.harga + " </td>";
+						tmp += "<th>Range</th>";
+						tmp += "<th>Range Awal</th>";
+						tmp += "<th>Range Akhir</th>";
+						tmp += "<th>Harga</th>";
 						tmp += "<tr>";
+						tmp += "<thead>";
+						tmp += "<tbody>";
 
-						// if ((min_use >= val.range_awal) && (min_use <= val.range_akhir)) {
-						// 	nilai = min_use * val.harga;
-						// }
+						var no = 0;
+						// var nilai = 0;
 
-					});
+						$.each(data, function(key, val) {
+							console.log(val);
+							no = no + 1;
 
-					tmp += "<tbody>";
-					tmp += "<table>";
-					$("#isi_tabel")[0].innerHTML = tmp;
+							tmp += "<tr>";
+							tmp += "<td> Range" + no + " </td>";
+							tmp += "<td>" + val.range_awal + " </td>";
+							tmp += "<td>" + val.range_akhir + " </td>";
+							tmp += "<td>" + val.harga + " </td>";
+							tmp += "<tr>";
 
-					// $('#nilai_minimum').val(nilai);
-					ajax_minimum();
-				}
-			});
+							// if ((min_use >= val.range_awal) && (min_use <= val.range_akhir)) {
+							// 	nilai = min_use * val.harga;
+							// }
+
+						});
+
+						tmp += "<tbody>";
+						tmp += "<table>";
+						$("#isi_tabel")[0].innerHTML = tmp;
+
+						// $('#nilai_minimum').val(nilai);
+						ajax_minimum();
+					}
+				});
+			} else {
+				$('.detail-range').prop('disabled',true);
+			}
+		});
+
+		$('.detail-range').on('click', function(){
+			show_modal();
 		});
 	});
+
+	var cek;
+	var url;
+    function show_modal() {
+    	cek = 1;
+    	if ($("#range_flag").val()=='1') { // IPL
+    		url = '<?=base_url();?>P_master_range_lingkungan/edit_modal?id='+$("#range_id").val();
+    	} else if ($("#range_flag").val()=='2') { // AIR
+    		url = '<?=base_url();?>P_master_range_air/edit_modal?id='+$("#range_id").val();
+    	} else {
+	    	cek = 0;
+    	}
+    	if ($("#range_id").val()=="") {
+    		$('.detail-range').prop('disabled',true);
+	    	cek = 0;
+    	}
+
+    	if (cek) {
+	    	$('#modal .modal-body').html("<iframe id='modal-iframe' src='' frameborder='0' style='width: 100%; height:75rem'></iframe>");
+	        $("#modal-iframe").attr("src", url);
+	        $('#modal').modal('show');
+    	}
+   	}
 </script>

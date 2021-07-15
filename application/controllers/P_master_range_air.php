@@ -160,4 +160,24 @@ class P_master_range_air extends CI_Controller {
             $this->load->view('core/alert', ['title' => 'Gagal', 'text' => 'Data COA digunakan di Service', 'type' => 'danger']);
         }
     }
+
+	public function edit_modal()
+    {
+        if ($this->m_range_air->cek($this->input->get('id'))) {
+            $dataRangeAir = $this->m_range_air->get();
+            $dataRangeAirSelect = $this->m_range_air->getSelect($this->input->get('id'));
+			$dataRangeAirDetail = $this->m_range_air->get_range_air_detail($this->input->get('id'));
+            $this->load->model('m_log');
+            $data = $this->m_log->get('range_air', $this->input->get('id'));
+            $this->load->view('core/header');
+
+			$this->load->view('core/top_bar_modal', ['jabatan' => $GLOBALS['jabatan'], 'project' => $GLOBALS['project']]);
+            $this->load->view('core/body_header_modal', ['title' => 'Master > Range > Range Air', 'subTitle' => 'Info']);
+            $this->load->view('proyek/master/range_air/edit_modal', ['data' => $data, 'dataRangeAir' => $dataRangeAir, 'data_select' => $dataRangeAirSelect, 'dataRangeAirDetail' => $dataRangeAirDetail]);
+            $this->load->view('core/body_footer_modal');
+            $this->load->view('core/footer_modal');
+        } else {
+            echo "Data tidak valid!";
+        }
+    }
 }
