@@ -206,14 +206,10 @@ class m_meter_air extends CI_Model
                     ELSE  REPLACE( CONVERT ( VARCHAR, CAST ( (ISNULL( t_pencatatan_meter_air.meter_akhir , 0 )-ISNULL( t_pencatatan_meter_air.meter_awal , ISNULL(cek_sebelum.meter_akhir,0))) AS money ), 1 ), '.00', '' )
                 END as meter_pakai,
                 t_pencatatan_meter_air.foto_url,
-                (SELECT status_tagihan FROM t_tagihan_air WHERE t_tagihan_air.unit_id = unit.id AND periode = '".$periode_tagihan."') AS status_tagihan
+                t_tagihan_air.status_tagihan
             ")
             ->from("unit")
-            ->join(
-                "unit_air",
-                "unit_air.unit_id = unit.id
-                AND unit_air.aktif = 1"
-            )
+            ->join("unit_air", "unit_air.unit_id = unit.id AND unit_air.aktif = 1")
             ->join(
                 "t_pencatatan_meter_air",
                 "t_pencatatan_meter_air.unit_id = unit.id
@@ -235,6 +231,7 @@ class m_meter_air extends CI_Model
             ->join("blok", "blok.id = unit.blok_id")
             ->join("kawasan", "kawasan.id = blok.kawasan_id")
             ->join("customer as pemilik", "pemilik.id = unit.pemilik_customer_id")
+            ->join("t_tagihan_air", "t_tagihan_air.unit_id = unit.id AND t_tagihan_air.periode = '".$periode_tagihan."'", "LEFT")
             ->where("kawasan.project_id", $project->id)
             ->group_by("
                 unit.id,
@@ -249,7 +246,8 @@ class m_meter_air extends CI_Model
                     WHEN ISNULL( t_pencatatan_meter_air.meter_akhir , 0 ) <= ISNULL( t_pencatatan_meter_air.meter_awal , ISNULL(cek_sebelum.meter_akhir,0) ) THEN '0'
                     ELSE  REPLACE( CONVERT(VARCHAR, CAST((ISNULL(t_pencatatan_meter_air.meter_akhir , 0 )-ISNULL( t_pencatatan_meter_air.meter_awal , ISNULL(cek_sebelum.meter_akhir,0))) AS money ), 1 ), '.00', '' )
                 END,
-                t_pencatatan_meter_air.foto_url
+                t_pencatatan_meter_air.foto_url,
+                t_tagihan_air.status_tagihan
             ");
         if ($kawasan != "all") {
             $query = $query->where("kawasan.id", $kawasan);
