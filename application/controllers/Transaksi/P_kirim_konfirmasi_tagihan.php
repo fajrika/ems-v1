@@ -643,7 +643,7 @@ class P_kirim_konfirmasi_tagihan  extends CI_Controller
 
         ini_set("pcre.backtrack_limit", "9000000");
         ob_start();
-?>
+        ?>
         <!DOCTYPE html>
         <html lang="en">
 
@@ -811,7 +811,7 @@ class P_kirim_konfirmasi_tagihan  extends CI_Controller
                         }
                         $dataTagihanWS[$iterasi] = (object)[];
                         $dataTagihanWS[$iterasi]->periode = substr($this->bln_indo(substr($periode, 5, 2)), 0, 3) . " " . substr($periode, 0, 4);
-                        $dataTagihanWS[$iterasi]->periode_penggunaan = substr($this->bln_indo(substr($periode_1, 5, 2)), 0, 3) . "<br>" . substr($periode_1, 0, 4);
+                        $dataTagihanWS[$iterasi]->periode_penggunaan = substr($this->bln_indo(substr($periode_1, 5, 2)), 0, 3) . " " . substr($periode_1, 0, 4);
                         $dataTagihanWS[$iterasi]->meter_awal    = null;
                         $dataTagihanWS[$iterasi]->meter_akhir   = null;
                         $dataTagihanWS[$iterasi]->pakai         = null;
