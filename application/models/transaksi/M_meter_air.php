@@ -183,79 +183,74 @@ class m_meter_air extends CI_Model
     }
     public function ajax_get_unit($kawasan, $blok, $periode)
     {
+        $periode_tagihan = substr($periode, 3, 4) . "-" . substr($periode, 0, 2) . "-01";
         $periode = substr($periode, 0, 2) . "-01-" . substr($periode, 3, 4);
         $project = $this->m_core->project();
+
         $query = $this->db
             ->distinct()
             ->select("
-                        unit.id,
-                        case 
-                            WHEN count(cek_setelah.id)>0 THEN 'disabled'
-                            else ''
-                        END as data_setelah,
-                        kawasan.name as kawasan,
-                        blok.name as blok,
-                        unit.no_unit,
-                        pemilik.name as pemilik,
-                        REPLACE( CONVERT ( VARCHAR, CAST ( ISNULL( t_pencatatan_meter_air.meter_awal , ISNULL(cek_sebelum.meter_akhir,0) ) AS money ), 1 ), '.00', '' ) as meter_awal,
-                        REPLACE( CONVERT ( VARCHAR, CAST ( ISNULL( t_pencatatan_meter_air.meter_akhir , 0 ) AS money ), 1 ), '.00', '' ) as meter_akhir,
-                        CASE
-                            WHEN ISNULL( t_pencatatan_meter_air.meter_akhir , 0 ) <= ISNULL( t_pencatatan_meter_air.meter_awal , ISNULL(cek_sebelum.meter_akhir,0) ) THEN '0'
-                            ELSE  REPLACE( CONVERT ( VARCHAR, CAST ( (ISNULL( t_pencatatan_meter_air.meter_akhir , 0 )-ISNULL( t_pencatatan_meter_air.meter_awal , ISNULL(cek_sebelum.meter_akhir,0))) AS money ), 1 ), '.00', '' )
-                        END as meter_pakai,
-                        t_pencatatan_meter_air.foto_url
-                        ")
+                unit.id,
+                case 
+                    WHEN count(cek_setelah.id)>0 THEN 'disabled'
+                    ELSE ''
+                END as data_setelah,
+                kawasan.name as kawasan,
+                blok.name as blok,
+                unit.no_unit,
+                pemilik.name as pemilik,
+                REPLACE( CONVERT ( VARCHAR, CAST ( ISNULL( t_pencatatan_meter_air.meter_awal , ISNULL(cek_sebelum.meter_akhir,0) ) AS money ), 1 ), '.00', '' ) as meter_awal,
+                REPLACE( CONVERT ( VARCHAR, CAST ( ISNULL( t_pencatatan_meter_air.meter_akhir , 0 ) AS money ), 1 ), '.00', '' ) as meter_akhir,
+                CASE
+                    WHEN ISNULL( t_pencatatan_meter_air.meter_akhir , 0 ) <= ISNULL( t_pencatatan_meter_air.meter_awal , ISNULL(cek_sebelum.meter_akhir,0) ) THEN '0'
+                    ELSE  REPLACE( CONVERT ( VARCHAR, CAST ( (ISNULL( t_pencatatan_meter_air.meter_akhir , 0 )-ISNULL( t_pencatatan_meter_air.meter_awal , ISNULL(cek_sebelum.meter_akhir,0))) AS money ), 1 ), '.00', '' )
+                END as meter_pakai,
+                t_pencatatan_meter_air.foto_url,
+                (SELECT status_tagihan FROM t_tagihan_air WHERE t_tagihan_air.unit_id = unit.id AND periode = '".$periode_tagihan."') AS status_tagihan
+            ")
             ->from("unit")
             ->join(
                 "unit_air",
                 "unit_air.unit_id = unit.id
-                            AND unit_air.aktif = 1"
+                AND unit_air.aktif = 1"
             )
             ->join(
                 "t_pencatatan_meter_air",
                 "t_pencatatan_meter_air.unit_id = unit.id
-                            AND t_pencatatan_meter_air.periode = '$periode'",
+                AND t_pencatatan_meter_air.periode = '$periode'",
                 "LEFT"
             )
             ->join(
                 "t_pencatatan_meter_air as cek_sebelum",
                 "cek_sebelum.unit_id = unit.id
-                            AND cek_sebelum.periode = DATEADD(month,-1,'$periode')",
+                AND cek_sebelum.periode = DATEADD(month,-1,'$periode')",
                 "LEFT"
             )
             ->join(
                 "t_pencatatan_meter_air as cek_setelah",
                 "cek_setelah.unit_id = unit.id
-                            AND cek_setelah.periode > '$periode'",
+                AND cek_setelah.periode > '$periode'",
                 "LEFT"
             )
-            ->join(
-                "blok",
-                "blok.id = unit.blok_id"
-            )
-            ->join(
-                "kawasan",
-                "kawasan.id = blok.kawasan_id"
-            )
-            ->join(
-                "customer as pemilik",
-                "pemilik.id = unit.pemilik_customer_id"
-            )
+            ->join("blok", "blok.id = unit.blok_id")
+            ->join("kawasan", "kawasan.id = blok.kawasan_id")
+            ->join("customer as pemilik", "pemilik.id = unit.pemilik_customer_id")
             ->where("kawasan.project_id", $project->id)
             ->group_by("
-                            unit.id,
-                            kawasan.name,
-                            blok.name,
-                            unit.no_unit,
-                            pemilik.name,
-                            t_pencatatan_meter_air.periode,
-                                REPLACE( CONVERT ( VARCHAR, CAST ( ISNULL( t_pencatatan_meter_air.meter_awal , ISNULL(cek_sebelum.meter_akhir,0) ) AS money ), 1 ), '.00', '' ),
-                            REPLACE( CONVERT ( VARCHAR, CAST ( ISNULL( t_pencatatan_meter_air.meter_akhir , 0 ) AS money ), 1 ), '.00', '' ),
-                            case
-                                WHEN ISNULL( t_pencatatan_meter_air.meter_akhir , 0 ) <= ISNULL( t_pencatatan_meter_air.meter_awal , ISNULL(cek_sebelum.meter_akhir,0) ) THEN '0'
-                                ELSE  REPLACE( CONVERT ( VARCHAR, CAST ( (ISNULL( t_pencatatan_meter_air.meter_akhir , 0 )-ISNULL( t_pencatatan_meter_air.meter_awal , ISNULL(cek_sebelum.meter_akhir,0))) AS money ), 1 ), '.00', '' )
-                            END,
-                            t_pencatatan_meter_air.foto_url");
+                unit.id,
+                kawasan.name,
+                blok.name,
+                unit.no_unit,
+                pemilik.name,
+                t_pencatatan_meter_air.periode,
+                    REPLACE( CONVERT ( VARCHAR, CAST ( ISNULL( t_pencatatan_meter_air.meter_awal , ISNULL(cek_sebelum.meter_akhir,0) ) AS money ), 1 ), '.00', '' ),
+                REPLACE( CONVERT ( VARCHAR, CAST ( ISNULL( t_pencatatan_meter_air.meter_akhir , 0 ) AS money ), 1 ), '.00', '' ),
+                case
+                    WHEN ISNULL( t_pencatatan_meter_air.meter_akhir , 0 ) <= ISNULL( t_pencatatan_meter_air.meter_awal , ISNULL(cek_sebelum.meter_akhir,0) ) THEN '0'
+                    ELSE  REPLACE( CONVERT(VARCHAR, CAST((ISNULL(t_pencatatan_meter_air.meter_akhir , 0 )-ISNULL( t_pencatatan_meter_air.meter_awal , ISNULL(cek_sebelum.meter_akhir,0))) AS money ), 1 ), '.00', '' )
+                END,
+                t_pencatatan_meter_air.foto_url
+            ");
         if ($kawasan != "all") {
             $query = $query->where("kawasan.id", $kawasan);
         }

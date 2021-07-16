@@ -1,6 +1,3 @@
-<?php
-defined('BASEPATH') or exit('No direct script access allowed');
-?>
 <!DOCTYPE html>
 <!-- select2 -->
 <link href="<?= base_url(); ?>vendors/select2/dist/css/select2.min.css" rel="stylesheet">
@@ -9,7 +6,6 @@ defined('BASEPATH') or exit('No direct script access allowed');
 <script type="text/javascript" src="<?= base_url(); ?>vendors/moment/min/moment.min.js"></script>
 <link href="<?= base_url(); ?>vendors/bootstrap-datetimepicker/build/css/bootstrap-datetimepicker.min.css" rel="stylesheet">
 <script type="text/javascript" src="<?= base_url(); ?>vendors/bootstrap-datetimepicker/build/js/bootstrap-datetimepicker.min.js"></script>
-
 <style>
 	.invalid {
 		background-color: lightpink;
@@ -39,7 +35,6 @@ defined('BASEPATH') or exit('No direct script access allowed');
 <div class="clearfix"></div>
 </div>
 <div class="x_conte	nt">
-
 	<br>
 	<form id="form" data-parsley-validate="" class="form-horizontal form-label-left" novalidate="" method="post" action="<?= site_url(); ?>/Transaksi/P_transaksi_generate_bill/save" autocomplete="off">
 		<div class="col-lg-6 col-md-12 col-sm-12 col-xs-12" style="margin-top:20px">
@@ -238,7 +233,6 @@ defined('BASEPATH') or exit('No direct script access allowed');
 		data = parseInt(data) ? parseInt(data) : 0;
 		data = data.toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, "$1,");
 		return data;
-
 	}
 
 	function unformatNumber(data) {
@@ -275,8 +269,8 @@ defined('BASEPATH') or exit('No direct script access allowed');
 				$(this).parent().parent().children().children('.save-row').removeClass("disabled");
 				$(this).parent().parent().children('.meter-pakai').html(pakai);
 			}
-
 		});
+
 		$("#btn-load-unit").click(function() {
             var project_id = $('#project').val();
 			if ($("#kawasan").val() == null) {
@@ -312,16 +306,23 @@ defined('BASEPATH') or exit('No direct script access allowed');
 						for (var i = 0; i < data.length; i++) {
 
                             display_meter_akhir = '';
-                            if (project_id == '1021' || project_id == '18')
+                            if (project_id == '1021' || project_id == '18' || project_id == '4032' || project_id == '4037')
                             {
                                 display_meter_akhir = '';
                             }
                             else
                             {
-                                if (data[i].meter_akhir < 1) {
+                                // if (data[i].meter_akhir < 1) {
+                                //     display_meter_akhir = "readonly";
+                                // } else {
+                                //     display_meter_akhir = '';
+                                // }
+
+                                // jika tagihan blm terbayar, maka nilai meter air boleh diubah
+                                if (data[i].status_tagihan > 0) {
                                     display_meter_akhir = "readonly";
                                 } else {
-                                    display_meter_akhir = '';
+                                    display_meter_akhir = "";
                                 }
                             }
 
@@ -378,8 +379,6 @@ defined('BASEPATH') or exit('No direct script access allowed');
 								$(".table-blok").show()
 						}
 						table_unit_dt.fnPageChange("first");
-
-
 					}
 				});
 			}
