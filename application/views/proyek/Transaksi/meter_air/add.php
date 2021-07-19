@@ -1,25 +1,27 @@
-<!DOCTYPE html>
-<!-- select2 -->
 <link href="<?= base_url(); ?>vendors/select2/dist/css/select2.min.css" rel="stylesheet">
 <script src="<?= base_url(); ?>vendors/select2/dist/js/select2.min.js"></script>
-<!-- date time picker -->
 <script type="text/javascript" src="<?= base_url(); ?>vendors/moment/min/moment.min.js"></script>
 <link href="<?= base_url(); ?>vendors/bootstrap-datetimepicker/build/css/bootstrap-datetimepicker.min.css" rel="stylesheet">
 <script type="text/javascript" src="<?= base_url(); ?>vendors/bootstrap-datetimepicker/build/js/bootstrap-datetimepicker.min.js"></script>
-<style>
+<style type="text/css">
 	.invalid {
 		background-color: lightpink;
 	}
-
 	.has-error {
 		border: 1px solid rgb(185, 74, 72) !important;
 	}
-
 	a.disabled {
 		pointer-events: none;
 		cursor: default;
 	}
+
+    table.dataTable { font-size: 13px !important; }
+    div.dataTables_wrapper { width: 99%; height: 100%; margin: 0 auto; }
+    .dataTables_length select,
+    .dataTables_filter input { padding: 6px 12px; border: 1px solid #ccc; }
+    tfoot input::placeholder { font-size:11px; }
 </style>
+
 <div style="float:right">
 	<h2>
 		<button class="btn btn-warning" onClick="window.location.href='<?= site_url() ?>/P_transaksi_meter_air'">
@@ -119,21 +121,21 @@
 			<div class="card-box table-responsive">
 			</div>
 			<div id="div_table" class="col-md-12 card-box table-responsive">
-
-				<table id="table_unit" class="table table-striped table-bordered" style="width:100%">
+				<table id="table_unit" class="table table-striped jambo_table" style="width:100%; border-collapse: collapse !important;">
 					<tfoot id="tfoot" style="display: table-header-group">
 						<tr>
 							<th class='table-kawasan'>Kawasan</th>
 							<th class='table-blok'>Blok</th>
 							<th>No. Unit</th>
 							<th>Customer</th>
-							<th>Angka Meter Awal</th>
-							<th>Angka Meter Akhir</th>
-							<th>Angka Meter Pemakaian</th>
+							<th>Meter Awal</th>
+							<th>Meter Akhir</th>
+							<th>Pemakaian</th>
+							<th>Tagihan</th>
 							<?php if (permission() ? permission()->create : 0) : ?>
-								<th hidden>Submit</th>
+								<th class="no-sort" hidden>Submit</th>
 							<?php endif; ?>
-							<th hidden>View Foto</th>
+							<th class="no-sort" hidden>Foto</th>
 						</tr>
 					</tfoot>
 					<thead>
@@ -142,13 +144,14 @@
 							<th class='table-blok'>Blok</th>
 							<th>No. Unit</th>
 							<th>Customer</th>
-							<th>Angka Meter Awal</th>
-							<th>Angka Meter Akhir</th>
-							<th>Angka Meter Pemakaian</th>
+							<th>Meter Awal</th>
+							<th>Meter Akhir</th>
+							<th class="text-center">Pemakaian</th>
+							<th style="white-space: nowrap;">Status Tagihan</th>
 							<?php if (permission() ? permission()->create : 0) : ?>
-								<th>Submit</th>
+								<th class="no-sort">Submit</th>
 							<?php endif; ?>
-							<th>View Foto</th>
+							<th class="no-sort">Foto</th>
 						</tr>
 					</thead>
 					<tbody id="tbody_unit">
@@ -167,7 +170,7 @@
 	function create_dataTable() {
 		$('#table_unit tfoot th').each(function() {
 			var title = $(this).text();
-			$(this).html('<input type="text" placeholder="Filter ' + title + '" />');
+			$(this).html('<input type="text" class="form-control form-control-sm" placeholder="Search ' + title + '" />');
 		});
 	}
 
@@ -193,7 +196,11 @@
 		columnDefs: [{
 			orderable: !1,
 			targets: [1]
-		}]
+		},
+        {
+            "targets": 'no-sort', 
+            "orderable": false
+        }],
 	});
 	table_unit.on("draw.dt", function() {
 		$("checkbox input").iCheck({
@@ -318,11 +325,30 @@
                                 //     display_meter_akhir = '';
                                 // }
 
-                                // jika tagihan blm terbayar, maka nilai meter air boleh diubah
-                                if (data[i].status_tagihan > 0) {
-                                    display_meter_akhir = "readonly";
-                                } else {
-                                    display_meter_akhir = "";
+                                // jika backdate, status tagihan yg sdh terbayar dia disable, selain itu bisa diubah,
+                                // jika dia current date makan disabled semua yg meter air nya 0 & yg sdh terbayar
+                                const today = new Date();
+                                const year = today.getFullYear();
+                                const month = `${today.getMonth() + 1}`.padStart(2, "0");
+                                const month_year = `${month+"/"+year}`;
+                                if ($("#periode").val() <= month_year) 
+                                {
+                                    if (data[i].status_tagihan > 0) {
+                                        display_meter_akhir = "readonly";
+                                    } else {
+                                        display_meter_akhir = "";
+                                    }
+                                }
+                                else if ($("#periode").val() > month_year)
+                                {
+                                    if (data[i].status_tagihan > 0) {
+                                        display_meter_akhir = "readonly";
+                                    } else {
+                                        // display_meter_akhir = "";
+                                        if (data[i].meter_akhir < 1) {
+                                            display_meter_akhir = "readonly";
+                                        }
+                                    }
                                 }
                             }
 
@@ -336,8 +362,9 @@
 									"<td class='meter-awal'>" + data[i].meter_awal + "</td>" +
 	                                "<td class='a-right a-right'> <input class='meter-akhir form-control currency' value='" + data[i].meter_akhir + "' "+display_meter_akhir+">" +
 	                                // "<td class='a-right a-right'> <input class='meter-akhir form-control currency' value='" + data[i].meter_akhir + "' " + data[i].data_setelah + ">" +
-									"<td class='meter-pakai'>" + data[i].meter_pakai + "</td>" +
+									"<td class='meter-pakai text-center'>" + data[i].meter_pakai + "</td>" +
 									"</input></td>" +
+									"<td>"+((data[i].status_tagihan > 0) ? 'Terbayar' : 'Belum Terbayar')+"</td>" +
 									"<td class='col-md-1'><a class='save-row btn btn-success' unit_id='" + data[i].id + "' periode='" + $("#periode").val() + "'>Save</a></td>" +
 									"<td class='col-md-1'><a class='btn-success'>View Foto</a></td>" +
 									"</tr>");
@@ -351,8 +378,9 @@
 									"<td class='meter-awal'>" + data[i].meter_awal + "</td>" +
 	                                "<td class='a-right a-right'> <input class='meter-akhir form-control currency' value='" + data[i].meter_akhir + "' "+display_meter_akhir+">" +
 	                                // "<td class='a-right a-right'> <input class='meter-akhir form-control currency' value='" + data[i].meter_akhir + "' " + data[i].data_setelah + ">" +
-									"<td class='meter-pakai'>" + data[i].meter_pakai + "</td>" +
+									"<td class='meter-pakai text-center'>" + data[i].meter_pakai + "</td>" +
 									"</input></td>" +
+									"<td>"+((data[i].status_tagihan > 0) ? 'Terbayar' : 'Belum Terbayar')+"</td>" +
 									"<td class='col-md-1'><a class='btn-success'>View Foto</a></td>" +
 									"</tr>");
 							<?php endif; ?>
