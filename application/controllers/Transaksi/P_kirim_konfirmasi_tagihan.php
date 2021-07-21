@@ -755,6 +755,20 @@ class P_kirim_konfirmasi_tagihan  extends CI_Controller
                     $uid = $uid ? $uid->uid : 0;
                     $catatan = str_replace("{{no_iplk}}", $uid, $catatan);
 
+                    $text_konfirmasi_tagihan = $unit->text_konfirmasi_tagihan;
+                    if ($unit->contactperson || $unit->phone) {
+                        $text_konfirmasi_tagihan .= " di ";
+                        if ($unit->contactperson && $unit->phone) {
+                            $text_konfirmasi_tagihan = str_replace("{{contactperson_and_phone}}", $unit->contactperson." dan ".$unit->phone, $text_konfirmasi_tagihan);
+                        } else if ($unit->contactperson) {
+                            $text_konfirmasi_tagihan = str_replace("{{contactperson_and_phone}}", $unit->contactperson, $text_konfirmasi_tagihan);
+                        } else if ($unit->phone) {
+                            $text_konfirmasi_tagihan = str_replace("{{contactperson_and_phone}}", $unit->phone, $text_konfirmasi_tagihan);
+                        }
+                    } else {
+                        $text_konfirmasi_tagihan = str_replace("{{contactperson_and_phone}}", '', $text_konfirmasi_tagihan);
+                    }
+
                     //Data Tagihan Without Sorting
                     $dataTagihanWoS = $this->ajax_get_tagihan($unit_id);
 
@@ -877,7 +891,8 @@ class P_kirim_konfirmasi_tagihan  extends CI_Controller
                             "ttd" => $ttd,
                             "nomor" => $nomor++,
                             "jml_data" => $jml_data,
-                            "project_id" => $project->id
+                            "project_id" => $project->id,
+                            "text_konfirmasi_tagihan" => $text_konfirmasi_tagihan
                         ];
                         $this->load->view('proyek/transaksi/kirim_konfirmasi_tagihan/print_pdf_second', $data);
                     } else {
@@ -892,7 +907,8 @@ class P_kirim_konfirmasi_tagihan  extends CI_Controller
                             "status_saldo_deposit" => $status_saldo_deposit,
                             "ttd" => $ttd,
                             "nomor" => $nomor++,
-                            "jml_data" => $jml_data
+                            "jml_data" => $jml_data,
+                            "text_konfirmasi_tagihan" => $text_konfirmasi_tagihan
                         ];
                         $this->load->view('proyek/transaksi/kirim_konfirmasi_tagihan/print_pdf', $data);
                     }

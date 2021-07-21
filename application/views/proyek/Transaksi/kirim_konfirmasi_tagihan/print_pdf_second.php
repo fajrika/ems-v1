@@ -160,33 +160,9 @@
             </p>
         <?php endif;?>
 
-            <?php if ($project_id == 4034): //losari ?>
-                Untuk Informasi lebih lanjut dapat menghubungi Customer Service di
-                kantor Estate Office
-            <?php else:?>
-                Jika Pembayaran dilakukan setelah tanggal 20 bulan berjalan akan dikenakan denda
-                kumulatif/penalti. Untuk Informasi lebih lanjut dapat menghubungi Customer Service di
-                kantor Estate Office
-            <?php endif;?>
+        <?= $text_konfirmasi_tagihan ?>
 
-            <?php
-            if ($unit->contactperson || $unit->phone) {
-                echo (" di ");
-                if ($unit->contactperson && $unit->phone) {
-                    echo ("$unit->contactperson dan $unit->phone.");
-                } else if ($unit->contactperson) {
-                    echo ("$unit->contactperson.");
-                } else if ($unit->phone) {
-                    echo ("$unit->phone.");
-                }
-            } else {
-                echo (".");
-            }
-            ?>
-            <br>
-            Demikian Informasi yang dapat kami sampaikan, Atas kerjasamanya yang baik kami ucapkan terima
-            kasih.
-            <br>
+        <br>
         <table style="margin-top: 10px;">
             <tr>
                 <td>

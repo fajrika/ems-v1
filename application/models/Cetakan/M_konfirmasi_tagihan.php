@@ -26,6 +26,7 @@ class m_konfirmasi_tagihan extends CI_Model
                 parameter_pj_jabatan.value as pp_name,
                 parameter_pj.value as pp_value,
                 parameter_catatan.value as catatan,
+                parameter_text_konfirmasi_tagihan.value as text_konfirmasi_tagihan,
                 project_address.value as project_address,
                 unit.virtual_account,
                 CONCAT(bank.va_bank,bank.va_merchant) as mandiri_va,
@@ -44,13 +45,17 @@ class m_konfirmasi_tagihan extends CI_Model
             ->join("blok", "blok.id = unit.blok_id")
             ->join("kawasan", "kawasan.id = blok.kawasan_id")
             // ->join("pt", "pt.id = unit.pt_id", "LEFT")
-            ->join("dbmaster.dbo.m_pt", 'm_pt.pt_id = unit.pt_id')
+            ->join("dbmaster.dbo.m_pt", 'm_pt.pt_id = unit.pt_id',"LEFT")
             ->join("parameter_project as parameter_pj", "parameter_pj.project_id = unit.project_id AND parameter_pj.code = 'pj_konfirmasi_tagihan'", "left")
             ->join("parameter_project as parameter_pj_jabatan", "parameter_pj_jabatan.project_id = unit.project_id AND parameter_pj_jabatan.code = 'jabatan_pj_konfirmasi_tagihan'", "left")
             ->join("parameter_project as project_address", "project_address.project_id = unit.project_id AND project_address.code = 'address_konfirmasi_tagihan'", "left")
             ->join("parameter_project as parameter_catatan", "parameter_catatan.project_id = unit.project_id AND parameter_catatan.code = 'catatan_konfirmasi_tagihan'", "left")
+            ->join("parameter_project as parameter_text_konfirmasi_tagihan", "parameter_text_konfirmasi_tagihan.project_id = unit.project_id AND parameter_text_konfirmasi_tagihan.code = 'text_konfirmasi_tagihan'", "left")
             ->join("bank", "bank.project_id = unit.project_id AND bank.code = 'MANDIRIVA'", "LEFT")
             ->where("unit.id", $unit_id)
+            // ->get_compiled_select();
+            // echo $query;
+            // exit();
             ->get()
             ->row();
             // print_r($this->db->last_query());exit;
@@ -88,6 +93,8 @@ class m_konfirmasi_tagihan extends CI_Model
     public function get_status_saldo_deposit($unit_id)
     {
         $unit = $this->db->select("project_id")->from("unit")->where("id", $unit_id)->get()->row();
-        return $this->db->select("value")->from("parameter_project")->where("project_id", $unit->project_id)->where("code", 'saldo_deposit_konfirmasi_tagihan')->get()->row()->value;
+        $res = $this->db->select("value")->from("parameter_project")->where("project_id", $unit->project_id)->where("code", 'saldo_deposit_konfirmasi_tagihan')->get();
+
+        return ($res->num_rows() ? $res->row()->value : 0);
     }
 }

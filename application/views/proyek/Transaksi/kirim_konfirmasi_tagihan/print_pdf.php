@@ -150,34 +150,14 @@
 
     <div <?php if (($i + 1 >= 13 && $i + 1 <= 20) || (((($i + 1) - 20) % 23 >= 20) && ((($i + 1) - 21) % 23 <= 23))) echo ("style='page-break-before: always;'"); ?>>
         <?php if ($status_saldo_deposit == 1) : ?>
-        <p class="lh-18 f-15" style="margin-bottom:6px;font-weight:bold;">
-            Saldo deposit sebesar : Rp.<?= $saldo_deposit ? $saldo_deposit : 0 ?>
-        </p>
+            <p class="lh-18 f-15" style="margin-bottom:6px;font-weight:bold;">
+                Saldo deposit sebesar : Rp.<?= $saldo_deposit ? $saldo_deposit : 0 ?>
+            </p>
         <?php endif; ?>
 
-        <p class="lh-18 f-15">
-            Jika Pembayaran dilakukan setelah tanggal 20 bulan berjalan akan dikenakan denda
-            kumulatif/penalti. Untuk Informasi lebih lanjut dapat menghubungi Customer Service di
-            kantor Estate Office
-            <?php
-            if ($unit->contactperson || $unit->phone) {
-                echo (" di ");
-                if ($unit->contactperson && $unit->phone) {
-                    echo ("$unit->contactperson dan $unit->phone.");
-                } else if ($unit->contactperson) {
-                    echo ("$unit->contactperson.");
-                } else if ($unit->phone) {
-                    echo ("$unit->phone.");
-                }
-            } else {
-                echo (".");
-            }
-            ?>
-        </p>
-        <p class="lh-5">
-            Demikian Informasi yang dapat kami sampaikan, Atas kerjasamanya yang baik kami ucapkan terima
-            kasih.
-        </p>
+        <?= $text_konfirmasi_tagihan ?>
+
+        <br>
         <table style="margin-top: 10px;">
             <tr>
                 <td>
