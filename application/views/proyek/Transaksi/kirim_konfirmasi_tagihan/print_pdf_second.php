@@ -160,15 +160,15 @@
             </p>
         <?php endif;?>
 
-            <?php if ($project_id == 2): ?>
-
+            <?php if ($project_id == 4034): //losari ?>
+                Untuk Informasi lebih lanjut dapat menghubungi Customer Service di
+                kantor Estate Office
             <?php else:?>
-                
+                Jika Pembayaran dilakukan setelah tanggal 20 bulan berjalan akan dikenakan denda
+                kumulatif/penalti. Untuk Informasi lebih lanjut dapat menghubungi Customer Service di
+                kantor Estate Office
             <?php endif;?>
 
-            Jika Pembayaran dilakukan setelah tanggal 20 bulan berjalan akan dikenakan denda
-            kumulatif/penalti. Untuk Informasi lebih lanjut dapat menghubungi Customer Service di
-            kantor Estate Office
             <?php
             if ($unit->contactperson || $unit->phone) {
                 echo (" di ");
@@ -195,7 +195,7 @@
                             <td><p class="lh-5 f-15">Hormat Kami,</p></td>
                         </tr>
                         <tr>
-                            <td><p class="lh-5 f-15"><?= $unit->pt ?></p></td>
+                            <td><p class="lh-5 f-15"><?= @$unit->pt; ?></p></td>
                         </tr>
                         <tr>
                             <td>
@@ -208,12 +208,12 @@
                         </tr>
                         <tr>
                             <td>
-                                <p class="lh-5 f-15"><u><?= $unit->pp_value ?></u></p>
+                                <p class="lh-5 f-15"><u><?= @$unit->pp_value; ?></u></p>
                             </td>
                         </tr>
                         <tr>
                             <td>
-                                <p class="lh-5 f-15"><?= $unit->pp_name ?></p>
+                                <p class="lh-5 f-15"><?= @$unit->pp_name; ?></p>
                             </td>
                         </tr>
                     </table>
@@ -221,7 +221,7 @@
                 <td>
                     <table border="0">
                         <tr>
-                            <td style="border: 1px solid #000; width: 180px; padding: 10px;"><?= $catatan ?></td>
+                            <td style="border: 1px solid #000; width: 180px; padding: 10px;"><?= $catatan; ?></td>
                         </tr>
                     </table>
                 </td>
