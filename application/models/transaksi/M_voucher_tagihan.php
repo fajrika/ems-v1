@@ -1,7 +1,5 @@
 <?php
-
 defined('BASEPATH') or exit('No direct script access allowed');
-
 class m_voucher_tagihan extends CI_Model
 {
     public function get_voucher($t1, $t2)
@@ -12,25 +10,26 @@ class m_voucher_tagihan extends CI_Model
         // var_dump($t1);
         // var_dump($t2);
 
-        $voucher = $this->db->select("
-                                pt_id,
-                                pt,
-                                cara_pembayaran_id,
-                                cara_pembayaran,
-                                coa_cara_pembayaran,
-                                sum(isnull(bayar,0)+isnull(bayar_deposit,0)-nilai_diskon) as tagihan  
-                            ")
+        $voucher = $this->db
+            ->select("
+                pt_id,
+                pt,
+                cara_pembayaran_id,
+                cara_pembayaran,
+                coa_cara_pembayaran,
+                sum(isnull(bayar,0)+isnull(bayar_deposit,0)-nilai_diskon) as tagihan  
+            ")
             ->from("v_voucher")
             ->where('CAST(tgl_bayar as date) >=', "$t1")
             ->where('CAST(tgl_bayar as date) <=', "$t2")
             ->where('project_id', $project->id)
             ->group_by("
-                                pt_id,
-                                pt,
-                                cara_pembayaran_id,
-                                cara_pembayaran,
-                                coa_cara_pembayaran
-                            ")
+                pt_id,
+                pt,
+                cara_pembayaran_id,
+                cara_pembayaran,
+                coa_cara_pembayaran
+            ")
             // ->distinct()
             ->get()->result();
         $voucher_biaya_admin = $this->db->
@@ -83,41 +82,47 @@ class m_voucher_tagihan extends CI_Model
     public function get_view_bu()
     {
         $project = $this->m_core->project();
-        $data_tagihan   = $this->db->select("  
-                                                pt,
-                                                pt_id,
-                                                erems_pt_id,
-                                                cara_pembayaran_id,
-                                                cara_pembayaran,
-                                                coa_cara_pembayaran,
-                                                sum(nilai_item) as nilai_item")
+        $data_tagihan   = $this->db
+            ->select("  
+                pt,
+                pt_id,
+                erems_pt_id,
+                cara_pembayaran_id,
+                cara_pembayaran,
+                coa_cara_pembayaran,
+                sum(nilai_item) as nilai_item
+            ")
             ->from("view_belum_transfer_keuangan_tagihan")
             ->where("project_id", $project->id)
             ->group_by("
-                                                pt,
-                                                pt_id,
-                                                erems_pt_id,
-                                                cara_pembayaran,
-                                                coa_cara_pembayaran,
-                                                cara_pembayaran_id")
+                pt,
+                pt_id,
+                erems_pt_id,
+                cara_pembayaran,
+                coa_cara_pembayaran,
+                cara_pembayaran_id
+            ")
             ->get()->result();
-        $data_ppn       = $this->db->select("
-                                                pt,
-                                                pt_id,
-                                                erems_pt_id,
-                                                cara_pembayaran_id,
-                                                cara_pembayaran,
-                                                coa_cara_pembayaran,
-                                                sum(nilai_item) as nilai_item")
+        $data_ppn = $this->db
+            ->select("
+                pt,
+                pt_id,
+                erems_pt_id,
+                cara_pembayaran_id,
+                cara_pembayaran,
+                coa_cara_pembayaran,
+                sum(nilai_item) as nilai_item
+            ")
             ->from("view_belum_transfer_keuangan_ppn")
             ->where("project_id", $project->id)
             ->group_by("
-                                                pt,
-                                                pt_id,
-                                                erems_pt_id,
-                                                cara_pembayaran,
-                                                coa_cara_pembayaran,
-                                                cara_pembayaran_id")
+                pt,
+                pt_id,
+                erems_pt_id,
+                cara_pembayaran,
+                coa_cara_pembayaran,
+                cara_pembayaran_id
+            ")
             ->get()->result();
         $data_cluster = $data_tagihan;
         foreach ($data_ppn as $k1 => $v1) {
@@ -249,38 +254,53 @@ class m_voucher_tagihan extends CI_Model
         $t2 = substr($t2, -4) . "-" . substr($t2, 3, 2) . "-" . substr($t2, 0, 2);
 
         $project = $this->m_core->project();
+        // cek parameter project, jika value split_ppn berisi nilai COA
+        // maka tambahkan nilai ppn
+        $split_ppn_air = 0;
+        $split_ppn_ipl = 0;
+        $qry_air = $this->db->select("value")->where("project_id", $project->id)->where("code", "split_ppn_air")->get("parameter_project");
+        if ($qry_air->num_rows() > 0) {
+            if ($qry_air->row()->value !== '0') {
+                $split_ppn_air = $qry_air->row()->value;
+            }
+        }
 
-        $data = $this->db->select("
-                            v_voucher.t_pembayaran_id,
-                            v_voucher.unit_id,
-                            v_voucher.kawasan,
-                            v_voucher.blok,
-                            v_voucher.no_unit,
-                            v_voucher.pemilik,
-                            v_voucher.item,
-                            v_voucher.nilai_tagihan,
-                            v_voucher.nilai_ppn,
-                            v_voucher.nilai_denda,
-                            v_voucher.nilai_penalti,
-                            v_voucher.nilai_biaya_admin_cara_pembayaran,
-                            FORMAT (v_voucher.tgl_bayar,'dd-MM-yyyy') as tgl_bayar,  
-                            coa_tagihan.coa as coa_tagihan,
-                            coa_ppn.coa as coa_ppn,
-                            coa_denda.coa as coa_denda,
-                            coa_cara_pembayaran as coa_cara_pembayaran,
-                            CASE 
-                                WHEN t_tagihan_air.periode is not null 
-                                    THEN FORMAT(t_tagihan_air.periode,'dd-MM-yyyy')
-                                WHEN t_tagihan_lingkungan.periode is not null 
-                                    THEN FORMAT(t_tagihan_lingkungan.periode,'dd-MM-yyyy')
-                            END as periode
+        $qry_ipl = $this->db->select("value")->where("project_id", $project->id)->where("code", "split_ppn_ipl")->get("parameter_project");
+        if ($qry_ipl->num_rows() > '0') {
+            if ($qry_ipl->row()->value !== '0') {
+                $split_ppn_ipl = $qry_ipl->row()->value;
+            }
+        }
 
-                        ")
+        $data = $this->db
+            ->select("
+                v_voucher.t_pembayaran_id,
+                v_voucher.unit_id,
+                v_voucher.kode_kawasan,
+                v_voucher.kawasan,
+                v_voucher.blok,
+                v_voucher.no_unit,
+                v_voucher.pemilik,
+                v_voucher.item,
+                v_voucher.nilai_tagihan,
+                v_voucher.nilai_ppn,
+                v_voucher.nilai_denda,
+                v_voucher.nilai_penalti,
+                v_voucher.nilai_biaya_admin_cara_pembayaran,
+                FORMAT (v_voucher.tgl_bayar,'dd-MM-yyyy') as tgl_bayar,  
+                coa_tagihan.coa as coa_tagihan,
+                coa_ppn.coa as coa_ppn,
+                coa_denda.coa as coa_denda,
+                coa_cara_pembayaran as coa_cara_pembayaran,
+                CASE 
+                    WHEN t_tagihan_air.periode is not null 
+                        THEN FORMAT(t_tagihan_air.periode,'dd-MM-yyyy')
+                    WHEN t_tagihan_lingkungan.periode is not null 
+                        THEN FORMAT(t_tagihan_lingkungan.periode,'dd-MM-yyyy')
+                END as periode
+            ")
             ->from("v_voucher")
-            ->join(
-                "service",
-                "service.id = v_voucher.service_id"
-            )
+            ->join("service", "service.id = v_voucher.service_id")
             ->join(
                 "gl_2018.dbo.view_coa as coa_tagihan",
                 "coa_tagihan.coa_id = service.service_coa_mapping_id",
@@ -319,19 +339,37 @@ class m_voucher_tagihan extends CI_Model
             )
             ->where("v_voucher.cara_pembayaran_id", $cara_pembayaran_id)
             ->where("v_voucher.pt_id", $pt_id)
-            ->WHERE("CAST(tgl_bayar as date) BETWEEN '$t1' AND '$t2' ")
-            // ->where('tgl_bayar >=', "$t1")
-            // ->where('tgl_bayar <=', "$t2")
+            ->where("CAST(tgl_bayar as date) BETWEEN '$t1' AND '$t2' ")
             ->where('v_voucher.project_id', $project->id)
             ->order_by("t_pembayaran_id,kawasan,blok,no_unit,periode")
-            ->get()->result();
+            ->get()
+            ->result();
 
         $data_detil = [];
         $total = 0;
         // die;
         foreach ($data as $k => $v) {
+            $nilai_tagihan = $v->nilai_tagihan;
+
+            // setting split nilai tagihan, 
+            // jika parameter project value split PPN terisi nilai COA
+            if ($v->nilai_ppn < 1) {
+                if ($split_ppn_air > 0) {
+                    if ($v->item == "Air") {
+                        $nilai_tagihan = round($v->nilai_tagihan / 1.1);
+                    }
+                }
+
+                if ($split_ppn_ipl > 0) {
+                    if ($v->item == "Perawatan Lingkungan") {
+                        $nilai_tagihan = round($v->nilai_tagihan / 1.1);
+                    }
+                }
+            }
+
             $tmp = [
                 "unit_id"       => $v->unit_id,
+                "kode_kawasan"  => $v->kode_kawasan,
                 "kawasan"       => $v->kawasan,
                 "pemilik"       => $v->pemilik,
                 "blok"          => $v->blok,
@@ -340,7 +378,7 @@ class m_voucher_tagihan extends CI_Model
                 "periode_tagihan" => $v->periode,
                 "item"          => "Tagihan - $v->item",
                 "coa_item"      => $v->coa_tagihan,
-                "nilai_item"    => $v->nilai_tagihan
+                "nilai_item"    => $nilai_tagihan //$v->nilai_tagihan
             ];
             array_push($data_detil,$tmp);
             if ($v->nilai_ppn > 0) {
@@ -348,20 +386,34 @@ class m_voucher_tagihan extends CI_Model
                 $tmp['coa_item'] = $v->coa_ppn;
                 $tmp['nilai_item'] = $v->nilai_ppn;
                 array_push($data_detil,$tmp);
+            } else {
+                if ($split_ppn_air > 0) {
+                    if ($v->item == "Air") {
+                        $tmp['item'] = "PPN - $v->item";
+                        $tmp['coa_item'] = $split_ppn_air;
+                        $tmp['nilai_item'] = round($nilai_tagihan * 0.1);
+                        array_push($data_detil,$tmp);
+                    }
+                }
+    
+                if ($split_ppn_ipl > 0) {
+                    if ($v->item == "Perawatan Lingkungan") {
+                        $tmp['item'] = "PPN - $v->item";
+                        $tmp['coa_item'] = $split_ppn_ipl;
+                        $tmp['nilai_item'] = round($nilai_tagihan * 0.1);
+                        array_push($data_detil,$tmp);
+                    }
+                }
             }
+
             if ($v->nilai_denda > 0) {
                 $tmp['item'] = "Denda - $v->item";
                 $tmp['coa_item'] = $v->coa_denda;
                 $tmp['nilai_item'] = $v->nilai_denda;
                 array_push($data_detil,$tmp);
             }
-            // if ($v->nilai_denda > 0) {
-            //     $tmp['item'] = "Denda - $v->item";
-            //     $tmp['coa_item'] = $v->coa_denda;
-            //     $tmp['nilai_item'] = $v->nilai_denda;
-            // }
+
             if ($v->nilai_biaya_admin_cara_pembayaran > 0) {
-            
                 if($k == 0 || $data[$k-1]->t_pembayaran_id != $v->t_pembayaran_id){
                     $tmp['item'] = "Biaya Admin - $v->item";
                     $tmp['coa_item'] = $v->coa_cara_pembayaran;
@@ -376,11 +428,12 @@ class m_voucher_tagihan extends CI_Model
         $data = (object) [];
 
         $data->data = array_merge($data_detil);
-        $data->header = $this->db->select("
-                            pt,
-                            cara_pembayaran,
-                            coa_cara_pembayaran
-                        ")
+        $data->header = $this->db
+            ->select("
+                pt,
+                cara_pembayaran,
+                coa_cara_pembayaran
+            ")
             ->from("v_voucher")
             ->where('tgl_bayar >=', "$t1")
             ->where('tgl_bayar <=', "$t2")
@@ -508,7 +561,7 @@ class m_voucher_tagihan extends CI_Model
                                         erems_pt_id,
                                         cara_pembayaran_id,
                                         project_id,
-                                        sum(nilai_item) as nilai_item,	
+                                        sum(nilai_item) as nilai_item,  
                                         item,
                                         item_coa,
                                         cara_pembayaran,
@@ -533,7 +586,7 @@ class m_voucher_tagihan extends CI_Model
                                         erems_pt_id,
                                         cara_pembayaran_id,
                                         project_id,
-                                        sum(nilai_item) as nilai_item,	
+                                        sum(nilai_item) as nilai_item,  
                                         item,
                                         item_coa,
                                         cara_pembayaran,
@@ -558,7 +611,7 @@ class m_voucher_tagihan extends CI_Model
                                             erems_pt_id,
                                             cara_pembayaran_id,
                                             project_id,
-                                            sum(nilai_item) as nilai_item,	
+                                            sum(nilai_item) as nilai_item,  
                                             item,
                                             item_coa,
                                             cara_pembayaran,
@@ -1123,6 +1176,7 @@ class m_voucher_tagihan extends CI_Model
         $check->coa_item = [];
         $check->have_sub = [];
         $data_gabungan = [];
+        $kode_kawasan = "";
 
         if (isset($key)) {
             $url = "http://13.76.184.138:8080/api/cashierapi/index.php/ems/uploadvoucher";
@@ -1196,11 +1250,18 @@ class m_voucher_tagihan extends CI_Model
                 $v = (object) $v;
                 foreach ($check->item as $k2 => $v2) {
                     if ($v->item == $v2 && $v->coa_item == $check->coa_item[$k2] && $check->have_sub[$k2] == 1) {
+
+                        if ($project->id == '1021') // citragarden_city
+                        {
+                            $kode_kawasan = $v->kode_kawasan."-";
+                        }
+
                         $dataValidasi->pengajuandate        = $date; //tgl_bayar
                         $dataValidasi->kwitansidate         = $date; //tgl_bayar
                         $dataValidasi->coa_detail           = $v->coa_item;
                         $dataValidasi->description          = strtoupper("ESTATE Pembayaran $v->item");
-                        $dataValidasi->sub_unit             = strtoupper("$v->blok/$v->no_unit");
+                        // $dataValidasi->sub_unit             = strtoupper("$v->blok/$v->no_unit");
+                        $dataValidasi->sub_unit             = @$kode_kawasan.strtoupper("$v->blok/$v->no_unit");
                         $dataValidasi->seq_detail           = ++$z;
                         $dataValidasi->amount               = $v->nilai_item;
                         $dataValidasi->kawasan              = strtoupper($v->kawasan);

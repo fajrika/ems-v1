@@ -39,28 +39,43 @@ class P_voucher_tagihan extends CI_Controller
         
         $this->load->view('core/header');
         $this->load->model('alert');
-		$this->alert->css();
+        $this->alert->css();
 
         $this->load->view('core/side_bar', ['menu' => $GLOBALS['menu']]);
         $this->load->view('core/top_bar', ['jabatan' => $GLOBALS['jabatan'], 'project' => $GLOBALS['project']]);
         $this->load->view('core/body_header', ['title' => 'Transaksi > Voucher Tagihan', 'subTitle' => 'List']);
         
-        $bentuk_voucher    = $this->m_parameter_project->get($project->id,"bentuk_voucher");
+        $bentuk_voucher = $this->m_parameter_project->get($project->id,"bentuk_voucher");
         // var_dump($bentuk_voucher);
+        // $project_erems_id = $this->db->select("source_id")->from("project")->where("id",$GLOBALS["project"]->id)->get()->row()->source_id;
+        $project_erems_id = $this->db
+            ->select("(CASE WHEN project_posting > 0 THEN project_posting ELSE source_id END) AS project_erems_id")
+            ->where("id",$GLOBALS["project"]->id)
+            ->get("project")
+            ->row()
+            ->project_erems_id;
+        $project_name = $GLOBALS["project"]->name;
+        // request project medan
+        // if($project_erems_id == 30){
+        //     $project_erems_id = 5103;
+        //     $project_name = $this->db->select('name')->from('project')->where('id',9)->get()->row()->name??'';
+        //     // var_dump($this->db->last_query());
+        // }
+
         if($bentuk_voucher == 0){
         $this->load->view('proyek/transaksi/voucher_tagihan/view_unit',
             [  
                 // "voucher"=>$voucher,
-                "project_name" =>$GLOBALS["project"]->name,
-                "project_erems_id" => $this->db->select("source_id")->from("project")->where("id",$GLOBALS["project"]->id)->get()->row()->source_id
+                "project_name" => $project_name,
+                "project_erems_id" => $project_erems_id
 
             ]);
         }else if($bentuk_voucher == 1){
             $this->load->view('proyek/transaksi/voucher_tagihan/view_gabungan',
             [  
                 // "data"=>$data,
-                "project_name" =>$GLOBALS["project"]->name,
-                "project_erems_id" => $this->db->select("source_id")->from("project")->where("id",$GLOBALS["project"]->id)->get()->row()->source_id
+                "project_name" => $project_name,
+                "project_erems_id" => $project_erems_id
             ]);    
         }
 
