@@ -68,17 +68,21 @@ class P_parameter_project extends CI_Controller
         $project = $this->m_core->project();
         
         $config['upload_path'] = "./files/ttd/konfirmasi_tagihan"; //path folder file upload
-		$config['allowed_types'] = 'gif|jpg|png|jpeg'; //type file yang boleh di upload
-		$config['encrypt_name'] = TRUE; //enkripsi file name upload
-		$this->load->library('upload', $config); //call library upload 
-		if ($this->upload->do_upload("file")) { //upload file
-			$data = array('upload_data' => $this->upload->data()); //ambil file name yang diupload
-            $nama_file = $data['upload_data']['file_name']; //set file name ke variable image
-            // $this->input->post("value") = $nama_file;
-            echo(json_encode($this->m_parameter_project->save($this->input->get(),$nama_file,$this->input->get("id"),$project->id)));
-			// echo(json_encode($this->m_pemutihan->save($this->input->get(),$nama_file)));
-		}else{
-			echo(json_encode(false));
-		}
+        $config['allowed_types'] = 'gif|jpg|png|jpeg'; //type file yang boleh di upload
+        $config['encrypt_name'] = TRUE; //enkripsi file name upload
+        $this->load->library('upload', $config); //call library upload 
+        if (empty($_FILES['file']['name'])) {
+                echo(json_encode($this->m_parameter_project->save($this->input->get(),null,$this->input->get("id"),$project->id)));
+        } else {
+            if ($this->upload->do_upload("file")) { //upload file
+                $data = array('upload_data' => $this->upload->data()); //ambil file name yang diupload
+                $nama_file = $data['upload_data']['file_name']; //set file name ke variable image
+                // $this->input->post("value") = $nama_file;
+                echo(json_encode($this->m_parameter_project->save($this->input->get(),$nama_file,$this->input->get("id"),$project->id)));
+                // echo(json_encode($this->m_pemutihan->save($this->input->get(),$nama_file)));
+            }else{
+                echo(json_encode($this->upload->display_errors()));
+            }
+        }
     }
 }
