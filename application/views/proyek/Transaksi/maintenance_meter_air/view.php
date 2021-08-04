@@ -31,14 +31,29 @@
                 </select>
             </div>
         </div>
-        <div class="form-group">
+        <!-- <div class="form-group">
             <label class="control-label col-lg-4 col-md-4 col-sm-12 col-xs-12">No. Seri Meter</label>
             <div class="col-lg-8 col-md-8 col-sm-12 col-xs-12">
                 <select name="m_meter_air_id" id="m_meter_air_id" class="form-control select2" style="width: 100%;">
                     <option value="">Pilih No. Seri Meter</option>
                 </select>
             </div>
+        </div> -->
+
+        <div class="form-group">
+            <label class="control-label col-lg-4 col-md-4 col-sm-12 col-xs-12">No. Seri Meter</label>
+            <div class="col-md-6 col-sm-12 col-xs-12">
+                <select name="m_meter_air_id" id="m_meter_air_id" class="form-control select2" style="width: 100%;">
+                    <option value="">Pilih No. Seri Meter</option>
+                </select>
+            </div>
+            <div class="col-md-2" style="padding-left: 1px;">
+                <a tabindex="0" class="btn btn-sm btn-primary" id="add-meter-air">
+                    Tambah Meter
+                </a>
+            </div>
         </div>
+
         <div class="form-group">
             <label class="control-label col-lg-4 col-md-4 col-sm-12 col-xs-12" id="label_biaya_admin">ID Barcode Meter</label>
             <div class="col-lg-8 col-md-8 col-sm-12 col-xs-12">
@@ -264,6 +279,65 @@
                 cache: false,
                 data: {unit_id: $("#unit").val().split('.')[1]}
             }   
+        });
+
+
+        // form add meter air
+        $('#add-meter-air').popover({
+            animation: true,
+            placement : 'right',
+            title : 'Tambah Meter Air',
+            container : 'body',
+            toggle: 'popover',
+            html: true,
+            trigger: 'manual',
+            content: function() {
+                return $.ajax({
+                    url: "<?= site_url('transaksi/maintenance_meter_air/add_master_meter'); ?>",
+                    dataType: 'html',
+                    async: false
+                }).responseText;
+            }
+        }).click(function(e) {
+            $('#add-meter-air').not(this).popover('hide');
+            $(this).popover('toggle');
+        });
+        // close form add meter air
+        $(document).on('click', '#close-meter-air', function(e){
+            e.preventDefault();
+            $('#add-meter-air').popover('hide');
+        });
+        // on keyup nama meter air
+        $(document).on('keyup', '#nama_meteran', function(e){
+            $("#kode").val($("#nama_meteran").val().toLowerCase().replace(/ /g,'_'));
+        });
+        // save form master meter air
+        $(document).on('click', '#save-meter-air', function(e){
+            e.preventDefault();
+            $.ajax({
+                url: $('#form_master_meter').attr('action'),
+                cache: false,
+                type: 'POST',
+                data: $('#form_master_meter').serialize(),
+                dataType: 'json',
+                success: function(data) {
+                    if(data.status==1){
+                        $("#notif_master_meter").attr('style', 'color: green; font-size: 11px;').html(data.pesan);
+                        $("#m_meter_air_id").append(data.option).trigger('change');
+                        $("#jenis_transaksi").val(1).trigger('change');
+                        $("#form_master_meter")[0].reset();
+                        setTimeout(() => {
+                            $('#notif_master_meter').html('');
+                            $('#add-meter-air').popover('hide');
+                        }, 3000);
+                    } else {
+                        $('#notif_master_meter').attr('style', 'color: red; font-size: 11px;').html(data.pesan);
+                        setTimeout(() => {
+                            $('#notif_master_meter').html('');
+                        }, 3000)
+                    }
+                }
+            });
         });
     });
 

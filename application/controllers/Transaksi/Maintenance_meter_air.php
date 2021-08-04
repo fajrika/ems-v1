@@ -178,6 +178,7 @@ class Maintenance_meter_air extends CI_Controller
                         $update_unit_air = $this->db
                             ->where('unit_id', $unit_id)
                             ->update('unit_air', array_merge($arr_unit_air, [
+                                'aktif' => '1',
                                 'tgl_putus'  => NULL,
                                 'tgl_pasang' => $this->input->post('tgl_pasang'),
                                 'tgl_aktif'  => $this->input->post('tgl_aktif'),
@@ -448,6 +449,16 @@ class Maintenance_meter_air extends CI_Controller
                 $barcode = $sql->row()->barcode;
             }
             echo json_encode($barcode);
+        }
+    }
+
+    // popover add master meter
+    public function add_master_meter()
+    {
+        if ($_POST) {
+
+        } else {
+            $this->load->view('proyek/transaksi/maintenance_meter_air/add_master_meter');
         }
     }
 }
