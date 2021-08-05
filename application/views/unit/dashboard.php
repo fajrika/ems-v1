@@ -534,6 +534,7 @@ $fullUrl = site_url() . "/" . implode("/", (array_slice($this->uri->segment_arra
                                                     <tr>
                                                         <th>Kode Service</th>
                                                         <th>Nama Service</th>
+                                                        <th>Periode Service</th>
                                                         <th>Tgl Bayar</th>
                                                         <th>Total Bayar</th>
                                                         <th>No. Kwitansi</th>
@@ -1536,6 +1537,9 @@ $fullUrl = site_url() . "/" . implode("/", (array_slice($this->uri->segment_arra
                                                     data: 'name_service'
                                                 },
                                                 {
+                                                    data: 'periode_service'
+                                                },
+                                                {
                                                     data: 'tgl_bayar',
                                                     defaultContent: '-'
                                                 },
@@ -1585,8 +1589,8 @@ $fullUrl = site_url() . "/" . implode("/", (array_slice($this->uri->segment_arra
                                             "sPaginationType": "simple_numbers",
                                             "iDisplayLength": 200,
                                             "aLengthMenu": [
-                                                [10, 20, 50, 100, 150, 200],
-                                                [10, 20, 50, 100, 150, 200]
+                                                [10, 20, 20, 50, 100, 150, 200],
+                                                [10, 20, 20, 50, 100, 150, 200]
                                             ],
                                         });
                                     }

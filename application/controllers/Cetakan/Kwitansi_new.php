@@ -862,6 +862,13 @@ class Kwitansi_new extends CI_Controller
                     service_jenis.id AS service_jenis_id,
                     service_jenis.code_default AS code_service,
                     service_jenis.name_default AS name_service,
+                    CASE    
+                        WHEN ttl.id IS NOT NULL THEN
+                        ttl.periode 
+                        WHEN tta.id IS NOT NULL THEN
+                        tta.periode 
+                        ELSE tta.periode 
+                    END AS periode_service,
                     SUM(ISNULL(t_pembayaran_detail.bayar, t_pembayaran_detail.bayar_deposit)) AS bayar,
                     ISNULL(t_pembayaran.no_kwitansi, '') AS no_kwitansi,
                     t_pembayaran.count_print_kwitansi 
@@ -872,48 +879,87 @@ class Kwitansi_new extends CI_Controller
                     ON service.id = t_pembayaran_detail.service_id
                 INNER JOIN service_jenis 
                     ON service_jenis.id = service.service_jenis_id
+
+                LEFT JOIN t_tagihan_lingkungan ttl 
+                    ON ttl.id = t_pembayaran_detail.tagihan_service_id AND service_jenis.id = 1
+                LEFT JOIN t_tagihan_air tta 
+                    ON tta.id = t_pembayaran_detail.tagihan_service_id AND service_jenis.id = 2
+                LEFT JOIN t_tagihan_lainnya ttla 
+                    ON ttla.id = t_pembayaran_detail.tagihan_service_id AND service_jenis.id = 6
                 WHERE 1=1
                     AND t_pembayaran.unit_id = '" . $unit_id . "'
                     AND ISNULL(t_pembayaran.is_void, 0) = 0
                 GROUP BY
                     t_pembayaran.id,
+                    t_pembayaran.tgl_bayar,
                     service_jenis.id,
-                    t_pembayaran.tgl_bayar ,
                     service_jenis.code_default, 
                     service_jenis.name_default,
                     t_pembayaran.no_kwitansi,
-                    t_pembayaran.count_print_kwitansi
+                    t_pembayaran.count_print_kwitansi,
+                    ttl.id,
+                    tta.id,
+                    ttl.periode,
+                    tta.periode,
+                    ttla.periode
                 ORDER BY t_pembayaran.id
             ");
         $query = $query->result();
 
+        $pembayaran_id = [];
         $kwitansi_all_service = [];
-        $j = 0;
-        $c = count($query);
-        for ($i = 0; $i < $c; $i++) {
-            if (isset($query[$i])) {
-                array_push($kwitansi_all_service, $query[$i]);
-                unset($query[$i]);
-                $tmp = [];
-                foreach ($query as $k => $v) {
-                    if ($v->pembayaran_id == $kwitansi_all_service[$j]->pembayaran_id) {
-                        if (!in_array($v->service_jenis_id, $tmp)) {
-                            array_push($tmp, $v->service_jenis_id);
-                            $kwitansi_all_service[$j]->service_jenis_id = $kwitansi_all_service[$j]->service_jenis_id . ',' . $v->service_jenis_id;
-                            $kwitansi_all_service[$j]->code_service = $kwitansi_all_service[$j]->code_service . ', ' . $v->code_service;
-                            $kwitansi_all_service[$j]->name_service = $kwitansi_all_service[$j]->name_service . ', ' . $v->name_service;
-                        }
-                        $kwitansi_all_service[$j]->bayar = $kwitansi_all_service[$j]->bayar + $v->bayar;
-                        unset($query[$k]);
-                    }
-                }
-                $j++;
+        foreach ($query as $q) {
+            if (!in_array($q->pembayaran_id,$pembayaran_id)) {
+                array_push($pembayaran_id, $q->pembayaran_id);
+                array_push($kwitansi_all_service, $q);
             }
         }
+        $data = [];
+        foreach ($kwitansi_all_service as $k) {
+            $service_jenis_id = [];
+            $code_service = [];
+            $name_service = [];
+            $periode_tmp = [];
+            $periode_service = [];
+            $bayar = 0;
+            foreach ($query as $q) {
+                if ($q->pembayaran_id == $k->pembayaran_id) {
+                    if (!in_array($q->service_jenis_id, $service_jenis_id)) {
+                        array_push($service_jenis_id, $q->service_jenis_id);
+                        array_push($code_service, $q->code_service);
+                        array_push($name_service, $q->name_service);
+                    }
 
-        echo json_encode(array('data' => $kwitansi_all_service));
+                    $index = array_search($q->service_jenis_id, $service_jenis_id);
+                    if (!isset($periode_tmp[$index])) {
+                        $periode_tmp[$index] = [];
+                    }
+                    if (!in_array($q->periode_service, $periode_tmp[$index])) {
+                        array_push($periode_tmp[$index],$q->periode_service);
+                    }
+
+                    $bayar += $q->bayar; 
+                }
+            }
+            for ($i=0; $i < count($periode_tmp); $i++) {
+                $periode_tmp_count = count($periode_tmp[$i]);
+                sort($periode_tmp[$i]); 
+
+
+                $periode_service[$i] = $name_service[$i].' ('.($periode_tmp_count>1 ? (date('m/Y',strtotime($periode_tmp[$i][0])).' s/d '.date('m/Y',strtotime($periode_tmp[$i][$periode_tmp_count-1]))) : date('m/Y',strtotime($periode_tmp[$i][0]))).')';
+            }
+
+            $k->service_jenis_id = implode(',', $service_jenis_id);
+            $k->code_service = implode(',', $code_service);
+            $k->name_service = implode(',', $name_service);
+            $k->periode_service = implode(',', $periode_service);
+            $k->bayar = $bayar;
+
+            array_push($data, $k);
+        }
+
+        echo json_encode(array('data' => $data));
     }
-
 
     public function request_history_kwitansi()
     {
