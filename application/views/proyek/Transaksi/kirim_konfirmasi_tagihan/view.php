@@ -6,6 +6,11 @@ defined('BASEPATH') or exit('No direct script access allowed');
 <script src="<?= base_url(); ?>vendors/select2/dist/js/select2.min.js"></script>
 <div style="float:right">
 	<h2>
+        <button id='print-data' class='btn btn-success' type="button">
+            <i class="fa fa-file-excel-o"></i> 
+            <!-- <i class="fa fa-print"></i>  -->
+            Print Excel
+        </button>
         <button id='print-doc' class='btn btn-danger'>
             <img src='<?=base_url('images/extension/icon_pdf.png');?>' style='margin-top: -3px;'/> Print Document
         </button>
@@ -281,6 +286,69 @@ defined('BASEPATH') or exit('No direct script access allowed');
                 }
             });*/
         }
+    });
+
+    $(document).on('click', '#print-data', function(e){
+		var checkedValues = $('#tableDTServerSite tbody input:checkbox:checked').map(function(){
+		    return this.value;
+		}).get();
+
+		const jml_row = $("#tableDTServerSite tbody input:checked").length;
+		if (jml_row < 1) {
+		    alert('Mohon checklist salah satu data.');
+		} else {
+		    $.ajax({
+				url: "<?=base_url();?>transaksi/p_kirim_konfirmasi_tagihan/print_excel",
+				method: "POST",
+				data: {
+					list_unit_id: checkedValues
+				},
+                dataType: "json",
+				success: function(data) {
+					if (data.length) {
+						var print_content = '\
+							<table class="table table-striped jambo_table" id="tb-penerimaan" style="width:100%" border="1">\
+                                <thead>\
+                                    <tr>\
+                                        <th style="text-align: left;">No.</th>\
+                                        <th style="text-align: center;">Kawasan</th>\
+                                        <th style="text-align: center;">Blok</th>\
+                                        <th style="text-align: center;">No. Unit</th>\
+                                        <th style="text-align: center;">Tujuan</th>\
+                                        <th style="text-align: center;">Pemilik</th>\
+                                        <th style="text-align: center;">Email</th>\
+                                        <th style="text-align: center;">SMS</th>\
+                                        <th style="text-align: center;">Surat</th>\
+                                    </tr>\
+                                </thead>\
+                                <tbody>\
+						';
+						var no = 1;
+						for (var i = 0; i < data.length; i++) {
+							print_content += '<tr>\
+								<td>'+(no+i)+'</td>\
+								<td>'+data[i]['kawasan']+'</td>\
+								<td>'+data[i]['blok']+'</td>\
+								<td>'+data[i]['no_unit']+'</td>\
+								<td>'+data[i]['tujuan']+'</td>\
+								<td>'+data[i]['pemilik']+'</td>\
+								<td>'+data[i]['send_email']+'</td>\
+								<td>'+data[i]['send_sms']+'</td>\
+								<td>'+data[i]['send_surat']+'</td>\
+							</tr>';
+						}
+						print_content += '</tbody></table>';
+						
+				        var winPrint = window.open('', '', 'left=0,top=0,width=800,height=600,toolbar=0,scrollbars=0,status=0');
+				        winPrint.document.write(print_content);
+				        winPrint.document.close();
+				        winPrint.focus();
+				        winPrint.print();
+				        winPrint.close(); 
+					}
+				}
+			});
+	    }
     });
 </script>
 <script>

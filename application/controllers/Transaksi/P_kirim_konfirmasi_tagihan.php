@@ -44,12 +44,63 @@ class P_kirim_konfirmasi_tagihan  extends CI_Controller
     }
     public function ajax_get_view()
     {
-        $project = $this->m_core->project();
+        $project = $GLOBALS['project'];
         $periode = date('Y-m');
 
-        $table =    "v_kirim_konfirmasi_tagihan
-                    WHERE project_id = $project->id
-                    ";
+        $this->db->select("
+            unit.project_id,
+            customer.name AS pemilik,
+            unit.id AS unit_id,
+            kawasan.name AS kawasan,
+            blok.name AS blok,
+            unit.no_unit AS no_unit,
+            CASE
+                unit.kirim_tagihan 
+                WHEN 1 THEN
+                'Pemilik' 
+                WHEN 2 THEN
+                'Penghuni' 
+                WHEN 3 THEN
+                'Keduanya' 
+                ELSE '' 
+            END AS tujuan,
+            'Belum di kirim' AS send_email,
+            CASE
+                COUNT ( send_sms.id ) 
+                WHEN 0 THEN
+                'Belum di Kirim' ELSE 'Sudah di kirim' 
+            END AS send_sms,
+            'Belum di kirim' AS send_surat   
+        ")
+            ->from('unit')
+            ->join('customer','customer.id = unit.pemilik_customer_id','INNER')
+            ->join('blok','blok.id = unit.blok_id','INNER')
+            ->join('kawasan','kawasan.id = blok.kawasan_id','INNER')
+            ->join('t_tagihan_lingkungan','t_tagihan_lingkungan.unit_id = unit.id AND t_tagihan_lingkungan.status_tagihan != 1','LEFT')
+            ->join('t_tagihan_air','t_tagihan_air.unit_id = unit.id AND t_tagihan_air.status_tagihan != 1','LEFT')
+            ->join('send_sms',"send_sms.unit_id = unit.id AND FORMAT ( send_sms.create_date, 'yyyy-MM' ) = FORMAT ( GETDATE( ), 'yyyy-MM' ) ",'LEFT')
+            ->where('unit.project_id',$project->id)
+            ->group_by("
+                unit.project_id,
+                customer.name,
+                unit.id,
+                kawasan.name,
+                blok.name,
+                unit.no_unit,
+                CASE
+                    unit.kirim_tagihan 
+                    WHEN 1 THEN
+                    'Pemilik' 
+                    WHEN 2 THEN
+                    'Penghuni' 
+                    WHEN 3 THEN
+                    'Keduanya' ELSE '' 
+                END
+            ")
+            ->HAVING('SUM (IIF ( t_tagihan_lingkungan.status_tagihan IS NOT NULL, 1, 0 ) + IIF ( t_tagihan_air.status_tagihan IS NOT NULL, 1, 0 ) ) >', 0);
+
+        $table =    $this->db->get_compiled_select();
+
         $primaryKey = 'unit_id';
         $columns = array(
             array('db' => 'unit_id as unit_id', 'dt' => 0),
@@ -68,10 +119,10 @@ class P_kirim_konfirmasi_tagihan  extends CI_Controller
             'db'   => $this->db->database,
             'host' => $this->db->hostname
         );
-        $this->load->library("SSP");
+        $this->load->library("Ssp_custom");
 
 
-        $table = SSP::simple($_GET, $sql_details, $table, $primaryKey, $columns);
+        $table = SSP_Custom::simple($_GET, $sql_details, $table, $primaryKey, $columns);
         $this->load->helper('directory');
 
         $map = directory_map('./application/pdf');
@@ -81,16 +132,84 @@ class P_kirim_konfirmasi_tagihan  extends CI_Controller
             $table["data"][$k][9] =
                 "<button class='btn btn-primary' onClick=\"window.open('" . site_url() . "/Cetakan/konfirmasi_tagihan/unit/" . $table["data"][$k][0] . "')\">View Dokumen</button>";
 
-            $unit_id_periode = $table["data"][$k][0] . "_" . date("Y-m-");
-            $result = preg_grep("/^$unit_id_periode/i", $map);
-            $table["data"][$k][10] = end($result)
-                ? "<button class='btn btn-primary' onClick=\"window.location.href='" . base_url() . "pdf/" . end($result) . "'\">View Dokumen</button>"
-                : "";
+            // $unit_id_periode = $table["data"][$k][0] . "_" . date("Y-m-");
+            // $result = preg_grep("/^$unit_id_periode/i", $map);
+            // $table["data"][$k][10] = end($result)
+            //     ? "<button class='btn btn-primary' onClick=\"window.location.href='" . base_url() . "pdf/" . end($result) . "'\">View Dokumen</button>"
+            //     : "";
 
             $table["data"][$k][0] =
                 "<input name='unit_id[]' type='checkbox' class='flat table-check' val='$v[0]'>";
         }
         echo (json_encode($table));
+    }
+    public function print_excel()
+    {
+        $list_unit_id = explode(',', fix_whitespace(implode(',', $this->input->post('list_unit_id'))));
+
+        $table = [];
+        if (count($list_unit_id)) {
+            $project = $GLOBALS['project'];
+            $periode = date('Y-m');
+
+            $this->db->select("
+                unit.project_id,
+                customer.name AS pemilik,
+                unit.id AS unit_id,
+                kawasan.name AS kawasan,
+                blok.name AS blok,
+                unit.no_unit AS no_unit,
+                CASE
+                    unit.kirim_tagihan 
+                    WHEN 1 THEN
+                    'Pemilik' 
+                    WHEN 2 THEN
+                    'Penghuni' 
+                    WHEN 3 THEN
+                    'Keduanya' 
+                    ELSE '' 
+                END AS tujuan,
+                'Belum di kirim' AS send_email,
+                CASE
+                    COUNT ( send_sms.id ) 
+                    WHEN 0 THEN
+                    'Belum di Kirim' ELSE 'Sudah di kirim' 
+                END AS send_sms,
+                'Belum di kirim' AS send_surat   
+            ")
+                ->from('unit')
+                ->join('customer','customer.id = unit.pemilik_customer_id','INNER')
+                ->join('blok','blok.id = unit.blok_id','INNER')
+                ->join('kawasan','kawasan.id = blok.kawasan_id','INNER')
+                ->join('t_tagihan_lingkungan','t_tagihan_lingkungan.unit_id = unit.id AND t_tagihan_lingkungan.status_tagihan != 1','LEFT')
+                ->join('t_tagihan_air','t_tagihan_air.unit_id = unit.id AND t_tagihan_air.status_tagihan != 1','LEFT')
+                ->join('send_sms',"send_sms.unit_id = unit.id AND FORMAT ( send_sms.create_date, 'yyyy-MM' ) = FORMAT ( GETDATE( ), 'yyyy-MM' ) ",'LEFT')
+                ->where('unit.project_id',$project->id)
+                ->where_in('unit.id',$list_unit_id)
+                ->group_by("
+                    unit.project_id,
+                    customer.name,
+                    unit.id,
+                    kawasan.name,
+                    blok.name,
+                    unit.no_unit,
+                    CASE
+                        unit.kirim_tagihan 
+                        WHEN 1 THEN
+                        'Pemilik' 
+                        WHEN 2 THEN
+                        'Penghuni' 
+                        WHEN 3 THEN
+                        'Keduanya' ELSE '' 
+                    END
+                ")
+                ->HAVING('SUM (IIF ( t_tagihan_lingkungan.status_tagihan IS NOT NULL, 1, 0 ) + IIF ( t_tagihan_air.status_tagihan IS NOT NULL, 1, 0 ) ) >', 0);
+
+            $table = $this->db->get()->result();
+        }
+        
+        echo json_encode($table);
+        exit();
     }
     public function test()
     {
