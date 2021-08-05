@@ -44,63 +44,12 @@ class P_kirim_konfirmasi_tagihan  extends CI_Controller
     }
     public function ajax_get_view()
     {
-        $project = $GLOBALS['project'];
+        $project = $this->m_core->project();
         $periode = date('Y-m');
 
-        $this->db->select("
-            unit.project_id,
-            customer.name AS pemilik,
-            unit.id AS unit_id,
-            kawasan.name AS kawasan,
-            blok.name AS blok,
-            unit.no_unit AS no_unit,
-            CASE
-                unit.kirim_tagihan 
-                WHEN 1 THEN
-                'Pemilik' 
-                WHEN 2 THEN
-                'Penghuni' 
-                WHEN 3 THEN
-                'Keduanya' 
-                ELSE '' 
-            END AS tujuan,
-            'Belum di kirim' AS send_email,
-            CASE
-                COUNT ( send_sms.id ) 
-                WHEN 0 THEN
-                'Belum di Kirim' ELSE 'Sudah di kirim' 
-            END AS send_sms,
-            'Belum di kirim' AS send_surat   
-        ")
-            ->from('unit')
-            ->join('customer','customer.id = unit.pemilik_customer_id','INNER')
-            ->join('blok','blok.id = unit.blok_id','INNER')
-            ->join('kawasan','kawasan.id = blok.kawasan_id','INNER')
-            ->join('t_tagihan_lingkungan','t_tagihan_lingkungan.unit_id = unit.id AND t_tagihan_lingkungan.status_tagihan != 1','LEFT')
-            ->join('t_tagihan_air','t_tagihan_air.unit_id = unit.id AND t_tagihan_air.status_tagihan != 1','LEFT')
-            ->join('send_sms',"send_sms.unit_id = unit.id AND FORMAT ( send_sms.create_date, 'yyyy-MM' ) = FORMAT ( GETDATE( ), 'yyyy-MM' ) ",'LEFT')
-            ->where('unit.project_id',$project->id)
-            ->group_by("
-                unit.project_id,
-                customer.name,
-                unit.id,
-                kawasan.name,
-                blok.name,
-                unit.no_unit,
-                CASE
-                    unit.kirim_tagihan 
-                    WHEN 1 THEN
-                    'Pemilik' 
-                    WHEN 2 THEN
-                    'Penghuni' 
-                    WHEN 3 THEN
-                    'Keduanya' ELSE '' 
-                END
-            ")
-            ->HAVING('SUM (IIF ( t_tagihan_lingkungan.status_tagihan IS NOT NULL, 1, 0 ) + IIF ( t_tagihan_air.status_tagihan IS NOT NULL, 1, 0 ) ) >', 0);
-
-        $table =    $this->db->get_compiled_select();
-
+        $table =    "v_kirim_konfirmasi_tagihan
+                    WHERE project_id = $project->id
+                    ";
         $primaryKey = 'unit_id';
         $columns = array(
             array('db' => 'unit_id as unit_id', 'dt' => 0),
@@ -119,10 +68,10 @@ class P_kirim_konfirmasi_tagihan  extends CI_Controller
             'db'   => $this->db->database,
             'host' => $this->db->hostname
         );
-        $this->load->library("Ssp_custom");
+        $this->load->library("SSP");
 
 
-        $table = SSP_Custom::simple($_GET, $sql_details, $table, $primaryKey, $columns);
+        $table = SSP::simple($_GET, $sql_details, $table, $primaryKey, $columns);
         $this->load->helper('directory');
 
         $map = directory_map('./application/pdf');
@@ -132,11 +81,11 @@ class P_kirim_konfirmasi_tagihan  extends CI_Controller
             $table["data"][$k][9] =
                 "<button class='btn btn-primary' onClick=\"window.open('" . site_url() . "/Cetakan/konfirmasi_tagihan/unit/" . $table["data"][$k][0] . "')\">View Dokumen</button>";
 
-            // $unit_id_periode = $table["data"][$k][0] . "_" . date("Y-m-");
-            // $result = preg_grep("/^$unit_id_periode/i", $map);
-            // $table["data"][$k][10] = end($result)
-            //     ? "<button class='btn btn-primary' onClick=\"window.location.href='" . base_url() . "pdf/" . end($result) . "'\">View Dokumen</button>"
-            //     : "";
+            $unit_id_periode = $table["data"][$k][0] . "_" . date("Y-m-");
+            $result = preg_grep("/^$unit_id_periode/i", $map);
+            $table["data"][$k][10] = end($result)
+                ? "<button class='btn btn-primary' onClick=\"window.location.href='" . base_url() . "pdf/" . end($result) . "'\">View Dokumen</button>"
+                : "";
 
             $table["data"][$k][0] =
                 "<input name='unit_id[]' type='checkbox' class='flat table-check' val='$v[0]'>";
@@ -146,42 +95,215 @@ class P_kirim_konfirmasi_tagihan  extends CI_Controller
     public function print_excel()
     {
         $list_unit_id = explode(',', fix_whitespace(implode(',', $this->input->post('list_unit_id'))));
-
         $table = [];
         if (count($list_unit_id)) {
+            $periode = date('Y-m-01');
+
             $project = $GLOBALS['project'];
-            $periode = date('Y-m');
 
             $this->db->select("
-                unit.project_id,
-                customer.name AS pemilik,
-                unit.id AS unit_id,
-                kawasan.name AS kawasan,
-                blok.name AS blok,
-                unit.no_unit AS no_unit,
-                CASE
-                    unit.kirim_tagihan 
-                    WHEN 1 THEN
-                    'Pemilik' 
-                    WHEN 2 THEN
-                    'Penghuni' 
-                    WHEN 3 THEN
-                    'Keduanya' 
-                    ELSE '' 
-                END AS tujuan,
-                'Belum di kirim' AS send_email,
-                CASE
-                    COUNT ( send_sms.id ) 
-                    WHEN 0 THEN
-                    'Belum di Kirim' ELSE 'Sudah di kirim' 
-                END AS send_sms,
-                'Belum di kirim' AS send_surat   
-            ")
+                    unit.project_id,
+                    customer.name AS pemilik,
+                    unit.id AS unit_id,
+                    kawasan.name AS kawasan,
+                    blok.name AS blok,
+                    unit.no_unit AS no_unit,
+                    CASE
+                        unit.kirim_tagihan 
+                        WHEN 1 THEN
+                        'Pemilik' 
+                        WHEN 2 THEN
+                        'Penghuni' 
+                        WHEN 3 THEN
+                        'Keduanya' 
+                        ELSE '' 
+                    END AS tujuan,
+                    'Belum di kirim' AS send_email,
+                    CASE
+                        COUNT ( send_sms.id ) 
+                        WHEN 0 THEN
+                        'Belum di Kirim' ELSE 'Sudah di kirim' 
+                    END AS send_sms,
+                    'Belum di kirim' AS send_surat,
+                    (
+                        SELECT
+                            sum(temp.total) AS total
+                        FROM 
+                        (
+                            SELECT DISTINCT
+                                SUM(
+                                    isnull( v_tagihan_lingkungan.total, 0 ) + 
+                                    isnull(
+                                        CASE
+                                            WHEN v_tagihan_lingkungan.status_tagihan = 0 OR v_tagihan_lingkungan.status_tagihan = 2 OR v_tagihan_lingkungan.status_tagihan = 3 THEN
+                                                isnull(
+                                                    CASE
+                                                        WHEN v_tagihan_lingkungan.periode <= unit_lingkungan.tgl_mulai_denda THEN
+                                                            0 
+                                                        WHEN v_tagihan_lingkungan.nilai_denda_flag = 1 THEN
+                                                            v_tagihan_lingkungan.nilai_denda 
+                                                        WHEN DATEADD( MONTH, service.denda_selisih_bulan, v_tagihan_lingkungan.periode ) > '".$periode."' THEN
+                                                            0 
+                                                        WHEN CONCAT (
+                                                            SUBSTRING ( CONVERT ( VARCHAR, v_tagihan_lingkungan.periode ), 1, 8 ),
+                                                            (
+                                                                CASE
+                                                                    WHEN ( service.denda_tanggal_jt ) > 9 THEN
+                                                                        CAST ( service.denda_tanggal_jt AS VARCHAR ) 
+                                                                    ELSE 
+                                                                        CONCAT ( 0, ( service.denda_tanggal_jt ) ) 
+                                                                END 
+                                                            ) 
+                                                        ) > '".$periode."' THEN
+                                                            0 
+                                                        ELSE
+                                                            CASE
+                                                                WHEN v_tagihan_lingkungan.denda_jenis_service = 1 THEN
+                                                                    v_tagihan_lingkungan.denda_nilai_service 
+                                                                WHEN v_tagihan_lingkungan.denda_jenis_service = 2 THEN
+                                                                    v_tagihan_lingkungan.denda_nilai_service * 
+                                                                    (
+                                                                        DateDiff( MONTH, DATEADD( MONTH, service.denda_selisih_bulan, v_tagihan_lingkungan.periode ), '".$periode."' ) + IIF ( '01' >= service.denda_tanggal_jt, 1, 0 ) 
+                                                                    ) 
+                                                                WHEN v_tagihan_lingkungan.denda_jenis_service = 3 THEN
+                                                                    ( v_tagihan_lingkungan.denda_nilai_service * v_tagihan_lingkungan.total_tanpa_ppn/ 100 ) * 
+                                                                    (
+                                                                        DateDiff( MONTH, DATEADD( MONTH, service.denda_selisih_bulan, v_tagihan_lingkungan.periode ), '".$periode."' ) + IIF ( '01' >= service.denda_tanggal_jt, 1, 0 ) 
+                                                                    ) 
+                                                            END 
+                                                        END,
+                                                        0 
+                                                    ) 
+                                            ELSE 0 
+                                        END,
+                                        0 
+                                    )
+                                ) AS total
+                            FROM v_tagihan_lingkungan
+                            INNER JOIN service ON service.project_id = 4031
+                                AND service.service_jenis_id = 1
+                                AND service.active = 1
+                                AND service.[delete] = 0
+                            LEFT JOIN t_tagihan_lingkungan ON t_tagihan_lingkungan.t_tagihan_id = v_tagihan_lingkungan.t_tagihan_id
+                                AND t_tagihan_lingkungan.unit_id =  v_tagihan_lingkungan.unit_id
+                            LEFT JOIN t_pembayaran_detail ON t_pembayaran_detail.tagihan_service_id = t_tagihan_lingkungan.id
+                                AND t_pembayaran_detail.service_id = service.id
+                            LEFT JOIN t_pembayaran ON t_pembayaran.id = t_pembayaran_detail.t_pembayaran_id 
+                                AND (
+                                        ( 
+                                            t_pembayaran.is_void = 0 AND v_tagihan_lingkungan.status_tagihan IN ( 0, 4 ) 
+                                        ) 
+                                        OR
+                                        ( 
+                                            t_pembayaran.is_void = 1 AND v_tagihan_lingkungan.status_tagihan = 0 
+                                        ) 
+                                )
+                            INNER JOIN unit_lingkungan ON unit_lingkungan.unit_id = v_tagihan_lingkungan.unit_id
+                                            
+                            WHERE v_tagihan_lingkungan.unit_id = unit.id 
+                                AND v_tagihan_lingkungan.status_tagihan IN (0, 2, 3, 4)
+
+                            UNION ALL
+
+                            SELECT DISTINCT
+                                SUM(
+                                    isnull(v_tagihan_air.total,0) + 
+                                    isnull(
+                                        CASE
+                                            WHEN service.denda_flag = 0 THEN 
+                                                0
+                                            WHEN v_tagihan_air.nilai_denda_flag = 1 THEN 
+                                                v_tagihan_air.nilai_denda 
+                                            WHEN DATEADD(MONTH,service.denda_selisih_bulan,v_tagihan_air.periode) > '".$periode."' THEN 
+                                                0
+                                            WHEN CONCAT(
+                                                SUBSTRING(CONVERT(varchar, v_tagihan_air.periode), 1, 8),
+                                                (
+                                                    CASE 
+                                                        WHEN (service.denda_tanggal_jt) > 9 
+                                                            THEN CAST(service.denda_tanggal_jt AS VARCHAR) 
+                                                        ELSE CONCAT(0,(service.denda_tanggal_jt)) 
+                                                    END
+                                                )
+                                            ) > '".$periode."' THEN 
+                                                0
+                                            ELSE
+                                                CASE
+                                                    WHEN v_tagihan_air.denda_jenis_service = 1 THEN 
+                                                        v_tagihan_air.denda_nilai_service *
+                                                        CASE (
+                                                                DateDiff
+                                                                ( 
+                                                                    MONTH, 
+                                                                    DATEADD(month,service.denda_selisih_bulan,v_tagihan_air.periode),
+                                                                    '".$periode."'
+                                                                ) 
+                                                                + 
+                                                                IIF('01'>=service.denda_tanggal_jt,1,0) 
+                                                            )
+                                                            WHEN 0 THEN 
+                                                                0
+                                                            ELSE 
+                                                                1
+                                                        END
+                                                    WHEN v_tagihan_air.denda_jenis_service = 2 THEN 
+                                                        v_tagihan_air.denda_nilai_service *
+                                                        (
+                                                            DateDiff
+                                                            ( 
+                                                                MONTH, 
+                                                                DATEADD(month,service.denda_selisih_bulan,v_tagihan_air.periode),
+                                                                '".$periode."'
+                                                            ) 
+                                                            + 
+                                                            IIF('01'>=service.denda_tanggal_jt,1,0) 
+                                                        )
+                                                    WHEN v_tagihan_air.denda_jenis_service = 3 THEN 
+                                                        (v_tagihan_air.denda_nilai_service * v_tagihan_air.total_tanpa_ppn/ 100 ) 
+                                                        * 
+                                                        (
+                                                            DateDiff
+                                                            ( 
+                                                                MONTH, 
+                                                                v_tagihan_air.periode, 
+                                                                '".$periode."' 
+                                                            ) 
+                                                            + 
+                                                            IIF('01'>=service.denda_tanggal_jt,1,0)
+                                                        )
+                                                END 
+                                        END,
+                                        0
+                                    )
+                                ) AS total
+                            FROM v_tagihan_air
+                            INNER JOIN service ON service.project_id = 4031
+                                AND service.service_jenis_id = 2
+                                AND service.active = 1
+                                AND service.[delete] = 0
+                            LEFT JOIN t_tagihan_air ON t_tagihan_air.t_tagihan_id = v_tagihan_air.t_tagihan_id
+                                AND t_tagihan_air.unit_id =  v_tagihan_air.unit_id
+                            LEFT JOIN t_pencatatan_meter_air ON t_pencatatan_meter_air.unit_id = v_tagihan_air.unit_id
+                                AND t_pencatatan_meter_air.periode = v_tagihan_air.periode
+                            LEFT JOIN t_pembayaran_detail ON t_pembayaran_detail.tagihan_service_id = t_tagihan_air.id
+                                AND t_pembayaran_detail.service_id = service.id
+                            LEFT JOIN t_pembayaran ON t_pembayaran.id = t_pembayaran_detail.t_pembayaran_id
+                                AND (
+                                    (t_pembayaran.is_void = 0 and v_tagihan_air.status_tagihan in (0,4))
+                                    or 
+                                    (t_pembayaran.is_void = 1 and v_tagihan_air.status_tagihan = 0)
+                                )
+                            WHERE v_tagihan_air.unit_id = unit.id 
+                                AND v_tagihan_air.status_tagihan IN (0, 2, 3, 4)
+                        ) temp
+                    ) AS total_tagihan
+                ")
                 ->from('unit')
                 ->join('customer','customer.id = unit.pemilik_customer_id','INNER')
                 ->join('blok','blok.id = unit.blok_id','INNER')
                 ->join('kawasan','kawasan.id = blok.kawasan_id','INNER')
                 ->join('t_tagihan_lingkungan','t_tagihan_lingkungan.unit_id = unit.id AND t_tagihan_lingkungan.status_tagihan != 1','LEFT')
+                // ->join('unit_lingkungan','t_tagihan_lingkungan.unit_id = unit_lingkungan.unit_id AND unit_lingkungan.tgl_mandiri IS NULL','INNER')
                 ->join('t_tagihan_air','t_tagihan_air.unit_id = unit.id AND t_tagihan_air.status_tagihan != 1','LEFT')
                 ->join('send_sms',"send_sms.unit_id = unit.id AND FORMAT ( send_sms.create_date, 'yyyy-MM' ) = FORMAT ( GETDATE( ), 'yyyy-MM' ) ",'LEFT')
                 ->where('unit.project_id',$project->id)
@@ -207,7 +329,7 @@ class P_kirim_konfirmasi_tagihan  extends CI_Controller
 
             $table = $this->db->get()->result();
         }
-        
+
         echo json_encode($table);
         exit();
     }
@@ -622,101 +744,244 @@ class P_kirim_konfirmasi_tagihan  extends CI_Controller
      */
     public function request_tagihan_json()
     {
-        $project = $this->m_core->project();       
+        $periode = date('Y-m-01');
+        $project = $GLOBALS['project'];
+
         $this->load->library("Ssp_custom");
+
+        $this->db->select("
+                unit.project_id,
+                customer.name AS pemilik,
+                unit.id AS unit_id,
+                kawasan.name AS kawasan,
+                blok.name AS blok,
+                unit.no_unit AS no_unit,
+                CASE
+                    unit.kirim_tagihan 
+                    WHEN 1 THEN
+                    'Pemilik' 
+                    WHEN 2 THEN
+                    'Penghuni' 
+                    WHEN 3 THEN
+                    'Keduanya' 
+                    ELSE '' 
+                END AS tujuan,
+                'Belum di kirim' AS send_email,
+                CASE
+                    COUNT ( send_sms.id ) 
+                    WHEN 0 THEN
+                    'Belum di Kirim' ELSE 'Sudah di kirim' 
+                END AS send_sms,
+                'Belum di kirim' AS send_surat,
+                (
+                    SELECT
+                        sum(temp.total) AS total
+                    FROM 
+                    (
+                        SELECT DISTINCT
+                            SUM(
+                                isnull( v_tagihan_lingkungan.total, 0 ) + 
+                                isnull(
+                                    CASE
+                                        WHEN v_tagihan_lingkungan.status_tagihan = 0 OR v_tagihan_lingkungan.status_tagihan = 2 OR v_tagihan_lingkungan.status_tagihan = 3 THEN
+                                            isnull(
+                                                CASE
+                                                    WHEN v_tagihan_lingkungan.periode <= unit_lingkungan.tgl_mulai_denda THEN
+                                                        0 
+                                                    WHEN v_tagihan_lingkungan.nilai_denda_flag = 1 THEN
+                                                        v_tagihan_lingkungan.nilai_denda 
+                                                    WHEN DATEADD( MONTH, service.denda_selisih_bulan, v_tagihan_lingkungan.periode ) > '".$periode."' THEN
+                                                        0 
+                                                    WHEN CONCAT (
+                                                        SUBSTRING ( CONVERT ( VARCHAR, v_tagihan_lingkungan.periode ), 1, 8 ),
+                                                        (
+                                                            CASE
+                                                                WHEN ( service.denda_tanggal_jt ) > 9 THEN
+                                                                    CAST ( service.denda_tanggal_jt AS VARCHAR ) 
+                                                                ELSE 
+                                                                    CONCAT ( 0, ( service.denda_tanggal_jt ) ) 
+                                                            END 
+                                                        ) 
+                                                    ) > '".$periode."' THEN
+                                                        0 
+                                                    ELSE
+                                                        CASE
+                                                            WHEN v_tagihan_lingkungan.denda_jenis_service = 1 THEN
+                                                                v_tagihan_lingkungan.denda_nilai_service 
+                                                            WHEN v_tagihan_lingkungan.denda_jenis_service = 2 THEN
+                                                                v_tagihan_lingkungan.denda_nilai_service * 
+                                                                (
+                                                                    DateDiff( MONTH, DATEADD( MONTH, service.denda_selisih_bulan, v_tagihan_lingkungan.periode ), '".$periode."' ) + IIF ( '01' >= service.denda_tanggal_jt, 1, 0 ) 
+                                                                ) 
+                                                            WHEN v_tagihan_lingkungan.denda_jenis_service = 3 THEN
+                                                                ( v_tagihan_lingkungan.denda_nilai_service * v_tagihan_lingkungan.total_tanpa_ppn/ 100 ) * 
+                                                                (
+                                                                    DateDiff( MONTH, DATEADD( MONTH, service.denda_selisih_bulan, v_tagihan_lingkungan.periode ), '".$periode."' ) + IIF ( '01' >= service.denda_tanggal_jt, 1, 0 ) 
+                                                                ) 
+                                                        END 
+                                                    END,
+                                                    0 
+                                                ) 
+                                        ELSE 0 
+                                    END,
+                                    0 
+                                )
+                            ) AS total
+                        FROM v_tagihan_lingkungan
+                        INNER JOIN service ON service.project_id = 4031
+                            AND service.service_jenis_id = 1
+                            AND service.active = 1
+                            AND service.[delete] = 0
+                        LEFT JOIN t_tagihan_lingkungan ON t_tagihan_lingkungan.t_tagihan_id = v_tagihan_lingkungan.t_tagihan_id
+                            AND t_tagihan_lingkungan.unit_id =  v_tagihan_lingkungan.unit_id
+                        LEFT JOIN t_pembayaran_detail ON t_pembayaran_detail.tagihan_service_id = t_tagihan_lingkungan.id
+                            AND t_pembayaran_detail.service_id = service.id
+                        LEFT JOIN t_pembayaran ON t_pembayaran.id = t_pembayaran_detail.t_pembayaran_id 
+                            AND (
+                                    ( 
+                                        t_pembayaran.is_void = 0 AND v_tagihan_lingkungan.status_tagihan IN ( 0, 4 ) 
+                                    ) 
+                                    OR
+                                    ( 
+                                        t_pembayaran.is_void = 1 AND v_tagihan_lingkungan.status_tagihan = 0 
+                                    ) 
+                            )
+                        INNER JOIN unit_lingkungan ON unit_lingkungan.unit_id = v_tagihan_lingkungan.unit_id
+                                        
+                        WHERE v_tagihan_lingkungan.unit_id = unit.id 
+                            AND v_tagihan_lingkungan.status_tagihan IN (0, 2, 3, 4)
+
+                        UNION ALL
+
+                        SELECT DISTINCT
+                            SUM(
+                                isnull(v_tagihan_air.total,0) + 
+                                isnull(
+                                    CASE
+                                        WHEN service.denda_flag = 0 THEN 
+                                            0
+                                        WHEN v_tagihan_air.nilai_denda_flag = 1 THEN 
+                                            v_tagihan_air.nilai_denda 
+                                        WHEN DATEADD(MONTH,service.denda_selisih_bulan,v_tagihan_air.periode) > '".$periode."' THEN 
+                                            0
+                                        WHEN CONCAT(
+                                            SUBSTRING(CONVERT(varchar, v_tagihan_air.periode), 1, 8),
+                                            (
+                                                CASE 
+                                                    WHEN (service.denda_tanggal_jt) > 9 
+                                                        THEN CAST(service.denda_tanggal_jt AS VARCHAR) 
+                                                    ELSE CONCAT(0,(service.denda_tanggal_jt)) 
+                                                END
+                                            )
+                                        ) > '".$periode."' THEN 
+                                            0
+                                        ELSE
+                                            CASE
+                                                WHEN v_tagihan_air.denda_jenis_service = 1 THEN 
+                                                    v_tagihan_air.denda_nilai_service *
+                                                    CASE (
+                                                            DateDiff
+                                                            ( 
+                                                                MONTH, 
+                                                                DATEADD(month,service.denda_selisih_bulan,v_tagihan_air.periode),
+                                                                '".$periode."'
+                                                            ) 
+                                                            + 
+                                                            IIF('01'>=service.denda_tanggal_jt,1,0) 
+                                                        )
+                                                        WHEN 0 THEN 
+                                                            0
+                                                        ELSE 
+                                                            1
+                                                    END
+                                                WHEN v_tagihan_air.denda_jenis_service = 2 THEN 
+                                                    v_tagihan_air.denda_nilai_service *
+                                                    (
+                                                        DateDiff
+                                                        ( 
+                                                            MONTH, 
+                                                            DATEADD(month,service.denda_selisih_bulan,v_tagihan_air.periode),
+                                                            '".$periode."'
+                                                        ) 
+                                                        + 
+                                                        IIF('01'>=service.denda_tanggal_jt,1,0) 
+                                                    )
+                                                WHEN v_tagihan_air.denda_jenis_service = 3 THEN 
+                                                    (v_tagihan_air.denda_nilai_service * v_tagihan_air.total_tanpa_ppn/ 100 ) 
+                                                    * 
+                                                    (
+                                                        DateDiff
+                                                        ( 
+                                                            MONTH, 
+                                                            v_tagihan_air.periode, 
+                                                            '".$periode."' 
+                                                        ) 
+                                                        + 
+                                                        IIF('01'>=service.denda_tanggal_jt,1,0)
+                                                    )
+                                            END 
+                                    END,
+                                    0
+                                )
+                            ) AS total
+                        FROM v_tagihan_air
+                        INNER JOIN service ON service.project_id = 4031
+                            AND service.service_jenis_id = 2
+                            AND service.active = 1
+                            AND service.[delete] = 0
+                        LEFT JOIN t_tagihan_air ON t_tagihan_air.t_tagihan_id = v_tagihan_air.t_tagihan_id
+                            AND t_tagihan_air.unit_id =  v_tagihan_air.unit_id
+                        LEFT JOIN t_pencatatan_meter_air ON t_pencatatan_meter_air.unit_id = v_tagihan_air.unit_id
+                            AND t_pencatatan_meter_air.periode = v_tagihan_air.periode
+                        LEFT JOIN t_pembayaran_detail ON t_pembayaran_detail.tagihan_service_id = t_tagihan_air.id
+                            AND t_pembayaran_detail.service_id = service.id
+                        LEFT JOIN t_pembayaran ON t_pembayaran.id = t_pembayaran_detail.t_pembayaran_id
+                            AND (
+                                (t_pembayaran.is_void = 0 and v_tagihan_air.status_tagihan in (0,4))
+                                or 
+                                (t_pembayaran.is_void = 1 and v_tagihan_air.status_tagihan = 0)
+                            )
+                        WHERE v_tagihan_air.unit_id = unit.id 
+                            AND v_tagihan_air.status_tagihan IN (0, 2, 3, 4)
+                    ) temp
+                ) AS total_tagihan
+            ")
+            ->from('unit')
+            ->join('customer','customer.id = unit.pemilik_customer_id','INNER')
+            ->join('blok','blok.id = unit.blok_id','INNER')
+            ->join('kawasan','kawasan.id = blok.kawasan_id','INNER')
+            ->join('t_tagihan_lingkungan','t_tagihan_lingkungan.unit_id = unit.id AND t_tagihan_lingkungan.status_tagihan != 1','LEFT')
+            // ->join('unit_lingkungan','t_tagihan_lingkungan.unit_id = unit_lingkungan.unit_id AND unit_lingkungan.tgl_mandiri IS NULL','LEFT')
+            ->join('t_tagihan_air','t_tagihan_air.unit_id = unit.id AND t_tagihan_air.status_tagihan != 1','LEFT')
+            ->join('send_sms',"send_sms.unit_id = unit.id AND FORMAT ( send_sms.create_date, 'yyyy-MM' ) = FORMAT ( GETDATE( ), 'yyyy-MM' ) ",'LEFT')
+            ->where('unit.project_id',$project->id)
+            ->group_by("
+                unit.project_id,
+                customer.name,
+                unit.id,
+                kawasan.name,
+                blok.name,
+                unit.no_unit,
+                CASE
+                    unit.kirim_tagihan 
+                    WHEN 1 THEN
+                    'Pemilik' 
+                    WHEN 2 THEN
+                    'Penghuni' 
+                    WHEN 3 THEN
+                    'Keduanya' ELSE '' 
+                END
+            ")
+            ->HAVING('SUM (IIF ( t_tagihan_lingkungan.status_tagihan IS NOT NULL, 1, 0 ) + IIF ( t_tagihan_air.status_tagihan IS NOT NULL, 1, 0 ) ) >', 0);
+
         $table = "
         (
             SELECT 
                 DISTINCT sub.*
             FROM 
                 (
-                    SELECT
-                        unit.project_id,
-                        customer.name as pemilik,
-                        unit.id AS unit_id,
-                        kawasan.name AS kawasan,
-                        blok.name AS blok,
-                        unit.no_unit AS no_unit,
-                        CASE unit.kirim_tagihan 
-                            WHEN 1 THEN 'Pemilik' 
-                            WHEN 2 THEN 'Penghuni' 
-                            WHEN 3 THEN 'Keduanya' 
-                            ELSE '' 
-                        END AS tujuan,
-                        'Belum di kirim' AS send_email,
-                        CASE COUNT ( send_sms.id ) 
-                            WHEN 0 THEN 'Belum di Kirim' ELSE 'Sudah di kirim' 
-                        END AS send_sms,
-                        'Belum di kirim' AS send_surat 
-                    FROM 
-                        unit
-                        JOIN customer ON customer.id = unit.pemilik_customer_id
-                        JOIN blok ON blok.id = unit.blok_id
-                        JOIN kawasan ON kawasan.id = blok.kawasan_id
-                        INNER JOIN t_tagihan_lingkungan ON t_tagihan_lingkungan.unit_id = unit.id AND t_tagihan_lingkungan.status_tagihan != 1
-                        INNER JOIN unit_lingkungan ON t_tagihan_lingkungan.unit_id = unit_lingkungan.unit_id AND unit_lingkungan.tgl_mandiri IS NULL
-                        LEFT JOIN send_sms ON send_sms.unit_id = unit.id AND FORMAT( send_sms.create_date, 'yyyy-MM' ) = FORMAT( GETDATE(), 'yyyy-MM' )
-                    WHERE 
-                        unit.project_id = '".$project->id."' AND 
-                        t_tagihan_lingkungan.status_tagihan IS NOT NULL
-                    GROUP BY
-                        unit.project_id,
-                        customer.name,
-                        unit.id,
-                        kawasan.name,
-                        blok.name,
-                        unit.no_unit,
-                        CASE unit.kirim_tagihan 
-                            WHEN 1 THEN 'Pemilik' 
-                            WHEN 2 THEN 'Penghuni' 
-                            WHEN 3 THEN 'Keduanya' 
-                            ELSE '' 
-                        END 
-
-                    UNION
-
-                    SELECT
-                        unit.project_id,
-                        customer.name as pemilik,
-                        unit.id AS unit_id,
-                        kawasan.name AS kawasan,
-                        blok.name AS blok,
-                        unit.no_unit AS no_unit,
-                        CASE unit.kirim_tagihan 
-                            WHEN 1 THEN 'Pemilik' 
-                            WHEN 2 THEN 'Penghuni' 
-                            WHEN 3 THEN 'Keduanya' 
-                            ELSE '' 
-                        END AS tujuan,
-                        'Belum di kirim' AS send_email,
-                        CASE COUNT ( send_sms.id ) 
-                            WHEN 0 THEN 'Belum di Kirim' ELSE 'Sudah di kirim' 
-                        END AS send_sms,
-                        'Belum di kirim' AS send_surat 
-                    FROM 
-                        unit
-                        JOIN customer ON customer.id = unit.pemilik_customer_id
-                        JOIN blok ON blok.id = unit.blok_id
-                        JOIN kawasan ON kawasan.id = blok.kawasan_id
-                        INNER JOIN t_tagihan_air ON t_tagihan_air.unit_id = unit.id AND t_tagihan_air.status_tagihan != 1
-                        LEFT JOIN send_sms ON send_sms.unit_id = unit.id AND FORMAT( send_sms.create_date, 'yyyy-MM' ) = FORMAT( GETDATE(), 'yyyy-MM' )
-                    WHERE 
-                        unit.project_id = '".$project->id."' AND 
-                        t_tagihan_air.status_tagihan IS NOT NULL 
-                    GROUP BY
-                        unit.project_id,
-                        customer.name,
-                        unit.id,
-                        kawasan.name,
-                        blok.name,
-                        unit.no_unit,
-                        CASE unit.kirim_tagihan 
-                            WHEN 1 THEN 'Pemilik' 
-                            WHEN 2 THEN 'Penghuni' 
-                            WHEN 3 THEN 'Keduanya' 
-                            ELSE '' 
-                        END 
-                ) AS sub
+                    ".$this->db->get_compiled_select()."
+                ) sub
         ) temp
         ";
 
@@ -731,6 +996,7 @@ class P_kirim_konfirmasi_tagihan  extends CI_Controller
             array('db' => 'send_email', 'dt' => 6),
             array('db' => 'send_sms',   'dt' => 7),
             array('db' => 'send_surat', 'dt' => 8),
+            array('db' => 'total_tagihan', 'dt' => 10),
         );
         $sql_details = array(
             'user' => $this->db->username,
@@ -743,6 +1009,7 @@ class P_kirim_konfirmasi_tagihan  extends CI_Controller
         {
             $table["data"][$key][0]  = "<center><input name='unit_id[]' type='checkbox' class='flat table-check' value='$value[0]' style='cursor: pointer;'></center>";
             $table['data'][$key][9]  = '';
+            $table['data'][$key][10]  = nominal($table['data'][$key][10],"RP. ",0, ",");
         }
 
         echo(json_encode($table));

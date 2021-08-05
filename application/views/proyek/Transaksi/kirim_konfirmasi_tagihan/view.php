@@ -51,6 +51,7 @@ defined('BASEPATH') or exit('No direct script access allowed');
                     <th>SMS</th>
                     <th>Surat</th>
                     <th class="hidden">Dokumen Downloaded</th>
+                    <th>Total Tagihan</th>
                 </tr>
             </tfoot>
 			<thead>
@@ -66,8 +67,8 @@ defined('BASEPATH') or exit('No direct script access allowed');
 					<th>Email</th>
 					<th>SMS</th>
 					<th>Surat</th>
-					<!-- <th class="no-sort">Dokumen Live</th> -->
 					<th class="no-sort">Dokumen Downloaded</th>
+                    <th>Total Tagihan</th>
 				</tr>
 			</thead>
 			<tbody id="load_data"></tbody>
@@ -287,6 +288,22 @@ defined('BASEPATH') or exit('No direct script access allowed');
             });*/
         }
     });
+    function formatRupiah(angka, prefix){
+		var number_string = angka.toString(),
+		split   		= number_string.split(','),
+		sisa     		= split[0].length % 3,
+		rupiah     		= split[0].substr(0, sisa),
+		ribuan     		= split[0].substr(sisa).match(/\d{3}/gi);
+
+		// tambahkan titik jika yang di input sudah menjadi angka ribuan
+		if(ribuan){
+			separator = sisa ? '.' : '';
+			rupiah += separator + ribuan.join('.');
+		}
+
+		rupiah = split[1] != undefined ? rupiah + ',' + split[1] : rupiah;
+		return prefix == undefined ? rupiah : (rupiah ? 'Rp. ' + rupiah : '');
+	}
 
     $(document).on('click', '#print-data', function(e){
 		var checkedValues = $('#tableDTServerSite tbody input:checkbox:checked').map(function(){
@@ -319,6 +336,7 @@ defined('BASEPATH') or exit('No direct script access allowed');
                                         <th style="text-align: center;">Email</th>\
                                         <th style="text-align: center;">SMS</th>\
                                         <th style="text-align: center;">Surat</th>\
+                                        <th style="text-align: center;">Total Tagihan</th>\
                                     </tr>\
                                 </thead>\
                                 <tbody>\
@@ -335,6 +353,7 @@ defined('BASEPATH') or exit('No direct script access allowed');
 								<td>'+data[i]['send_email']+'</td>\
 								<td>'+data[i]['send_sms']+'</td>\
 								<td>'+data[i]['send_surat']+'</td>\
+								<td>'+data[i]['total_tagihan']+'</td>\
 							</tr>';
 						}
 						print_content += '</tbody></table>';
