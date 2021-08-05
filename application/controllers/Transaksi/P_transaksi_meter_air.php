@@ -181,6 +181,52 @@ class P_transaksi_meter_air extends CI_Controller {
 			echo json_encode($this->m_meter_air->ajax_save_meter($el->meter_akhir,$periode,$el->unit_id));
 		}
 	}
+	public function auto_generate_new($project_id,$periode){
+		$t_pencatatan_meter_air = $this->db
+            ->select('t_pencatatan_meter_air.*,k.name AS k_name,b.name AS b_name,unit.no_unit,ua.aktif AS ua_aktif,ua.id AS ua_id,ua.sub_gol_id')
+			->from('t_pencatatan_meter_air')
+			->join('unit','unit.id = t_pencatatan_meter_air.unit_id')
+			->join('unit_air ua','ua.unit_id = unit.id AND ua.aktif = 1','LEFT')
+			->join('blok b','b.id = unit.blok_id','INNER')
+			->join('kawasan k','k.id = b.kawasan_id','INNER')
+			->join('t_tagihan_air', 't_tagihan_air.periode=t_pencatatan_meter_air.periode AND t_tagihan_air.unit_id=t_pencatatan_meter_air.unit_id', 'LEFT')
+			->where("unit.project_id",$project_id)
+			->where("t_pencatatan_meter_air.periode", $periode)
+			->where("t_tagihan_air.id is null")
+			->get()
+            ->result();
+
+		$periode = explode('-',$periode);
+		$periode = $periode[1].'-'.$periode[0];
+		foreach ($t_pencatatan_meter_air as $ind => $el) {
+			echo "Proces Unit : (".$el->unit_id.") ".$el->k_name." / ".$el->b_name." / ".$el->no_unit."<br/>";
+			echo "Periode : ".$el->periode."<br/>";
+			echo "Meter Awal : ".$el->meter_awal."<br/>";
+			echo "Meter Akhir : ".$el->meter_akhir."<br/>";
+			echo "Keterangan : ".$el->keterangan."<br/>";
+			echo "Create By (ID) : ".$el->create_user_id."<br/>";
+			if ($el->ua_id) {
+				if ($el->sub_gol_id) {
+					$res = $this->m_meter_air->ajax_save_meter($el->meter_akhir,$periode,$el->unit_id);
+					if ($res->status) {
+						echo "Status : Success!, ".$res->message."<br/>";
+					} else {
+						echo "Status : Failed!, ".$res->message."<br/>";
+					}
+				} else {
+					echo "Status : Error!, Sub golongan untuk unit Air todak valid!<br/>";
+				}
+			} else {
+				echo "Status : Error!, Unit Air Belum di Seting!<br/>";
+			}
+
+			echo '<hr/>';
+		}
+		if (!count($t_pencatatan_meter_air)) {
+			echo "Semua data telah selesai diproses sebelumnya!<br/>";
+		}
+		echo "Selesai";
+	}
 
     public function sync_unit()
     {
