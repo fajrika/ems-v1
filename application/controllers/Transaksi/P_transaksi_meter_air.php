@@ -206,15 +206,19 @@ class P_transaksi_meter_air extends CI_Controller {
 			echo "Keterangan : ".$el->keterangan."<br/>";
 			echo "Create By (ID) : ".$el->create_user_id."<br/>";
 			if ($el->ua_id) {
-				if ($el->sub_gol_id) {
-					$res = $this->m_meter_air->ajax_save_meter($el->meter_akhir,$periode,$el->unit_id);
-					if ($res->status) {
-						echo "Status : Success!, ".$res->message."<br/>";
+				if ($el->ua_aktif) {
+					if ($el->sub_gol_id) {
+						$res = $this->m_meter_air->ajax_save_meter($el->meter_akhir,$periode,$el->unit_id);
+						if ($res->status) {
+							echo "Status : Success!, ".$res->message."<br/>";
+						} else {
+							echo "Status : Failed!, ".$res->message."<br/>";
+						}
 					} else {
-						echo "Status : Failed!, ".$res->message."<br/>";
+						echo "Status : Error!, Sub golongan untuk unit Air tidak valid!<br/>";
 					}
 				} else {
-					echo "Status : Error!, Sub golongan untuk unit Air todak valid!<br/>";
+					echo "Status : Failed!, Unit Air tidak aktif!<br/>";
 				}
 			} else {
 				echo "Status : Error!, Unit Air Belum di Seting!<br/>";
