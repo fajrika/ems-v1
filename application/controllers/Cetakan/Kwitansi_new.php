@@ -50,7 +50,7 @@ class Kwitansi_new extends CI_Controller
             'link_print' => site_url("cetakan/Kwitansi_new/all/$pembayaran_id")
         ));
     }
-
+    
     public function all($pembayaran_id)
     {
         $pembayaran = $this->db->from("t_pembayaran")->where('id', $pembayaran_id)->get()->row();
@@ -108,17 +108,34 @@ class Kwitansi_new extends CI_Controller
 
         $pembayaran_detail_ipl->raw = $this->db
             ->select('
-                *, 
-                (
-                    t_tagihan_lingkungan_detail.nilai_bangunan 
+                t_tagihan_lingkungan.id,
+                t_tagihan_lingkungan.periode,
+                t_pembayaran_detail.is_tunggakan,
+                t_pembayaran_detail.nilai_diskon,
+                CASE t_pembayaran_detail.is_tunggakan
+                    WHEN 1 THEN (
+                        SELECT t_pembayaran_detail_tunggakan.sisa_tagihan
+                        FROM t_pembayaran_detail AS t_pembayaran_detail_tunggakan
+                        WHERE t_pembayaran_detail.tagihan_service_id = t_pembayaran_detail_tunggakan.tagihan_service_id
+                            AND t_pembayaran_detail.service_id = t_pembayaran_detail_tunggakan.service_id
+                        ORDER BY t_pembayaran_detail_tunggakan.id DESC
+                        OFFSET 1 ROWS
+                        FETCH NEXT 1 ROWS ONLY
+                    )
+                    ELSE 0
+                END AS nilai_tunggakan,
+                ISNULL(t_pembayaran_detail.nilai_terbayar, 0) AS nilai_terbayar,
+                t_pembayaran_detail.bayar,
+                t_pembayaran_detail.bayar_deposit,
+                ( t_tagihan_lingkungan_detail.nilai_bangunan 
                     + t_tagihan_lingkungan_detail.nilai_kavling 
                     + t_tagihan_lingkungan_detail.nilai_administrasi 
                     + t_tagihan_lingkungan_detail.nilai_keamanan 
-                    + t_tagihan_lingkungan_detail.nilai_kebersihan
+                    + t_tagihan_lingkungan_detail.nilai_kebersihan 
                 ) AS nilai_pokok,
-                ISNULL(t_tagihan_lingkungan_detail.nilai_ppn, 0) AS nilai_ppn,
-                ISNULL(t_tagihan_lingkungan_detail.ppn_flag,0) AS ppn_flag,
-                t_pembayaran_detail.nilai_denda AS nilai_denda_ipl
+                ISNULL( t_tagihan_lingkungan_detail.nilai_ppn, 0 ) AS nilai_ppn,
+                ISNULL( t_tagihan_lingkungan_detail.ppn_flag, 0 ) AS ppn_flag,
+                t_pembayaran_detail.nilai_denda AS nilai_denda_ipl 
             ')
             ->from("t_pembayaran_detail")
             ->join(
@@ -140,8 +157,13 @@ class Kwitansi_new extends CI_Controller
 
         $tmp = (object)['total_pokok' => 0, 'total_ppn' => 0, 'total_tagihan' => 0, 'total_denda' => 0, 'total_diskon' => 0, 'total_terbayar_sebelum' => 0, 'total_terbayar_saat_ini' => 0];
         foreach ($pembayaran_detail_ipl->raw as $ind => $el) {
-            $tmp->total_pokok += $el->nilai_pokok;
-            $tmp->total_tagihan += round($el->nilai_pokok + (($el->nilai_pokok * $el->nilai_ppn / 100) * $el->ppn_flag));
+            if ($el->is_tunggakan) {
+                $tmp->total_pokok += ($el->nilai_tunggakan / ( 1 + ($el->ppn_flag * ($el->nilai_ppn/100))));
+                $tmp->total_tagihan += $el->nilai_tunggakan;
+            } else {
+                $tmp->total_pokok += $el->nilai_pokok;
+                $tmp->total_tagihan += round($el->nilai_pokok + (($el->nilai_pokok * $el->nilai_ppn / 100) * $el->ppn_flag));
+            }
             $tmp->total_denda += $el->nilai_denda_ipl;
             $tmp->total_diskon += $el->nilai_diskon;
             $tmp->total_terbayar_sebelum += $el->nilai_terbayar;
@@ -153,11 +175,34 @@ class Kwitansi_new extends CI_Controller
         $pembayaran_detail_air = (object)[];
         $pembayaran_detail_air->raw = $this->db
             ->select('
-                *, 
-                (t_tagihan_air_detail.nilai + t_tagihan_air_detail.nilai_administrasi + t_tagihan_air_detail.nilai_pemeliharaan) AS nilai_pokok,
-                ISNULL(t_tagihan_air_detail.nilai_ppn,0) AS nilai_ppn,
-                ISNULL(t_tagihan_air_detail.ppn_flag,0) AS ppn_flag,
-                t_pembayaran_detail.nilai_denda AS nilai_denda_air
+                t_tagihan_air.id,
+                t_tagihan_air.periode,
+                t_pembayaran_detail.is_tunggakan,
+                t_pembayaran_detail.nilai_diskon,
+                CASE t_pembayaran_detail.is_tunggakan
+                        WHEN 1 THEN (
+                                SELECT t_pembayaran_detail_tunggakan.sisa_tagihan
+                                FROM t_pembayaran_detail AS t_pembayaran_detail_tunggakan
+                                WHERE t_pembayaran_detail.tagihan_service_id = t_pembayaran_detail_tunggakan.tagihan_service_id
+                                        AND t_pembayaran_detail.service_id = t_pembayaran_detail_tunggakan.service_id
+                                ORDER BY t_pembayaran_detail_tunggakan.id DESC
+                                OFFSET 1 ROWS
+                                FETCH NEXT 1 ROWS ONLY
+                        )
+                        ELSE 0
+                END AS nilai_tunggakan,
+                ISNULL(t_pembayaran_detail.nilai_terbayar, 0) AS nilai_terbayar,
+                t_pembayaran_detail.bayar,
+                t_pembayaran_detail.bayar_deposit,
+                ( t_tagihan_air_detail.nilai 
+                        + t_tagihan_air_detail.nilai_administrasi 
+                        + t_tagihan_air_detail.nilai_pemeliharaan
+                ) AS nilai_pokok,
+                ISNULL( t_tagihan_air_detail.nilai_ppn, 0 ) AS nilai_ppn,
+                ISNULL( t_tagihan_air_detail.ppn_flag, 0 ) AS ppn_flag,
+                t_pembayaran_detail.nilai_denda AS nilai_denda_air,
+                t_pencatatan_meter_air.meter_awal,
+                t_pencatatan_meter_air.meter_akhir
             ')
             ->from("t_pembayaran_detail")
             ->join(
@@ -174,19 +219,24 @@ class Kwitansi_new extends CI_Controller
             )
             ->where('service.service_jenis_id', 2)
             ->where('t_pembayaran_detail.t_pembayaran_id', $pembayaran_id)
-            ->order_by('t_tagihan_air.periode')
             ->join(
                 "t_pencatatan_meter_air",
                 "t_pencatatan_meter_air.periode = t_tagihan_air.periode 
                     AND t_pencatatan_meter_air.unit_id = t_tagihan_air.unit_id"
             )
+            ->order_by('t_tagihan_air.periode')
             ->get()->result();
 
 
         $tmp = (object)['total_pokok' => 0, 'total_ppn' => 0, 'total_tagihan' => 0, 'total_denda' => 0, 'total_diskon' => 0, 'total_terbayar_sebelum' => 0, 'total_terbayar_saat_ini' => 0];
         foreach ($pembayaran_detail_air->raw as $ind => $el) {
-            $tmp->total_pokok += $el->nilai_pokok;
-            $tmp->total_tagihan += $el->nilai_pokok + (($el->nilai_pokok * $el->nilai_ppn / 100) * $el->ppn_flag);
+            if ($el->is_tunggakan) {
+                $tmp->total_pokok += ($el->nilai_tunggakan / ( 1 + ($el->ppn_flag * ($el->nilai_ppn/100))));
+                $tmp->total_tagihan += $el->nilai_tunggakan;
+            } else {
+                $tmp->total_pokok += $el->nilai_pokok;
+                $tmp->total_tagihan += round($el->nilai_pokok + (($el->nilai_pokok * $el->nilai_ppn / 100) * $el->ppn_flag));
+            }
             $tmp->total_denda += $el->nilai_denda_air;
             $tmp->total_diskon += $el->nilai_diskon;
             $tmp->total_terbayar_sebelum += $el->nilai_terbayar;
@@ -204,23 +254,33 @@ class Kwitansi_new extends CI_Controller
         //     ->get()
         //     ->result();
 
-        $pembayaran_detail_ll = $this->db->query("
-            SELECT
-                t_pembayaran_detail.*,
-                t_tagihan_layanan_lain.*,
-                CONVERT(INT, ROUND((t_pembayaran_detail.nilai_tagihan) * (t_pembayaran_detail.nilai_ppn / 100.0), 0)) AS nilai_ppn_lainnya,
+        $pembayaran_detail_ll = $this->db
+            ->select('
+                t_pembayaran_detail.id,
+                t_pembayaran_detail.nilai_tagihan,
+                t_pembayaran_detail.nilai_denda,
+                t_pembayaran_detail.nilai_diskon,
+                CONVERT ( INT, ROUND( ( t_pembayaran_detail.nilai_tagihan ) * ( t_pembayaran_detail.nilai_ppn / 100.0 ), 0 ) ) AS nilai_ppn_lainnya,
                 service.name,
                 t_layanan_lain_registrasi_detail.periode_awal,
-                t_layanan_lain_registrasi_detail.periode_akhir
-            FROM
-                t_pembayaran_detail
-                INNER JOIN t_tagihan_layanan_lain ON t_tagihan_layanan_lain.id = t_pembayaran_detail.tagihan_service_id
-                INNER JOIN t_layanan_lain_registrasi_detail ON t_tagihan_layanan_lain.t_layanan_lain_registrasi_id = t_layanan_lain_registrasi_detail.t_layanan_lain_registrasi_id
-                INNER JOIN service ON service.id = t_pembayaran_detail.service_id AND service.active = 1
-            WHERE 1=1
-                AND service.service_jenis_id = '6'
-                AND t_pembayaran_detail.t_pembayaran_id = '".$pembayaran_id."'
-        ")->result();
+                t_layanan_lain_registrasi_detail.periode_akhir 
+            ')
+            ->from("t_pembayaran_detail")
+            ->join(
+                't_tagihan_layanan_lain',
+                't_tagihan_layanan_lain.id = t_pembayaran_detail.tagihan_service_id'
+            )
+            ->join(
+                't_layanan_lain_registrasi_detail',
+                't_tagihan_layanan_lain.t_layanan_lain_registrasi_id = t_layanan_lain_registrasi_detail.t_layanan_lain_registrasi_id'
+            )
+            ->join(
+                'service',
+                'service.id = t_pembayaran_detail.service_id AND service.active = 1'
+            )
+            ->where('service.service_jenis_id', 6)
+            ->where('t_pembayaran_detail.t_pembayaran_id', $pembayaran_id)
+            ->get()->result();
 
         $user = $this->m_parameter_project->get($GLOBALS['project']->id, "pj_kwitansi");
         $user = str_replace("{{user_login}}", $this->session->userdata('name'), $user);
@@ -229,35 +289,40 @@ class Kwitansi_new extends CI_Controller
 
         $this->load->library('pdf');
 
-        $sql_saldo_deposit = "
-            SELECT
-                SUM(t_deposit_detail.nilai) AS nilai 
-            FROM
-                t_pembayaran
-                INNER JOIN unit ON t_pembayaran.unit_id = unit.id
-                INNER JOIN t_deposit ON unit.pemilik_customer_id = t_deposit.customer_id
-                INNER JOIN t_deposit_detail ON t_deposit_detail.t_deposit_id = t_deposit.id
-            WHERE 1=1
-                AND t_pembayaran.id = '".$pembayaran_id."'
-                AND t_deposit.customer_id = '".$unit->pemilik_customer_id."'
-                AND t_deposit.project_id = '".$GLOBALS['project']->id."'
-            ";
-        $sql_saldo_deposit = $this->db->query($sql_saldo_deposit);
+        $sql_saldo_deposit = $this->db
+            ->select('
+                SUM(t_deposit_detail.nilai) AS nilai
+            ')
+            ->from("t_pembayaran")
+            ->join(
+                'unit',
+                't_pembayaran.unit_id = unit.id'
+            )
+            ->join(
+                't_deposit',
+                'unit.pemilik_customer_id = t_deposit.customer_id'
+            )
+            ->join(
+                't_deposit_detail',
+                't_deposit_detail.t_deposit_id = t_deposit.id'
+            )
+            ->where('t_pembayaran.id', $pembayaran_id)
+            ->where('t_deposit.customer_id', $unit->pemilik_customer_id)
+            ->where('t_deposit.project_id', $GLOBALS['project']->id)
+            ->get();
         if ($sql_saldo_deposit->num_rows() > 0) {
             $sisa_deposit = number_format($sql_saldo_deposit->row()->nilai, 0, ",", ".");
         } else {
             $sisa_deposit = 0;
         }
 
-        $pemakaian_deposit = "
-            SELECT
-                SUM(t_pembayaran_detail.bayar_deposit) AS nilai 
-            FROM
-                t_pembayaran_detail
-            WHERE 1=1
-                AND t_pembayaran_detail.t_pembayaran_id = '".$pembayaran_id."'
-            ";
-        $pemakaian_deposit = $this->db->query($pemakaian_deposit);
+        $pemakaian_deposit = $this->db
+            ->select('
+                SUM(t_pembayaran_detail.bayar_deposit) AS nilai
+            ')
+            ->from("t_pembayaran_detail")
+            ->where('t_pembayaran_detail.t_pembayaran_id', $pembayaran_id)
+            ->get();
         if ($pemakaian_deposit->num_rows() > 0) {
             $pemakaian_deposit = number_format($pemakaian_deposit->row()->nilai, 0, ",", ".");
         } else {
