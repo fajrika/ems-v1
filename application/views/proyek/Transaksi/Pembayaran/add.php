@@ -890,7 +890,7 @@ defined('BASEPATH') or exit('No direct script access allowed');
 							v.belum_bayar +
 							0 -
 							(v.view_pemutihan_nilai_tagihan + v.view_pemutihan_nilai_denda);
-						total += v.nilai_tagihan + v.nilai_denda + v.belum_bayar + 0 - (v.view_pemutihan_nilai_tagihan + v.view_pemutihan_nilai_denda);
+						total += (v.belum_bayar??v.nilai_tagihan) + v.nilai_denda + 0 - (v.view_pemutihan_nilai_tagihan + v.view_pemutihan_nilai_denda);
 						sisa_tagihan = v.nilai_tagihan - v.view_pemutihan_nilai_tagihan;
 						sisa_denda = v.nilai_denda - v.view_pemutihan_nilai_denda;
 						var tmp1 = '';
@@ -1023,7 +1023,7 @@ defined('BASEPATH') or exit('No direct script access allowed');
 							v.belum_bayar +
 							0 -
 							(v.view_pemutihan_nilai_tagihan + v.view_pemutihan_nilai_denda);
-						total += v.nilai_tagihan + v.nilai_denda + v.belum_bayar + 0 - (v.view_pemutihan_nilai_tagihan + v.view_pemutihan_nilai_denda);
+						total += (v.belum_bayar??v.nilai_tagihan) + v.nilai_denda + 0 - (v.view_pemutihan_nilai_tagihan + v.view_pemutihan_nilai_denda);
 						sisa_tagihan = v.nilai_tagihan - v.view_pemutihan_nilai_tagihan;
 						sisa_denda = v.nilai_denda - v.view_pemutihan_nilai_denda;
 						var tmp1 = '';
